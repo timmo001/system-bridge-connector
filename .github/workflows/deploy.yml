@@ -16,5 +16,5 @@ jobs:
       PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
       PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     with:
-      module-name: systembridgecli
+      module-name: systembridgeconnector
       use-incremental: true
