@@ -1,25 +1,4 @@
 """System Bridge Connector: Constants"""
-from .models.battery import Battery
-from .models.cpu import Cpu
-from .models.data import Data
-from .models.disk import Disk
-from .models.display import Display
-from .models.generic import Generic
-from .models.gpu import Gpu
-from .models.keyboard_key import KeyboardKey
-from .models.keyboard_text import KeyboardText
-from .models.media import Media
-from .models.media_directories import MediaDirectories
-from .models.media_files import File, MediaFiles
-from .models.memory import Memory
-from .models.network import Network
-from .models.notification import Notification
-from .models.open_path import OpenPath
-from .models.open_url import OpenUrl
-from .models.response import Response
-from .models.sensors import Sensors
-from .models.system import System
-
 # Settings
 SETTING_ADDITIONAL_MEDIA_DIRECTORIES = "additional_media_directories"
 SETTING_AUTOSTART = "autostart"
@@ -142,52 +121,3 @@ TYPE_UNREGISTER_DATA_LISTENER = "UNREGISTER_DATA_LISTENER"
 TYPE_UPDATE_REMOTE_BRIDGE = "UPDATE_REMOTE_BRIDGE"
 TYPE_UPDATE_REMOTE_BRIDGE_RESULT = "UPDATE_REMOTE_BRIDGE_RESULT"
 TYPE_UPDATE_SETTING = "UPDATE_SETTING"
-
-# Model
-MODEL_BATTERY = "battery"
-MODEL_CPU = "cpu"
-MODEL_DATA = "data"
-MODEL_DISK = "disk"
-MODEL_DISPLAY = "display"
-MODEL_GENERIC = "generic"
-MODEL_GPU = "gpu"
-MODEL_KEYBOARD_KEY = "keyboard_key"
-MODEL_KEYBOARD_TEXT = "keyboard_text"
-MODEL_MEDIA_DIRECTORIES = "media_directories"
-MODEL_MEDIA_FILE = "media_file"
-MODEL_MEDIA_FILES = "media_files"
-MODEL_MEDIA = "media"
-MODEL_MEMORY = "memory"
-MODEL_NETWORK = "network"
-MODEL_NOTIFICATION = "notification"
-MODEL_OPEN_PATH = "open_path"
-MODEL_OPEN_URL = "open_url"
-MODEL_RESPONSE = "response"
-MODEL_SECRETS = "secrets"
-MODEL_SENSORS = "sensors"
-MODEL_SETTINGS = "settings"
-MODEL_SYSTEM = "system"
-
-MODEL_MAP = {
-    MODEL_BATTERY: Battery,
-    MODEL_CPU: Cpu,
-    MODEL_DATA: Data,
-    MODEL_DISK: Disk,
-    MODEL_DISPLAY: Display,
-    MODEL_GENERIC: Generic,
-    MODEL_GPU: Gpu,
-    MODEL_KEYBOARD_KEY: KeyboardKey,
-    MODEL_KEYBOARD_TEXT: KeyboardText,
-    MODEL_MEDIA_DIRECTORIES: MediaDirectories,
-    MODEL_MEDIA_FILE: File,
-    MODEL_MEDIA_FILES: MediaFiles,
-    MODEL_MEDIA: Media,
-    MODEL_MEMORY: Memory,
-    MODEL_NETWORK: Network,
-    MODEL_NOTIFICATION: Notification,
-    MODEL_OPEN_PATH: OpenPath,
-    MODEL_OPEN_URL: OpenUrl,
-    MODEL_RESPONSE: Response,
-    MODEL_SENSORS: Sensors,
-    MODEL_SYSTEM: System,
-}

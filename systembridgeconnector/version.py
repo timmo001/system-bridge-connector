@@ -5,11 +5,11 @@ from typing import Optional
 
 from aiohttp import ClientSession
 from pkg_resources import parse_version
+from systembridgemodels.system import System
 
 from .base import Base
 from .exceptions import ConnectionErrorException
 from .http_client import HTTPClient
-from .models.system import System
 
 SUPPORTED_VERSION = "3.1.2"
 

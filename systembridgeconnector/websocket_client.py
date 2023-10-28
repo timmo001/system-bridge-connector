@@ -8,6 +8,23 @@ from typing import Any, Optional
 from uuid import uuid4
 
 import aiohttp
+from systembridgemodels.const import MODEL_MAP, MODEL_RESPONSE
+from systembridgemodels.get_data import GetData
+from systembridgemodels.keyboard_key import KeyboardKey
+from systembridgemodels.keyboard_text import KeyboardText
+from systembridgemodels.media_control import MediaControl
+from systembridgemodels.media_directories import MediaDirectories
+from systembridgemodels.media_files import File as MediaFile
+from systembridgemodels.media_files import MediaFiles
+from systembridgemodels.media_get_file import MediaGetFile
+from systembridgemodels.media_get_files import MediaGetFiles
+from systembridgemodels.notification import Notification
+from systembridgemodels.open_path import OpenPath
+from systembridgemodels.open_url import OpenUrl
+from systembridgemodels.register_data_listener import RegisterDataListener
+from systembridgemodels.request import Request
+from systembridgemodels.response import Response
+from systembridgemodels.update import Update
 
 from .base import Base
 from .const import (
@@ -19,8 +36,6 @@ from .const import (
     EVENT_MODULE,
     EVENT_SUBTYPE,
     EVENT_TYPE,
-    MODEL_MAP,
-    MODEL_RESPONSE,
     SUBTYPE_BAD_API_KEY,
     SUBTYPE_LISTENER_ALREADY_REGISTERED,
     TYPE_APPLICATION_UPDATE,
@@ -50,22 +65,6 @@ from .exceptions import (
     ConnectionClosedException,
     ConnectionErrorException,
 )
-from .models.get_data import GetData
-from .models.keyboard_key import KeyboardKey
-from .models.keyboard_text import KeyboardText
-from .models.media_control import MediaControl
-from .models.media_directories import MediaDirectories
-from .models.media_files import File as MediaFile
-from .models.media_files import MediaFiles
-from .models.media_get_file import MediaGetFile
-from .models.media_get_files import MediaGetFiles
-from .models.notification import Notification
-from .models.open_path import OpenPath
-from .models.open_url import OpenUrl
-from .models.register_data_listener import RegisterDataListener
-from .models.request import Request
-from .models.response import Response
-from .models.update import Update
 
 
 class WebSocketClient(Base):
