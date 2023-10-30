@@ -1,4 +1,4 @@
 aiohttp>=3.9.0b0;python_version>='3.12'
 aiohttp>=3.8.6;python_version<'3.12'
 incremental>=22.10.0
-systembridgemodels===3.9.2
+systembridgemodels===3.9.3
