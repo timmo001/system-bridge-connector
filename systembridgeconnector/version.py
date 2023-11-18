@@ -1,8 +1,6 @@
 """System Bridge Connector: Version"""
 from __future__ import annotations
 
-from typing import Optional
-
 from aiohttp import ClientSession
 from pkg_resources import parse_version
 from systembridgemodels.system import System
@@ -22,7 +20,7 @@ class Version(Base):
         api_host: str,
         api_port: int,
         api_key: str,
-        session: Optional[ClientSession] = None,
+        session: ClientSession | None = None,
     ) -> None:
         """Initialize the client."""
         super().__init__()
@@ -42,7 +40,7 @@ class Version(Base):
             return parse_version(version) >= parse_version(SUPPORTED_VERSION)
         return False
 
-    async def check_version_2(self) -> Optional[str]:
+    async def check_version_2(self) -> str | None:
         """Check if the system is running v2.x.x version."""
         try:
             information = await self._http_client.get("/information")
@@ -65,7 +63,7 @@ class Version(Base):
             raise exception
         return None
 
-    async def check_version_3(self) -> Optional[str]:
+    async def check_version_3(self) -> str | None:
         """Check if the system is running v3.x.x version."""
         try:
             response = await self._http_client.get("/api/data/system")
