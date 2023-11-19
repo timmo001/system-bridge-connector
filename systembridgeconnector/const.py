@@ -23,7 +23,7 @@ QUERY_URL = "url"
 QUERY_VOLUME = "volume"
 
 # Event Keys
-EVENT_TOKEN = "api-key"
+EVENT_TOKEN = "token"
 EVENT_APP_ICON = "app_icon"
 EVENT_APP_NAME = "app_name"
 EVENT_BASE = "base"

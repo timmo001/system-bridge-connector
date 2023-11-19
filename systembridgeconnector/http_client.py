@@ -42,7 +42,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._token,
+                "token": self._token,
             },
             json=payload,
         )
@@ -58,7 +58,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._token,
+                "token": self._token,
             },
         )
         if "application/json" in response.headers.get("Content-Type", ""):
@@ -76,7 +76,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._token,
+                "token": self._token,
             },
             json=payload,
         )
@@ -93,7 +93,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._token,
+                "token": self._token,
             },
             json=payload,
         )
