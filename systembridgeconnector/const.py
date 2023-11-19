@@ -1,17 +1,6 @@
 """System Bridge Connector: Constants"""
-# Settings
-SETTING_ADDITIONAL_MEDIA_DIRECTORIES = "additional_media_directories"
-SETTING_AUTOSTART = "autostart"
-SETTING_KEYBOARD_HOTKEYS = "keyboard_hotkeys"
-SETTING_LOG_LEVEL = "log_level"
-SETTING_PORT_API = "port_api"
-
-# Secrets
-SECRET_TOKEN = "token"
-
 # Query Parameters
 QUERY_ALBUM = "album"
-QUERY_TOKEN = "token"
 QUERY_API_PORT = "apiPort"
 QUERY_ARTIST = "artist"
 QUERY_AUTOPLAY = "autoplay"
@@ -19,11 +8,11 @@ QUERY_BASE = "base"
 QUERY_FILENAME = "filename"
 QUERY_PATH = "path"
 QUERY_TITLE = "title"
+QUERY_TOKEN = "token"
 QUERY_URL = "url"
 QUERY_VOLUME = "volume"
 
 # Event Keys
-EVENT_TOKEN = "token"
 EVENT_APP_ICON = "app_icon"
 EVENT_APP_NAME = "app_name"
 EVENT_BASE = "base"
@@ -44,6 +33,7 @@ EVENT_SUBTYPE = "subtype"
 EVENT_TEXT = "text"
 EVENT_TIMEOUT = "timeout"
 EVENT_TITLE = "title"
+EVENT_TOKEN = "token"
 EVENT_TYPE = "type"
 EVENT_URL = "url"
 EVENT_VALUE = "value"
