@@ -22,7 +22,7 @@ class Version(Base):
         api_key: str,
         session: ClientSession | None = None,
     ) -> None:
-        """Initialize the client."""
+        """Initialise the client."""
         super().__init__()
         self._http_client = HTTPClient(
             api_host,

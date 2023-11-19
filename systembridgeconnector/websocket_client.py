@@ -76,7 +76,7 @@ class WebSocketClient(Base):
         api_port: int,
         api_key: str,
     ) -> None:
-        """Initialize"""
+        """Initialise"""
         super().__init__()
         self._api_host = api_host
         self._api_port = api_port

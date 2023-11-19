@@ -25,7 +25,7 @@ class HTTPClient(Base):
         api_key: str,
         session: ClientSession | None = None,
     ) -> None:
-        """Initialize the client."""
+        """Initialise the client."""
         super().__init__()
         self._api_key = api_key
         self._base_url = f"http://{api_host}:{api_port}"
