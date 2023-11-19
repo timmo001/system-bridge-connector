@@ -19,7 +19,7 @@ class Version(Base):
         self,
         api_host: str,
         api_port: int,
-        api_key: str,
+        token: str,
         session: ClientSession | None = None,
     ) -> None:
         """Initialise the client."""
@@ -27,7 +27,7 @@ class Version(Base):
         self._http_client = HTTPClient(
             api_host,
             api_port,
-            api_key,
+            token,
             session,
         )
 

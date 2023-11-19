@@ -22,12 +22,12 @@ class HTTPClient(Base):
         self,
         api_host: str,
         api_port: int,
-        api_key: str,
+        token: str,
         session: ClientSession | None = None,
     ) -> None:
         """Initialise the client."""
         super().__init__()
-        self._api_key = api_key
+        self._token = token
         self._base_url = f"http://{api_host}:{api_port}"
         self._session = session if session else ClientSession()
 
@@ -42,7 +42,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._api_key,
+                "api-key": self._token,
             },
             json=payload,
         )
@@ -58,7 +58,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._api_key,
+                "api-key": self._token,
             },
         )
         if "application/json" in response.headers.get("Content-Type", ""):
@@ -76,7 +76,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._api_key,
+                "api-key": self._token,
             },
             json=payload,
         )
@@ -93,7 +93,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._api_key,
+                "api-key": self._token,
             },
             json=payload,
         )

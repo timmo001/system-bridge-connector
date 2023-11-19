@@ -28,15 +28,15 @@ from systembridgemodels.update import Update
 
 from .base import Base
 from .const import (
-    EVENT_API_KEY,
     EVENT_DATA,
     EVENT_EVENT,
     EVENT_ID,
     EVENT_MESSAGE,
     EVENT_MODULE,
     EVENT_SUBTYPE,
+    EVENT_TOKEN,
     EVENT_TYPE,
-    SUBTYPE_BAD_API_KEY,
+    SUBTYPE_BAD_TOKEN,
     SUBTYPE_LISTENER_ALREADY_REGISTERED,
     TYPE_APPLICATION_UPDATE,
     TYPE_DATA_UPDATE,
@@ -74,13 +74,13 @@ class WebSocketClient(Base):
         self,
         api_host: str,
         api_port: int,
-        api_key: str,
+        token: str,
     ) -> None:
         """Initialise"""
         super().__init__()
         self._api_host = api_host
         self._api_port = api_port
-        self._api_key = api_key
+        self._token = token
         self._responses: dict[str, tuple[asyncio.Future[Response], str | None]] = {}
         self._session: aiohttp.ClientSession | None = None
         self._websocket: aiohttp.ClientWebSocketResponse | None = None
@@ -100,12 +100,12 @@ class WebSocketClient(Base):
         if not self.connected or self._websocket is None:
             raise ConnectionClosedException("Connection is closed")
 
-        request.api_key = self._api_key
+        request.token = self._token
         request.id = uuid4().hex
         future: asyncio.Future[Response] = asyncio.get_running_loop().create_future()
         self._responses[request.id] = future, response_type
         await self._websocket.send_str(request.json())
-        self._logger.debug("Sent message: %s", request.json(exclude={EVENT_API_KEY}))
+        self._logger.debug("Sent message: %s", request.json(exclude={EVENT_TOKEN}))
         if wait_for_response:
             try:
                 return await future
@@ -552,7 +552,7 @@ class WebSocketClient(Base):
 
             if (
                 message_json[EVENT_TYPE] == TYPE_ERROR
-                and message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_API_KEY
+                and message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
             ):
                 raise AuthenticationException(message_json[EVENT_MESSAGE])
 
