@@ -1,4 +1,4 @@
-"""System Bridge Connector: Constants"""
+"""Constants"""
 # Query Parameters
 QUERY_ALBUM = "album"
 QUERY_API_PORT = "apiPort"

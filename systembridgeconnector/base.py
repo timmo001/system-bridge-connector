@@ -1,4 +1,4 @@
-"""System Bridge Connector: Base"""
+"""Base"""
 import logging
 
 
