@@ -1,4 +1,4 @@
-"""System Bridge Connector: HTTP Client"""
+"""HTTP Client."""
 from __future__ import annotations
 
 import asyncio
@@ -22,12 +22,12 @@ class HTTPClient(Base):
         self,
         api_host: str,
         api_port: int,
-        api_key: str,
+        token: str,
         session: ClientSession | None = None,
     ) -> None:
-        """Initialize the client."""
+        """Initialise the client."""
         super().__init__()
-        self._api_key = api_key
+        self._token = token
         self._base_url = f"http://{api_host}:{api_port}"
         self._session = session if session else ClientSession()
 
@@ -42,7 +42,7 @@ class HTTPClient(Base):
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._api_key,
+                "token": self._token,
             },
             json=payload,
         )
@@ -52,13 +52,13 @@ class HTTPClient(Base):
         self,
         path: str,
     ) -> Any:
-        """Make a GET request"""
+        """Make a GET request."""
         response: ClientResponse = await self.request(
             "GET",
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._api_key,
+                "token": self._token,
             },
         )
         if "application/json" in response.headers.get("Content-Type", ""):
@@ -70,13 +70,13 @@ class HTTPClient(Base):
         path: str,
         payload: Any | None,
     ) -> Any:
-        """Make a POST request"""
+        """Make a POST request."""
         response: ClientResponse = await self.request(
             "POST",
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._api_key,
+                "token": self._token,
             },
             json=payload,
         )
@@ -87,13 +87,13 @@ class HTTPClient(Base):
         path: str,
         payload: Any | None,
     ) -> Any:
-        """Make a PUT request"""
+        """Make a PUT request."""
         response: ClientResponse = await self.request(
             "PUT",
             f"{self._base_url}{path}",
             headers={
                 **BASE_HEADERS,
-                "api-key": self._api_key,
+                "token": self._token,
             },
             json=payload,
         )

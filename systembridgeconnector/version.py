@@ -1,4 +1,4 @@
-"""System Bridge Connector: Version"""
+"""Version."""
 from __future__ import annotations
 
 from aiohttp import ClientSession
@@ -13,21 +13,21 @@ SUPPORTED_VERSION = "3.1.2"
 
 
 class Version(Base):
-    """Version"""
+    """Version."""
 
     def __init__(
         self,
         api_host: str,
         api_port: int,
-        api_key: str,
+        token: str,
         session: ClientSession | None = None,
     ) -> None:
-        """Initialize the client."""
+        """Initialise the client."""
         super().__init__()
         self._http_client = HTTPClient(
             api_host,
             api_port,
-            api_key,
+            token,
             session,
         )
 

@@ -1,4 +1,4 @@
-"""System Bridge Connector: Exceptions"""
+"""Exceptions."""
 
 
 class AuthenticationException(BaseException):
