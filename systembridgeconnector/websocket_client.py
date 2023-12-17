@@ -1,4 +1,4 @@
-"""WebSocket Client"""
+"""WebSocket Client."""
 from __future__ import annotations
 
 import asyncio
@@ -68,7 +68,7 @@ from .exceptions import (
 
 
 class WebSocketClient(Base):
-    """WebSocket Client"""
+    """WebSocket Client."""
 
     def __init__(
         self,
@@ -76,7 +76,7 @@ class WebSocketClient(Base):
         api_port: int,
         token: str,
     ) -> None:
-        """Initialise"""
+        """Initialise."""
         super().__init__()
         self._api_host = api_host
         self._api_port = api_port
@@ -96,7 +96,7 @@ class WebSocketClient(Base):
         wait_for_response: bool = True,
         response_type: str | None = None,
     ) -> Response:
-        """Send a message to the WebSocket"""
+        """Send a message to the WebSocket."""
         if not self.connected or self._websocket is None:
             raise ConnectionClosedException("Connection is closed")
 
@@ -117,11 +117,11 @@ class WebSocketClient(Base):
             message="Message sent",
             subtype=None,
             module=None,
-            data=None,
+            data={},
         )
 
     async def close(self) -> None:
-        """Close connection"""
+        """Close connection."""
         self._logger.info("Closing WebSocket connection")
         if self._websocket is not None:
             await self._websocket.close()
@@ -130,7 +130,7 @@ class WebSocketClient(Base):
         self,
         session: aiohttp.ClientSession | None = None,
     ) -> None:
-        """Connect to server"""
+        """Connect to server."""
         if session:
             self._session = session
         else:
@@ -161,7 +161,7 @@ class WebSocketClient(Base):
         self,
         model: Update,
     ) -> Response:
-        """Update application"""
+        """Update application."""
         self._logger.info("Updating application")
         return await self._send_message(
             Request(
