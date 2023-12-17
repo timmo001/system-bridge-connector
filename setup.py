@@ -1,4 +1,4 @@
-"""Setup"""
+"""Setup."""
 from setuptools import find_packages, setup
 
 # Get setup packages from requirements.txt

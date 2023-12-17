@@ -1,4 +1,4 @@
-"""HTTP Client"""
+"""HTTP Client."""
 from __future__ import annotations
 
 import asyncio
@@ -52,7 +52,7 @@ class HTTPClient(Base):
         self,
         path: str,
     ) -> Any:
-        """Make a GET request"""
+        """Make a GET request."""
         response: ClientResponse = await self.request(
             "GET",
             f"{self._base_url}{path}",
@@ -70,7 +70,7 @@ class HTTPClient(Base):
         path: str,
         payload: Any | None,
     ) -> Any:
-        """Make a POST request"""
+        """Make a POST request."""
         response: ClientResponse = await self.request(
             "POST",
             f"{self._base_url}{path}",
@@ -87,7 +87,7 @@ class HTTPClient(Base):
         path: str,
         payload: Any | None,
     ) -> Any:
-        """Make a PUT request"""
+        """Make a PUT request."""
         response: ClientResponse = await self.request(
             "PUT",
             f"{self._base_url}{path}",

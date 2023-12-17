@@ -1,4 +1,4 @@
-"""Version"""
+"""Version."""
 from __future__ import annotations
 
 from aiohttp import ClientSession
@@ -13,7 +13,7 @@ SUPPORTED_VERSION = "3.1.2"
 
 
 class Version(Base):
-    """Version"""
+    """Version."""
 
     def __init__(
         self,
