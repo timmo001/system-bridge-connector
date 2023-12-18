@@ -1,9 +1,9 @@
-"""Base"""
+"""Base."""
 import logging
 
 
 class Base:  # pylint: disable=too-few-public-methods
-    """Base"""
+    """Base."""
 
     def __init__(self):
         """Initialise."""

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from aiohttp import ClientSession
 from pkg_resources import parse_version
-from systembridgemodels.system import System
+from systembridgemodels.modules.system import System
 
 from .base import Base
 from .exceptions import ConnectionErrorException

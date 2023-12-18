@@ -10,7 +10,6 @@ from uuid import uuid4
 
 import aiohttp
 from systembridgemodels.const import MODEL_MAP, MODEL_RESPONSE
-from systembridgemodels.get_data import GetData
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
@@ -18,10 +17,10 @@ from systembridgemodels.media_directories import Directory, MediaDirectories
 from systembridgemodels.media_files import MediaFile, MediaFiles
 from systembridgemodels.media_get_file import MediaGetFile
 from systembridgemodels.media_get_files import MediaGetFiles
+from systembridgemodels.modules import GetData, RegisterDataListener
 from systembridgemodels.notification import Notification
 from systembridgemodels.open_path import OpenPath
 from systembridgemodels.open_url import OpenUrl
-from systembridgemodels.register_data_listener import RegisterDataListener
 from systembridgemodels.request import Request
 from systembridgemodels.response import Response
 from systembridgemodels.update import Update

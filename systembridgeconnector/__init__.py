@@ -1,1 +1,1 @@
-"""System Bridge Connector"""
+"""System Bridge Connector."""
