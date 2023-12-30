@@ -9,6 +9,7 @@ from typing import Any
 from uuid import uuid4
 
 import aiohttp
+
 from systembridgemodels.const import MODEL_MAP, MODEL_RESPONSE
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
