@@ -194,7 +194,7 @@ class WebSocketClient(Base):
         return await self._send_message(
             TYPE_GET_DATA,
             asdict(model),
-            response_type=TYPE_DATA_UPDATE,
+            wait_for_response=False,
         )
 
     async def get_directories(self) -> MediaDirectories:
