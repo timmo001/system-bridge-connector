@@ -9,16 +9,22 @@ with open("requirements_setup.txt", encoding="utf-8") as f:
 with open("requirements.txt", encoding="utf-8") as f:
     requirements = f.read().splitlines()
 
+with open("README.md", encoding="utf-8") as f:
+    readme = f.read()
+
 setup(
     name="systembridgeconnector",
-    description="System Bridge Connector",
-    keywords="system-bridge",
     author="Aidan Timson (Timmo)",
     author_email="aidan@timmo.dev",
+    description="System Bridge Connector",
+    keywords="system-bridge",
     license="Apache-2.0",
+    long_description=readme,
+    long_description_content_type="text/markdown",
     url="https://github.com/timmo001/system-bridge-connector",
-    packages=find_packages(exclude=["tests", "generator"]),
     install_requires=requirements,
+    packages=find_packages(exclude=["tests", "generator"]),
+    python_requires=">=3.11",
     setup_requires=requirements_setup,
     use_incremental=True,
 )
