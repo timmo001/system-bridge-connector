@@ -14,7 +14,7 @@ from systembridgemodels.const import MODEL_MAP, MODEL_RESPONSE
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
-from systembridgemodels.media_directories import Directory, MediaDirectories
+from systembridgemodels.media_directories import MediaDirectory
 from systembridgemodels.media_files import MediaFile, MediaFiles
 from systembridgemodels.media_get_file import MediaGetFile
 from systembridgemodels.media_get_files import MediaGetFiles
@@ -197,7 +197,7 @@ class WebSocketClient(Base):
             wait_for_response=False,
         )
 
-    async def get_directories(self) -> MediaDirectories:
+    async def get_directories(self) -> list[MediaDirectory]:
         """Get directories."""
         self._logger.info("Getting directories..")
         response = await self._send_message(
@@ -205,7 +205,7 @@ class WebSocketClient(Base):
             {},
         )
         return [
-            Directory(
+            MediaDirectory(
                 key=getattr(directory, "key"),
                 path=getattr(directory, "path"),
             )
