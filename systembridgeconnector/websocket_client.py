@@ -390,45 +390,52 @@ class WebSocketClient(Base):
             """Message Callback."""
             self._logger.debug("New message: %s", message[EVENT_TYPE])
 
-            if message.get(EVENT_ID) is not None:
-                response_tuple = self._responses.get(message[EVENT_ID])
-                if response_tuple is not None:
-                    future, response_type = response_tuple
-                    if (
-                        response_type is not None
-                        and response_type != message[EVENT_TYPE]
-                    ):
-                        self._logger.info(
-                            "Response type '%s' does not match requested type '%s'.",
-                            message[EVENT_TYPE],
-                            response_type,
-                        )
-                    else:
-                        response = Response(**message)
+            if (
+                message.get(EVENT_ID) is not None
+                and (response_tuple := self._responses.get(message[EVENT_ID]))
+                is not None
+            ):
+                future, response_type = response_tuple
+                if response_type is not None and response_type != message[EVENT_TYPE]:
+                    self._logger.info(
+                        "Response type '%s' does not match requested type '%s'.",
+                        message[EVENT_TYPE],
+                        response_type,
+                    )
+                else:
+                    response = Response(**message)
 
-                        if (
-                            response.type == TYPE_DATA_UPDATE
-                            and response.module is not None
-                            and message[EVENT_DATA] is not None
-                        ):
-                            # Find model from module
-                            model = MODEL_MAP.get(message[EVENT_MODULE])
-                            if model is None:
-                                self._logger.warning(
-                                    "Unknown model: %s", message[EVENT_MODULE]
-                                )
+                    if (
+                        response.type == TYPE_DATA_UPDATE
+                        and response.module is not None
+                        and message[EVENT_DATA] is not None
+                    ):
+                        # Find model from module
+                        model = MODEL_MAP.get(message[EVENT_MODULE])
+                        if model is None:
+                            self._logger.warning(
+                                "Unknown model: %s", message[EVENT_MODULE]
+                            )
+                        else:
+                            self._logger.debug(
+                                "Mapping data to model: %s", model.__name__
+                            )
+                            if isinstance(message[EVENT_DATA], list):
+                                response.data = [
+                                    model(**data) for data in message[EVENT_DATA]
+                                ]
                             else:
                                 response.data = model(**message[EVENT_DATA])
 
-                        self._logger.info("Response: %s", response)
+                    self._logger.info("Response: %s", response)
 
-                        try:
-                            future.set_result(response)
-                        except asyncio.InvalidStateError:
-                            self._logger.warning(
-                                "Future already set for response ID: %s",
-                                message[EVENT_ID],
-                            )
+                    try:
+                        future.set_result(response)
+                    except asyncio.InvalidStateError:
+                        self._logger.warning(
+                            "Future already set for response ID: %s",
+                            message[EVENT_ID],
+                        )
 
             if message[EVENT_TYPE] == TYPE_ERROR:
                 if message[EVENT_SUBTYPE] == SUBTYPE_LISTENER_ALREADY_REGISTERED:
