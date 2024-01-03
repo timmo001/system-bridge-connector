@@ -455,7 +455,9 @@ class WebSocketClient(Base):
                 elif callback is not None:
                     await callback(
                         message[EVENT_MODULE],
-                        model(**message[EVENT_DATA]),
+                        [model(**data) for data in message[EVENT_DATA]]
+                        if isinstance(message[EVENT_DATA], list)
+                        else model(**message[EVENT_DATA]),
                     )
             else:
                 self._logger.debug("Other message: %s", message[EVENT_TYPE])
