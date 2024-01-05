@@ -515,9 +515,9 @@ class WebSocketClient(Base):
         if message.type == aiohttp.WSMsgType.TEXT:
             message_json = message.json()
 
-            if (
-                message_json[EVENT_TYPE] == TYPE_ERROR
-                and message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
+            if message_json[EVENT_TYPE] == TYPE_ERROR and (
+                message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
+                or message_json[EVENT_SUBTYPE] == "BAD_API_KEY"
             ):
                 raise AuthenticationException(message_json[EVENT_MESSAGE])
 
