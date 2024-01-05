@@ -440,6 +440,12 @@ class WebSocketClient(Base):
             if message[EVENT_TYPE] == TYPE_ERROR:
                 if message[EVENT_SUBTYPE] == SUBTYPE_LISTENER_ALREADY_REGISTERED:
                     self._logger.debug(message)
+                elif (
+                    message[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
+                    or message[EVENT_SUBTYPE] == "BAD_API_KEY"
+                ):
+                    self._logger.error(message)
+                    raise AuthenticationException(message[EVENT_MESSAGE])
                 else:
                     self._logger.warning("Error message: %s", message)
             elif (
