@@ -10,7 +10,7 @@ from .base import Base
 from .exceptions import ConnectionErrorException
 from .http_client import HTTPClient
 
-SUPPORTED_VERSION = "4.0.0"
+SUPPORTED_VERSION = "4.0.2"
 
 
 class Version(Base):
