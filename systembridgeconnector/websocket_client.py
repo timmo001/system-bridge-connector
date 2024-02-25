@@ -14,7 +14,7 @@ from systembridgemodels.const import MODEL_MAP, MODEL_RESPONSE
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
-from systembridgemodels.media_directories import Directory, MediaDirectories
+from systembridgemodels.media_directories import MediaDirectory
 from systembridgemodels.media_files import MediaFile, MediaFiles
 from systembridgemodels.media_get_file import MediaGetFile
 from systembridgemodels.media_get_files import MediaGetFiles
@@ -197,10 +197,10 @@ class WebSocketClient(Base):
         return await self._send_message(
             TYPE_GET_DATA,
             asdict(model),
-            response_type=TYPE_DATA_UPDATE,
+            wait_for_response=False,
         )
 
-    async def get_directories(self) -> MediaDirectories:
+    async def get_directories(self) -> list[MediaDirectory]:
         """Get directories."""
         self._logger.info("Getting directories..")
         response = await self._send_message(
@@ -208,7 +208,7 @@ class WebSocketClient(Base):
             {},
         )
         return [
-            Directory(
+            MediaDirectory(
                 key=getattr(directory, "key"),
                 path=getattr(directory, "path"),
             )
@@ -393,49 +393,62 @@ class WebSocketClient(Base):
             """Message Callback."""
             self._logger.debug("New message: %s", message[EVENT_TYPE])
 
-            if message.get(EVENT_ID) is not None:
-                response_tuple = self._responses.get(message[EVENT_ID])
-                if response_tuple is not None:
-                    future, response_type = response_tuple
-                    if (
-                        response_type is not None
-                        and response_type != message[EVENT_TYPE]
-                    ):
-                        self._logger.info(
-                            "Response type '%s' does not match requested type '%s'.",
-                            message[EVENT_TYPE],
-                            response_type,
-                        )
-                    else:
-                        response = Response(**message)
+            if (
+                message.get(EVENT_ID) is not None
+                and (response_tuple := self._responses.get(message[EVENT_ID]))
+                is not None
+            ):
+                future, response_type = response_tuple
+                if response_type is not None and response_type != message[EVENT_TYPE]:
+                    self._logger.info(
+                        "Response type '%s' does not match requested type '%s'.",
+                        message[EVENT_TYPE],
+                        response_type,
+                    )
+                else:
+                    response = Response(**message)
 
-                        if (
-                            response.type == TYPE_DATA_UPDATE
-                            and response.module is not None
-                            and message[EVENT_DATA] is not None
-                        ):
-                            # Find model from module
-                            model = MODEL_MAP.get(message[EVENT_MODULE])
-                            if model is None:
-                                self._logger.warning(
-                                    "Unknown model: %s", message[EVENT_MODULE]
-                                )
+                    if (
+                        response.type == TYPE_DATA_UPDATE
+                        and response.module is not None
+                        and message[EVENT_DATA] is not None
+                    ):
+                        # Find model from module
+                        model = MODEL_MAP.get(message[EVENT_MODULE])
+                        if model is None:
+                            self._logger.warning(
+                                "Unknown model: %s", message[EVENT_MODULE]
+                            )
+                        else:
+                            self._logger.debug(
+                                "Mapping data to model: %s", model.__name__
+                            )
+                            if isinstance(message[EVENT_DATA], list):
+                                response.data = [
+                                    model(**data) for data in message[EVENT_DATA]
+                                ]
                             else:
                                 response.data = model(**message[EVENT_DATA])
 
-                        self._logger.info("Response: %s", response)
+                    self._logger.info("Response: %s", response)
 
-                        try:
-                            future.set_result(response)
-                        except asyncio.InvalidStateError:
-                            self._logger.warning(
-                                "Future already set for response ID: %s",
-                                message[EVENT_ID],
-                            )
+                    try:
+                        future.set_result(response)
+                    except asyncio.InvalidStateError:
+                        self._logger.warning(
+                            "Future already set for response ID: %s",
+                            message[EVENT_ID],
+                        )
 
             if message[EVENT_TYPE] == TYPE_ERROR:
                 if message[EVENT_SUBTYPE] == SUBTYPE_LISTENER_ALREADY_REGISTERED:
                     self._logger.debug(message)
+                elif (
+                    message[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
+                    or message[EVENT_SUBTYPE] == "BAD_API_KEY"
+                ):
+                    self._logger.error(message)
+                    raise AuthenticationException(message[EVENT_MESSAGE])
                 else:
                     self._logger.warning("Error message: %s", message)
             elif (
@@ -451,7 +464,9 @@ class WebSocketClient(Base):
                 elif callback is not None:
                     await callback(
                         message[EVENT_MODULE],
-                        model(**message[EVENT_DATA]),
+                        [model(**data) for data in message[EVENT_DATA]]
+                        if isinstance(message[EVENT_DATA], list)
+                        else model(**message[EVENT_DATA]),
                     )
             else:
                 self._logger.debug("Other message: %s", message[EVENT_TYPE])
@@ -503,9 +518,9 @@ class WebSocketClient(Base):
         if message.type == aiohttp.WSMsgType.TEXT:
             message_json = message.json()
 
-            if (
-                message_json[EVENT_TYPE] == TYPE_ERROR
-                and message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
+            if message_json[EVENT_TYPE] == TYPE_ERROR and (
+                message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
+                or message_json[EVENT_SUBTYPE] == "BAD_API_KEY"
             ):
                 raise AuthenticationException(message_json[EVENT_MESSAGE])
 

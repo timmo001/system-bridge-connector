@@ -36,7 +36,7 @@ class HTTPClient(Base):
         path: str,
         payload: Any | None,
     ) -> Any:
-        """Make a DELETE request"""
+        """Make a DELETE request."""
         response: ClientResponse = await self.request(
             "DELETE",
             f"{self._base_url}{path}",
