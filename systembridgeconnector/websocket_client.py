@@ -125,12 +125,15 @@ class WebSocketClient(Base):
             data={},
         )
 
-    async def close(self) -> None:
+    async def close(
+        self,
+        keep_session_active: bool = False,
+    ) -> None:
         """Close connection."""
         self._logger.info("Closing WebSocket connection")
         if self._websocket is not None:
             await self._websocket.close()
-        if self._session is not None:
+        if self._session is not None and not keep_session_active:
             await self._session.close()
 
     async def connect(
