@@ -23,4 +23,4 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     with:
-      module-name: "systembridgemodels"
+      module-name: "systembridgeconnector"
