@@ -285,12 +285,14 @@ class WebSocketClient(Base):
             wait_for_response=True,
             response_type=TYPE_FILES,
         )
+        if response.data is None:
+            return MediaFiles(files=[], path="")
+        if not isinstance(response.data, dict):
+            return MediaFiles(files=[], path="")
 
-        files = getattr(response.data, "files")
-        path = getattr(response.data, "path")
         return MediaFiles(
-            files=files if files is not None else [],
-            path=path if path is not None else "",
+            files=[MediaFile(**file) for file in response.data.get("files", [])],
+            path=response.data.get("path", ""),
         )
 
     async def get_file(

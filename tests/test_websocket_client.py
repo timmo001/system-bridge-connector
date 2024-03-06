@@ -10,7 +10,12 @@ from aiohttp import ClientWebSocketResponse, web
 from attr import asdict
 import pytest
 
-from systembridgeconnector.const import EVENT_MODULES, TYPE_DATA_GET, TYPE_DIRECTORIES
+from systembridgeconnector.const import (
+    EVENT_MODULES,
+    TYPE_DATA_GET,
+    TYPE_DIRECTORIES,
+    TYPE_FILES,
+)
 from systembridgeconnector.exceptions import ConnectionErrorException
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.const import MODEL_SYSTEM
@@ -157,3 +162,54 @@ async def test_get_directories(ws_client: WebSocketGenerator):
     assert isinstance(response[0], MediaDirectory)
     assert response[0].key == "documents"
     assert response[0].path == "/documents"
+
+
+@pytest.mark.asyncio
+async def test_get_files(ws_client: WebSocketGenerator):
+    """Test get files."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_FILES,
+            data={
+                "files": [
+                    {
+                        "name": "test",
+                        "path": "path/to",
+                        "fullpath": "path/to/test",
+                        "size": 0,
+                        "last_accessed": 0,
+                        "created": 0,
+                        "modified": 0,
+                        "is_directory": False,
+                        "is_file": True,
+                        "is_link": False,
+                        "mime_type": None,
+                    }
+                ],
+                "path": "path/to",
+            },
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.get_files(
+        MediaGetFiles(
+            base="documents",
+            path="path/to",
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, MediaFiles)
+    assert response.files[0].name == "test"
+    assert response.files[0].path == "path/to"
+    assert response.files[0].fullpath == "path/to/test"
+    assert response.files[0].size == 0
+    assert response.files[0].last_accessed == 0
+    assert response.files[0].created == 0
+    assert response.files[0].modified == 0
+    assert response.files[0].is_directory is False
+    assert response.files[0].is_file is True
+    assert response.files[0].is_link is False
+    assert response.files[0].mime_type is None
+    assert response.path == "path/to"
