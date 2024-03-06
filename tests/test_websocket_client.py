@@ -76,6 +76,7 @@ async def test_close(ws_client: WebSocketGenerator):
 async def test_application_update(ws_client: WebSocketGenerator):
     """Test application update."""
     websocket_client = await _get_websocket_client(ws_client, base_response)
+    assert websocket_client.connected is True
     response = await websocket_client.application_update(
         Update(
             version="0.0.0",
@@ -90,6 +91,7 @@ async def test_application_update(ws_client: WebSocketGenerator):
 async def test_exit_backend(ws_client: WebSocketGenerator):
     """Test exit backend."""
     websocket_client = await _get_websocket_client(ws_client, base_response)
+    assert websocket_client.connected is True
     response = await websocket_client.exit_backend(
         request_id=REQUEST_ID,
     )
@@ -110,6 +112,7 @@ async def test_get_data(ws_client: WebSocketGenerator):
             data={EVENT_MODULES: [MODEL_SYSTEM]},
         ),
     )
+    assert websocket_client.connected is True
     response = await websocket_client.get_data(
         GetData(
             modules=[MODEL_SYSTEM],
@@ -133,6 +136,7 @@ async def test_get_directories(ws_client: WebSocketGenerator):
             data=[{"key": "documents", "path": "/documents"}],
         ),
     )
+    assert websocket_client.connected is True
     response = await websocket_client.get_directories(
         request_id=REQUEST_ID,
     )
@@ -143,26 +147,13 @@ async def test_get_directories(ws_client: WebSocketGenerator):
     assert response[0].path == "/documents"
 
 
-# @pytest.mark.asyncio
-# async def test_connection_error(ws_client: WebSocketGenerator):
-#     """Test connection error."""
-#     app = web.Application()
+@pytest.mark.asyncio
+async def test_connection_error(ws_client: WebSocketGenerator):
+    """Test connection error."""
+    websocket_client = await _get_websocket_client(ws_client, base_response)
 
-#     _ = await ws_client(
-#         app,
-#         server_kwargs={
-#             "port": API_PORT,
-#         },
-#     )
-
-#     websocket_client = WebSocketClient(
-#         API_HOST,
-#         API_PORT,
-#         TOKEN,
-#     )
-
-#     with patch(
-#         "aiohttp.ClientSession.ws_connect",
-#         side_effect=aiohttp.ClientConnectionError,
-#     ), pytest.raises(ConnectionErrorException):
-#         await websocket_client.connect()
+    with patch(
+        "aiohttp.ClientSession.ws_connect",
+        side_effect=aiohttp.ClientConnectionError,
+    ), pytest.raises(ConnectionErrorException):
+        await websocket_client.connect()
