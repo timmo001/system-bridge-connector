@@ -1,6 +1,6 @@
 """Test the http client module."""
 
-from aiohttp import ClientSession, web
+from aiohttp import web
 import pytest
 
 from systembridgeconnector.http_client import HTTPClient
@@ -13,11 +13,13 @@ async def _test_response(_: web.Request):
     return web.json_response({"test": "test"})
 
 
-async def _http_client(aiohttp_client: ClientSessionGenerator) -> HTTPClient:
+async def _get_http_client(aiohttp_client: ClientSessionGenerator) -> HTTPClient:
     """Return a HTTP client."""
     app = web.Application()
     app.router.add_delete("/", _test_response)
     app.router.add_get("/", _test_response)
+    app.router.add_post("/", _test_response)
+    app.router.add_put("/", _test_response)
 
     client = await aiohttp_client(app)
 
@@ -32,7 +34,7 @@ async def _http_client(aiohttp_client: ClientSessionGenerator) -> HTTPClient:
 @pytest.mark.asyncio
 async def test_delete(aiohttp_client: ClientSessionGenerator):
     """Test the delete method."""
-    client = await _http_client(aiohttp_client)
+    client = await _get_http_client(aiohttp_client)
     response = await client.delete("/", None)
     assert response is not None
 
@@ -46,7 +48,7 @@ async def test_delete(aiohttp_client: ClientSessionGenerator):
 @pytest.mark.asyncio
 async def test_get(aiohttp_client: ClientSessionGenerator):
     """Test the get method."""
-    client = await _http_client(aiohttp_client)
+    client = await _get_http_client(aiohttp_client)
     response = await client.get("/")
     assert response is not None
 
