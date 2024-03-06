@@ -53,16 +53,9 @@ async def _get_websocket_client(
         websocket=ws,
     )
 
-    async def _handle_module(
-        module_name: str,
-        module: Any,
-    ) -> None:
-        """Handle data from the WebSocket client."""
-        print("New data for:", module_name)
-
-    # Run the listener in a separate thread
+    # Run the listener in the background
     asyncio.get_event_loop().create_task(
-        websocket_client.listen(callback=_handle_module),
+        websocket_client.listen(callback=None),
         name="WebSocket Listener",
     )
 

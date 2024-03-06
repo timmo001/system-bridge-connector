@@ -51,7 +51,6 @@ async def _websocket_response(
     """Return a websocket response."""
     ws = web.WebSocketResponse()
     await ws.prepare(request)
-    print("Response:", response)
     await ws.send_json(asdict(response))
     await ws.close()
     return ws
@@ -117,11 +116,6 @@ async def ws_client(
         )
 
         websocket = await client.ws_connect(WEBSOCKET_PATH)
-        # received_json = await websocket.receive_json()
-        # print("Received JSON:", received_json)
-
-        # print("Send JSON Response:", response)
-        # await websocket.send_json(asdict(response))
 
         wrapped_websocket = cast(MockClientWebSocket, websocket)
         wrapped_websocket.client = client

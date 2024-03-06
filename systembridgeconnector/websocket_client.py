@@ -130,19 +130,16 @@ class WebSocketClient(Base):
 
         await self._websocket.send_json(asdict(request))
         self._logger.debug("Sent message: %s", request)
-        print("Sent message:", request)
 
         if wait_for_response:
             try:
                 # if the future is already done, return the result
                 if future.done():
                     self._logger.info("Future is done: %s", request.id)
-                    print("Future is done:", request.id)
                     return future.result()
                 # if the future is cancelled, return a cancelled response
                 if future.cancelled():
                     self._logger.info("Future is cancelled: %s", request.id)
-                    print("Future is cancelled")
                     return Response(
                         id=request.id,
                         type="N/A",
@@ -154,11 +151,6 @@ class WebSocketClient(Base):
                 # otherwise, await the future
                 self._logger.info(
                     "Awaiting future: %s (%s)",
-                    request.id,
-                    response_type,
-                )
-                print(
-                    "Awaiting future:",
                     request.id,
                     response_type,
                 )
@@ -251,7 +243,6 @@ class WebSocketClient(Base):
     ) -> Response:
         """Get data from server."""
         self._logger.info("Getting data from server: %s", model)
-        print("Getting data from server:", model)
         return await self._send_message(
             TYPE_GET_DATA,
             request_id,
@@ -265,7 +256,6 @@ class WebSocketClient(Base):
         request_id: str = uuid4().hex,
     ) -> list[MediaDirectory]:
         """Get directories."""
-        print("Getting directories..")
         self._logger.info("Getting directories..")
         response = await self._send_message(
             TYPE_GET_DIRECTORIES,
@@ -279,7 +269,6 @@ class WebSocketClient(Base):
         if not isinstance(response.data, list):
             return []
 
-        print("Response Data:", type(response.data[0]))
         return [MediaDirectory(**directory) for directory in response.data]
 
     async def get_files(
@@ -526,7 +515,6 @@ class WebSocketClient(Base):
         accept_other_types: bool = False,
     ) -> None:
         """Listen for messages and map to modules."""
-        print("Listen..")
 
         async def _callback_message(message: dict) -> None:
             """Message Callback."""
@@ -624,7 +612,6 @@ class WebSocketClient(Base):
         callback: Callable[[dict[Any, Any]], Awaitable[None]],
     ) -> None:
         """Listen for messages."""
-        print("Listen for messages..")
 
         if not self.connected:
             raise ConnectionClosedException("Connection is closed")
@@ -633,13 +620,11 @@ class WebSocketClient(Base):
         if self._websocket is not None:
             while not self._websocket.closed:
                 message = await self.receive_message()
-                print("Message:", message)
                 if isinstance(message, dict):
                     await callback(message)
 
     async def receive_message(self) -> dict | None:
         """Receive message."""
-        print("Receive message..", self.connected, self._websocket is None)
         if not self.connected or self._websocket is None:
             raise ConnectionClosedException("Connection is closed")
 
@@ -647,8 +632,6 @@ class WebSocketClient(Base):
             message = await self._websocket.receive()
         except RuntimeError:
             return None
-
-        print("message type:", message.type)
 
         if message.type == aiohttp.WSMsgType.ERROR:
             raise ConnectionErrorException(self._websocket.exception())
@@ -662,7 +645,6 @@ class WebSocketClient(Base):
 
         if message.type == aiohttp.WSMsgType.TEXT:
             message_json = message.json()
-            print("Message JSON:", message_json)
 
             if message_json[EVENT_TYPE] == TYPE_ERROR and (
                 message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
