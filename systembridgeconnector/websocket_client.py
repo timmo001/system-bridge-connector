@@ -132,39 +132,22 @@ class WebSocketClient(Base):
         self._logger.debug("Sent message: %s", request)
 
         if wait_for_response:
+            self._logger.info(
+                "Awaiting future: %s (%s)",
+                request.id,
+                response_type,
+            )
             try:
-                # if the future is already done, return the result
-                if future.done():
-                    self._logger.info("Future is done: %s", request.id)
-                    return future.result()
-                # if the future is cancelled, return a cancelled response
-                if future.cancelled():
-                    self._logger.info("Future is cancelled: %s", request.id)
-                    return Response(
-                        id=request.id,
-                        type="N/A",
-                        message="Message cancelled",
-                        subtype=None,
-                        module=None,
-                        data={},
-                    )
-                # otherwise, await the future
-                self._logger.info(
-                    "Awaiting future: %s (%s)",
-                    request.id,
-                    response_type,
+                return await asyncio.wait_for(future, timeout=8.0)
+            except asyncio.TimeoutError:
+                self._logger.error("Timeout waiting for future: %s", request.id)
+                return Response(
+                    id=request.id,
+                    type=TYPE_ERROR,
+                    subtype="TIMEOUT",
+                    message="Timeout waiting for response",
+                    data={},
                 )
-                try:
-                    return await asyncio.wait_for(future, timeout=8.0)
-                except asyncio.TimeoutError:
-                    self._logger.error("Timeout waiting for future: %s", request.id)
-                    return Response(
-                        id=request.id,
-                        type=TYPE_ERROR,
-                        subtype="TIMEOUT",
-                        message="Timeout waiting for response",
-                        data={},
-                    )
             finally:
                 self._responses.pop(request.id)
         return Response(

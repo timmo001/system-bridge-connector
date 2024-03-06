@@ -24,7 +24,10 @@ from systembridgeconnector.const import (
     TYPE_POWER_SHUTTINGDOWN,
     TYPE_POWER_SLEEPING,
 )
-from systembridgeconnector.exceptions import ConnectionErrorException
+from systembridgeconnector.exceptions import (
+    ConnectionClosedException,
+    ConnectionErrorException,
+)
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.const import MODEL_SYSTEM
 from systembridgemodels.keyboard_key import KeyboardKey
@@ -84,6 +87,22 @@ async def test_connection_error(ws_client: WebSocketGenerator):
         side_effect=aiohttp.ClientConnectionError,
     ), pytest.raises(ConnectionErrorException):
         await websocket_client.connect()
+
+
+@pytest.mark.asyncio
+async def test_connection_closed(ws_client: WebSocketGenerator):
+    """Test connection closed."""
+    websocket_client = await _get_websocket_client(ws_client, base_response)
+    assert websocket_client.connected is True
+
+    await websocket_client.close()
+    assert websocket_client.connected is False
+
+    with patch(
+        "aiohttp.ClientSession.ws_connect",
+        side_effect=aiohttp.ClientConnectionError,
+    ), pytest.raises(ConnectionClosedException):
+        await websocket_client.application_update(Update(version="0.0.0"))
 
 
 @pytest.mark.asyncio
