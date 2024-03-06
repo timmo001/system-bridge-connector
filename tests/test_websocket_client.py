@@ -1,13 +1,9 @@
 """Test the websocket client module."""
 
 import asyncio
-import concurrent.futures
-from typing import Any, Final
 from unittest.mock import patch
 
 import aiohttp
-from aiohttp import ClientWebSocketResponse, web
-from attr import asdict
 import pytest
 
 from systembridgeconnector.const import (
@@ -42,7 +38,6 @@ from systembridgemodels.modules import GetData, RegisterDataListener
 from systembridgemodels.notification import Notification
 from systembridgemodels.open_path import OpenPath
 from systembridgemodels.open_url import OpenUrl
-from systembridgemodels.request import Request
 from systembridgemodels.response import Response
 from systembridgemodels.update import Update
 
