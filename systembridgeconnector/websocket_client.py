@@ -274,13 +274,13 @@ class WebSocketClient(Base):
             wait_for_response=True,
             response_type=TYPE_DIRECTORIES,
         )
-        return [
-            MediaDirectory(
-                key=getattr(directory, "key"),
-                path=getattr(directory, "path"),
-            )
-            for directory in response.data
-        ]
+        if response.data is None:
+            return []
+        if not isinstance(response.data, list):
+            return []
+
+        print("Response Data:", type(response.data[0]))
+        return [MediaDirectory(**directory) for directory in response.data]
 
     async def get_files(
         self,
@@ -526,6 +526,7 @@ class WebSocketClient(Base):
         accept_other_types: bool = False,
     ) -> None:
         """Listen for messages and map to modules."""
+        print("Listen..")
 
         async def _callback_message(message: dict) -> None:
             """Message Callback."""
@@ -623,6 +624,8 @@ class WebSocketClient(Base):
         callback: Callable[[dict[Any, Any]], Awaitable[None]],
     ) -> None:
         """Listen for messages."""
+        print("Listen for messages..")
+
         if not self.connected:
             raise ConnectionClosedException("Connection is closed")
 
@@ -630,11 +633,13 @@ class WebSocketClient(Base):
         if self._websocket is not None:
             while not self._websocket.closed:
                 message = await self.receive_message()
+                print("Message:", message)
                 if isinstance(message, dict):
                     await callback(message)
 
     async def receive_message(self) -> dict | None:
         """Receive message."""
+        print("Receive message..", self.connected, self._websocket is None)
         if not self.connected or self._websocket is None:
             raise ConnectionClosedException("Connection is closed")
 
@@ -642,6 +647,8 @@ class WebSocketClient(Base):
             message = await self._websocket.receive()
         except RuntimeError:
             return None
+
+        print("message type:", message.type)
 
         if message.type == aiohttp.WSMsgType.ERROR:
             raise ConnectionErrorException(self._websocket.exception())
@@ -655,6 +662,7 @@ class WebSocketClient(Base):
 
         if message.type == aiohttp.WSMsgType.TEXT:
             message_json = message.json()
+            print("Message JSON:", message_json)
 
             if message_json[EVENT_TYPE] == TYPE_ERROR and (
                 message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN

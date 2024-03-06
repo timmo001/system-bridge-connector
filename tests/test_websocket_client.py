@@ -2,7 +2,7 @@
 
 import asyncio
 import concurrent.futures
-from typing import Final
+from typing import Any, Final
 from unittest.mock import patch
 
 import aiohttp
@@ -53,9 +53,18 @@ async def _get_websocket_client(
         websocket=ws,
     )
 
+    async def _handle_module(
+        module_name: str,
+        module: Any,
+    ) -> None:
+        """Handle data from the WebSocket client."""
+        print("New data for:", module_name)
+
     # Run the listener in a separate thread
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        asyncio.get_event_loop().run_in_executor(executor, websocket_client.listen)
+    asyncio.get_event_loop().create_task(
+        websocket_client.listen(callback=_handle_module),
+        name="WebSocket Listener",
+    )
 
     return websocket_client
 
@@ -116,29 +125,29 @@ async def test_get_data(ws_client: WebSocketGenerator):
     )
     assert isinstance(response, Response)
     assert response.id == REQUEST_ID
-    assert response.type == "N/A"
-    assert response.data == {}
+    assert response.type == TYPE_DATA_GET
+    assert response.data == {EVENT_MODULES: [MODEL_SYSTEM]}
 
 
-# @pytest.mark.asyncio
-# async def test_get_directories(ws_client: WebSocketGenerator):
-#     """Test get directories."""
-#     websocket_client = await _get_websocket_client(
-#         ws_client,
-#         Response(
-#             id=REQUEST_ID,
-#             type=TYPE_DIRECTORIES,
-#             data=[{"key": "documents", "path": "/documents"}],
-#         ),
-#     )
-#     response = await websocket_client.get_directories(
-#         request_id=REQUEST_ID,
-#     )
-#     # assert isinstance(response, list)
-#     # assert len(response) == 1
-#     # assert isinstance(response[0], MediaDirectory)
-#     # assert response[0].key == "documents"
-#     # assert response[0].path == "/documents"
+@pytest.mark.asyncio
+async def test_get_directories(ws_client: WebSocketGenerator):
+    """Test get directories."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_DIRECTORIES,
+            data=[{"key": "documents", "path": "/documents"}],
+        ),
+    )
+    response = await websocket_client.get_directories(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, list)
+    assert len(response) == 1
+    assert isinstance(response[0], MediaDirectory)
+    assert response[0].key == "documents"
+    assert response[0].path == "/documents"
 
 
 # @pytest.mark.asyncio

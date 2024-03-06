@@ -104,12 +104,10 @@ async def ws_client(
         app = web.Application()
 
         # Add websocket route at /api/websocket
-        app.router.add_get(
-            "/api/websocket",
-            lambda request: _websocket_response(
-                request,
-                response,
-            ),
+        app.router.add_route(
+            "GET",
+            WEBSOCKET_PATH,
+            lambda request: _websocket_response(request, response),
         )
         client = await aiohttp_client(
             app,
@@ -119,10 +117,11 @@ async def ws_client(
         )
 
         websocket = await client.ws_connect(WEBSOCKET_PATH)
-        received_json = await websocket.receive_json()
-        print("Received JSON:", received_json)
+        # received_json = await websocket.receive_json()
+        # print("Received JSON:", received_json)
 
-        await websocket.send_json(asdict(response))
+        # print("Send JSON Response:", response)
+        # await websocket.send_json(asdict(response))
 
         wrapped_websocket = cast(MockClientWebSocket, websocket)
         wrapped_websocket.client = client
