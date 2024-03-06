@@ -51,7 +51,8 @@ async def _websocket_response(
     """Return a websocket response."""
     ws = web.WebSocketResponse()
     await ws.prepare(request)
-    await ws.send_json(response)
+    print("Response:", response)
+    await ws.send_json(asdict(response))
     await ws.close()
     return ws
 
@@ -88,16 +89,6 @@ def http_client(
         )
 
     return create_client
-
-
-@pytest.fixture(name="response")
-def ws_response() -> Response:
-    """Return a response."""
-    return Response(
-        id="test",
-        type="TEST",
-        data={"test": "test"},
-    )
 
 
 @pytest.fixture
@@ -137,3 +128,13 @@ async def ws_client(
         return wrapped_websocket
 
     return create_client
+
+
+@pytest.fixture(name="response")
+def ws_response() -> Response:
+    """Return a response."""
+    return Response(
+        id="test",
+        type="TEST",
+        data={"test": "test"},
+    )

@@ -41,14 +41,13 @@ async def _get_websocket_client(
     response: Response,
 ) -> WebSocketClient:
     """Return a websocket client."""
-    ws = await ws_client(response=response)
-
     websocket_client = WebSocketClient(
         API_HOST,
         API_PORT,
         TOKEN,
     )
 
+    ws = await ws_client(response=response)
     await websocket_client.connect(session=ws.client.session)
     return websocket_client
 
@@ -63,54 +62,54 @@ async def test_close(ws_client: WebSocketGenerator):
     assert websocket_client.connected is False
 
 
-# @pytest.mark.asyncio
-# async def test_application_update(ws_client: WebSocketGenerator):
-#     """Test application update."""
-#     websocket_client = await _get_websocket_client(ws_client, base_response)
-#     response = await websocket_client.application_update(
-#         Update(
-#             version="0.0.0",
-#         )
-#     )
-#     assert isinstance(response, Response)
-#     assert response.type == "N/A"
-#     assert response.data == {}
+@pytest.mark.asyncio
+async def test_application_update(ws_client: WebSocketGenerator):
+    """Test application update."""
+    websocket_client = await _get_websocket_client(ws_client, base_response)
+    response = await websocket_client.application_update(
+        Update(
+            version="0.0.0",
+        )
+    )
+    assert isinstance(response, Response)
+    assert response.type == "N/A"
+    assert response.data == {}
 
 
-# @pytest.mark.asyncio
-# async def test_exit_backend(ws_client: WebSocketGenerator):
-#     """Test exit backend."""
-#     websocket_client = await _get_websocket_client(ws_client, base_response)
-#     response = await websocket_client.exit_backend(
-#         request_id=REQUEST_ID,
-#     )
-#     assert isinstance(response, Response)
-#     assert response.id == REQUEST_ID
-#     assert response.type == "N/A"
-#     assert response.data == {}
+@pytest.mark.asyncio
+async def test_exit_backend(ws_client: WebSocketGenerator):
+    """Test exit backend."""
+    websocket_client = await _get_websocket_client(ws_client, base_response)
+    response = await websocket_client.exit_backend(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == "N/A"
+    assert response.data == {}
 
 
-# @pytest.mark.asyncio
-# async def test_get_data(ws_client: WebSocketGenerator):
-#     """Test get data."""
-#     websocket_client = await _get_websocket_client(
-#         ws_client,
-#         Response(
-#             id=REQUEST_ID,
-#             type=TYPE_DATA_GET,
-#             data={EVENT_MODULES: [MODEL_SYSTEM]},
-#         ),
-#     )
-#     response = await websocket_client.get_data(
-#         GetData(
-#             modules=[MODEL_SYSTEM],
-#         ),
-#         request_id=REQUEST_ID,
-#     )
-#     assert isinstance(response, Response)
-#     assert response.id == REQUEST_ID
-#     assert response.type == "N/A"
-#     assert response.data == {}
+@pytest.mark.asyncio
+async def test_get_data(ws_client: WebSocketGenerator):
+    """Test get data."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_DATA_GET,
+            data={EVENT_MODULES: [MODEL_SYSTEM]},
+        ),
+    )
+    response = await websocket_client.get_data(
+        GetData(
+            modules=[MODEL_SYSTEM],
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == "N/A"
+    assert response.data == {}
 
 
 # @pytest.mark.asyncio

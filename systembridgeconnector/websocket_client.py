@@ -127,7 +127,7 @@ class WebSocketClient(Base):
         self._responses[request.id] = future, response_type
         await self._websocket.send_json(asdict(request))
         self._logger.debug("Sent message: %s", request)
-        print("Sent message: %s", request)
+        print("Sent message:", request)
 
         if wait_for_response:
             try:
@@ -247,6 +247,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Get data from server."""
         self._logger.info("Getting data from server: %s", model)
+        print("Getting data from server:", model)
         return await self._send_message(
             TYPE_GET_DATA,
             request_id,
