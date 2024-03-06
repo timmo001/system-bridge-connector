@@ -3,6 +3,7 @@
 from systembridgeconnector.exceptions import (
     AuthenticationException,
     BadMessageException,
+    BadRequestException,
     ConnectionClosedException,
     ConnectionErrorException,
 )
@@ -18,6 +19,13 @@ def test_authentication_exception():
 def test_bad_message_exception():
     """Test the BadMessageException."""
     exception = BadMessageException("Test")
+    assert exception is not None
+    assert str(exception) == "Test"
+
+
+def test_bad_request_exception():
+    """Test the BadRequestException."""
+    exception = BadRequestException("Test")
     assert exception is not None
     assert str(exception) == "Test"
 
