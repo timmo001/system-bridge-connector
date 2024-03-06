@@ -169,6 +169,7 @@ class WebSocketClient(Base):
                     return Response(
                         id=request.id,
                         type=TYPE_ERROR,
+                        subtype="TIMEOUT",
                         message="Timeout waiting for response",
                         data={},
                     )
