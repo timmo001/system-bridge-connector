@@ -5,6 +5,11 @@ from unittest.mock import patch
 from aiohttp import web
 import pytest
 
+from systembridgeconnector.exceptions import (
+    AuthenticationException,
+    BadRequestException,
+    ConnectionErrorException,
+)
 from systembridgeconnector.http_client import HTTPClient
 
 from . import API_HOST, API_PORT, TOKEN, ClientSessionGenerator
@@ -12,7 +17,10 @@ from . import API_HOST, API_PORT, TOKEN, ClientSessionGenerator
 
 async def _bad_request_response(_: web.Request):
     """Return a bad request response."""
-    return web.Response(status=400)
+    return web.json_response(
+        {"test": "test"},
+        status=400,
+    )
 
 
 async def _json_response(_: web.Request):
@@ -27,7 +35,10 @@ async def _text_response(_: web.Request):
 
 async def _unauthorised_response(_: web.Request):
     """Return an unauthorised response."""
-    return web.Response(status=401)
+    return web.json_response(
+        {"test": "test"},
+        status=401,
+    )
 
 
 async def _get_http_client(aiohttp_client: ClientSessionGenerator) -> HTTPClient:
@@ -99,15 +110,23 @@ async def test_put(aiohttp_client: ClientSessionGenerator):
 async def test_bad_request(aiohttp_client: ClientSessionGenerator):
     """Test the bad request response."""
     client = await _get_http_client(aiohttp_client)
-    with pytest.raises(Exception):
+    with pytest.raises(BadRequestException):
         await client.get("/test/badrequest")
+
+
+@pytest.mark.asyncio
+async def test_not_found(aiohttp_client: ClientSessionGenerator):
+    """Test the not found response."""
+    client = await _get_http_client(aiohttp_client)
+    with pytest.raises(ConnectionErrorException):
+        await client.get("/test/notfound")
 
 
 @pytest.mark.asyncio
 async def test_unauthorised(aiohttp_client: ClientSessionGenerator):
     """Test the unauthorised response."""
     client = await _get_http_client(aiohttp_client)
-    with pytest.raises(Exception):
+    with pytest.raises(AuthenticationException):
         await client.get("/test/unauthorised")
 
 
