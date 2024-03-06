@@ -21,7 +21,12 @@ async def _get_http_client(aiohttp_client: ClientSessionGenerator) -> HTTPClient
     app.router.add_post("/", _test_response)
     app.router.add_put("/", _test_response)
 
-    client = await aiohttp_client(app)
+    client = await aiohttp_client(
+        app,
+        server_kwargs={
+            "port": API_PORT,
+        },
+    )
 
     return HTTPClient(
         api_host=API_HOST,
