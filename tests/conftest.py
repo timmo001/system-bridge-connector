@@ -3,6 +3,7 @@ from dataclasses import asdict
 from typing import cast
 
 from aiohttp import web
+from aiohttp.test_utils import TestClient
 import pytest
 import pytest_socket
 
@@ -68,7 +69,7 @@ def http_client(
 ) -> ClientSessionGenerator:
     """Return a client session."""
 
-    async def create_client() -> MockClientWebSocket:
+    async def create_client() -> TestClient:
         """Create a client session."""
         app = web.Application()
         app.router.add_delete("/test/json", _json_response)
