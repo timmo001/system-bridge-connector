@@ -1,75 +1,113 @@
 """Test the version module."""
 
-# import asyncio
-# from unittest.mock import AsyncMock, patch
+from dataclasses import asdict
+from unittest.mock import AsyncMock, patch
 
-# from aiohttp import ClientSession
-# import pytest
+import pytest
 
-# from systembridgeconnector.version import SUPPORTED_VERSION, Version
+from systembridgeconnector.version import SUPPORTED_VERSION, Version
+from systembridgemodels.modules.system import System
 
-# from . import API_HOST, API_PORT, TOKEN
-
-# @pytest.fixture
-# def mock_session():
-#     """Mock aiohttp.ClientSession."""
-#     mocker = AiohttpClientMocker()
-
-#     with patch(
-#         "aiohttp.ClientSession",
-#         side_effect=lambda *args, **kwargs: mocker.create_session(
-#             asyncio.get_event_loop()
-#         ),
-#     ):
-#         yield mocker
+from . import API_HOST, API_PORT, TOKEN, ClientSessionGenerator
 
 
-# version = Version(
-#     API_HOST,
-#     API_PORT,
-#     TOKEN,
-#     mock_session,
-# )
+@pytest.mark.asyncio
+async def test_check_supported(http_client: ClientSessionGenerator):
+    """Test check_supported."""
+    client = await http_client()
+    version = Version(
+        api_host=API_HOST,
+        api_port=API_PORT,
+        token=TOKEN,
+        session=client.session,
+    )
+
+    with patch(
+        "systembridgeconnector.http_client.HTTPClient.get",
+        new_callable=AsyncMock,
+    ) as mock_get:
+        mock_get.return_value = asdict(
+            System(
+                boot_time=0,
+                fqdn="",
+                hostname="",
+                ip_address_4="",
+                mac_address="",
+                platform_version="",
+                platform="",
+                uptime=0,
+                users=[],
+                uuid="",
+                version=SUPPORTED_VERSION,
+            )
+        )
+
+        assert await version.check_supported() is True
 
 
-# @pytest.mark.asyncio
-# async def test_check_supported():
-#     """Test check_supported."""
-#     with patch(
-#         "systembridgeconnector.http_client.HTTPClient.get",
-#         new_callable=AsyncMock,
-#     ) as mock_get:
-#         mock_get.return_value = {
-#             "version": SUPPORTED_VERSION,
-#         }
+@pytest.mark.asyncio
+async def test_check_version_2(http_client: ClientSessionGenerator):
+    """Test check_version 2."""
+    client = await http_client()
+    version = Version(
+        api_host=API_HOST,
+        api_port=API_PORT,
+        token=TOKEN,
+        session=client.session,
+    )
 
-#         result = await version.check_supported()
-#         assert result is True
+    with patch(
+        "systembridgeconnector.http_client.HTTPClient.get",
+        new_callable=AsyncMock,
+    ) as mock_get:
+        mock_get.return_value = asdict(
+            System(
+                boot_time=0,
+                fqdn="",
+                hostname="",
+                ip_address_4="",
+                mac_address="",
+                platform_version="",
+                platform="",
+                uptime=0,
+                users=[],
+                uuid="",
+                version="2.0.0",
+            )
+        )
+        result = await version.check_version_2()
+        assert result == "2.0.0"
 
 
-# @pytest.mark.asyncio
-# async def test_check_version_2():
-#     """Test check_version 2."""
-#     with patch(
-#         "systembridgeconnector.http_client.HTTPClient.get",
-#         new_callable=AsyncMock,
-#     ) as mock_get:
-#         mock_get.return_value = {
-#             "version": "2.0.0",
-#         }
-#         result = await version.check_version_2()
-#         assert result == "2.0.0"
+@pytest.mark.asyncio
+async def test_check_version_3(http_client: ClientSessionGenerator):
+    """Test check_version 3."""
+    client = await http_client()
+    version = Version(
+        api_host=API_HOST,
+        api_port=API_PORT,
+        token=TOKEN,
+        session=client.session,
+    )
 
-
-# @pytest.mark.asyncio
-# async def test_check_version_3():
-#     """Test check_version 3."""
-#     with patch(
-#         "systembridgeconnector.http_client.HTTPClient.get",
-#         new_callable=AsyncMock,
-#     ) as mock_get:
-#         mock_get.return_value = {
-#             "version": "3.0.0",
-#         }
-#         result = await version.check_version_3()
-#         assert result == "3.0.0"
+    with patch(
+        "systembridgeconnector.http_client.HTTPClient.get",
+        new_callable=AsyncMock,
+    ) as mock_get:
+        mock_get.return_value = asdict(
+            System(
+                boot_time=0,
+                fqdn="",
+                hostname="",
+                ip_address_4="",
+                mac_address="",
+                platform_version="",
+                platform="",
+                uptime=0,
+                users=[],
+                uuid="",
+                version="3.0.0",
+            )
+        )
+        result = await version.check_version_3()
+        assert result == "3.0.0"
