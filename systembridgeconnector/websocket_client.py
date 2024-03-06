@@ -38,24 +38,39 @@ from .const import (
     SUBTYPE_BAD_TOKEN,
     SUBTYPE_LISTENER_ALREADY_REGISTERED,
     TYPE_APPLICATION_UPDATE,
+    TYPE_DATA_GET,
+    TYPE_DATA_LISTENER_REGISTERED,
     TYPE_DATA_UPDATE,
+    TYPE_DIRECTORIES,
     TYPE_ERROR,
     TYPE_EXIT_APPLICATION,
+    TYPE_FILE,
+    TYPE_FILES,
     TYPE_GET_DATA,
     TYPE_GET_DIRECTORIES,
     TYPE_GET_FILE,
     TYPE_GET_FILES,
+    TYPE_KEYBOARD_KEY_PRESSED,
     TYPE_KEYBOARD_KEYPRESS,
     TYPE_KEYBOARD_TEXT,
+    TYPE_KEYBOARD_TEXT_SENT,
     TYPE_MEDIA_CONTROL,
     TYPE_NOTIFICATION,
+    TYPE_NOTIFICATION_SENT,
     TYPE_OPEN,
+    TYPE_OPENED,
     TYPE_POWER_HIBERNATE,
+    TYPE_POWER_HIBERNATING,
     TYPE_POWER_LOCK,
+    TYPE_POWER_LOCKING,
+    TYPE_POWER_LOGGINGOUT,
     TYPE_POWER_LOGOUT,
     TYPE_POWER_RESTART,
+    TYPE_POWER_RESTARTING,
     TYPE_POWER_SHUTDOWN,
+    TYPE_POWER_SHUTTINGDOWN,
     TYPE_POWER_SLEEP,
+    TYPE_POWER_SLEEPING,
     TYPE_REGISTER_DATA_LISTENER,
 )
 from .exceptions import (
@@ -94,7 +109,7 @@ class WebSocketClient(Base):
         event: str,
         request_id: str,
         data: dict[str, Any],
-        wait_for_response: bool = True,
+        wait_for_response: bool,
         response_type: str | None = None,
     ) -> Response:
         """Send a message to the WebSocket."""
@@ -236,7 +251,8 @@ class WebSocketClient(Base):
             TYPE_GET_DATA,
             request_id,
             asdict(model),
-            wait_for_response=False,
+            wait_for_response=True,
+            response_type=TYPE_DATA_GET,
         )
 
     async def get_directories(
@@ -250,6 +266,8 @@ class WebSocketClient(Base):
             TYPE_GET_DIRECTORIES,
             request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_DIRECTORIES,
         )
         return [
             MediaDirectory(
@@ -270,6 +288,8 @@ class WebSocketClient(Base):
             TYPE_GET_FILES,
             request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_FILES,
         )
 
         files = getattr(response.data, "files")
@@ -290,6 +310,8 @@ class WebSocketClient(Base):
             TYPE_GET_FILE,
             request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_FILE,
         )
         return MediaFile(
             name=getattr(response.data, "name"),
@@ -316,6 +338,8 @@ class WebSocketClient(Base):
             TYPE_REGISTER_DATA_LISTENER,
             request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_DATA_LISTENER_REGISTERED,
         )
 
     async def keyboard_keypress(
@@ -329,6 +353,8 @@ class WebSocketClient(Base):
             TYPE_KEYBOARD_KEYPRESS,
             request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_KEYBOARD_KEY_PRESSED,
         )
 
     async def keyboard_text(
@@ -342,6 +368,8 @@ class WebSocketClient(Base):
             TYPE_KEYBOARD_TEXT,
             request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_KEYBOARD_TEXT_SENT,
         )
 
     async def media_control(
@@ -355,6 +383,7 @@ class WebSocketClient(Base):
             TYPE_MEDIA_CONTROL,
             request_id,
             asdict(model),
+            wait_for_response=False,
         )
 
     async def send_notification(
@@ -368,6 +397,8 @@ class WebSocketClient(Base):
             TYPE_NOTIFICATION,
             request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_NOTIFICATION_SENT,
         )
 
     async def open_path(
@@ -381,6 +412,8 @@ class WebSocketClient(Base):
             TYPE_OPEN,
             request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_OPENED,
         )
 
     async def open_url(
@@ -394,6 +427,8 @@ class WebSocketClient(Base):
             TYPE_OPEN,
             request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_OPENED,
         )
 
     async def power_sleep(
@@ -406,6 +441,8 @@ class WebSocketClient(Base):
             TYPE_POWER_SLEEP,
             request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_SLEEPING,
         )
 
     async def power_hibernate(
@@ -418,6 +455,8 @@ class WebSocketClient(Base):
             TYPE_POWER_HIBERNATE,
             request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_HIBERNATING,
         )
 
     async def power_restart(
@@ -430,6 +469,8 @@ class WebSocketClient(Base):
             TYPE_POWER_RESTART,
             request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_RESTARTING,
         )
 
     async def power_shutdown(
@@ -442,6 +483,8 @@ class WebSocketClient(Base):
             TYPE_POWER_SHUTDOWN,
             request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_SHUTTINGDOWN,
         )
 
     async def power_lock(
@@ -454,6 +497,8 @@ class WebSocketClient(Base):
             TYPE_POWER_LOCK,
             request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_LOCKING,
         )
 
     async def power_logout(
@@ -466,6 +511,8 @@ class WebSocketClient(Base):
             TYPE_POWER_LOGOUT,
             request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_LOGGINGOUT,
         )
 
     async def listen(
