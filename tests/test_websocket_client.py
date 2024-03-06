@@ -1,12 +1,12 @@
 """Test the websocket client module."""
 
-import asyncio
-from typing import Any
 from unittest.mock import patch
 
+import aiohttp
 from aiohttp import web
 import pytest
 
+from systembridgeconnector.exceptions import ConnectionErrorException
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.response import Response
 
@@ -73,3 +73,28 @@ async def test_close(aiohttp_client: ClientSessionGenerator):
 
     await websocket_client.close()
     assert websocket_client.connected is False
+
+
+@pytest.mark.asyncio
+async def test_connection_error(aiohttp_client: ClientSessionGenerator):
+    """Test connection error."""
+    app = web.Application()
+
+    _ = await aiohttp_client(
+        app,
+        server_kwargs={
+            "port": API_PORT,
+        },
+    )
+
+    websocket_client = WebSocketClient(
+        API_HOST,
+        API_PORT,
+        TOKEN,
+    )
+
+    with patch(
+        "aiohttp.ClientSession.ws_connect",
+        side_effect=aiohttp.ClientConnectionError,
+    ), pytest.raises(ConnectionErrorException):
+        await websocket_client.connect()
