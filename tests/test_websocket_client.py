@@ -6,7 +6,7 @@ import aiohttp
 from aiohttp import web
 import pytest
 
-from systembridgeconnector.const import TYPE_DIRECTORIES
+from systembridgeconnector.const import EVENT_MODULES, TYPE_DATA_GET, TYPE_DIRECTORIES
 from systembridgeconnector.exceptions import ConnectionErrorException
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.const import MODEL_SYSTEM
@@ -121,7 +121,14 @@ async def test_exit_backend(aiohttp_client: ClientSessionGenerator):
 @pytest.mark.asyncio
 async def test_get_data(aiohttp_client: ClientSessionGenerator):
     """Test get data."""
-    websocket_client = await _get_websocket_client(aiohttp_client)
+    websocket_client = await _get_websocket_client(
+        aiohttp_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_DATA_GET,
+            data={EVENT_MODULES: [MODEL_SYSTEM]},
+        ),
+    )
     response = await websocket_client.get_data(
         GetData(
             modules=[MODEL_SYSTEM],
