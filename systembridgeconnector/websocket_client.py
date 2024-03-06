@@ -1,4 +1,5 @@
 """WebSocket Client."""
+
 from __future__ import annotations
 
 import asyncio
@@ -91,6 +92,7 @@ class WebSocketClient(Base):
     async def _send_message(
         self,
         event: str,
+        request_id: str,
         data: dict[str, Any],
         wait_for_response: bool = True,
         response_type: str | None = None,
@@ -101,7 +103,7 @@ class WebSocketClient(Base):
 
         request = Request(
             token=self._token,
-            id=uuid4().hex,
+            id=request_id,
             event=event,
             data=data,
         )
@@ -110,9 +112,30 @@ class WebSocketClient(Base):
         self._responses[request.id] = future, response_type
         await self._websocket.send_json(asdict(request))
         self._logger.debug("Sent message: %s", request)
+        print("Sent message: %s", request)
 
         if wait_for_response:
             try:
+                # if the future is already done, return the result
+                if future.done():
+                    self._logger.info("Future is done: %s", request.id)
+                    print("Future is done:", request.id)
+                    return future.result()
+                # if the future is cancelled, return a cancelled response
+                if future.cancelled():
+                    self._logger.info("Future is cancelled: %s", request.id)
+                    print("Future is cancelled")
+                    return Response(
+                        id=request.id,
+                        type="N/A",
+                        message="Message cancelled",
+                        subtype=None,
+                        module=None,
+                        data={},
+                    )
+                # otherwise, await the future
+                self._logger.info("Awaiting future: %s", request.id)
+                print("Awaiting future:", request.id)
                 return await future
             finally:
                 self._responses.pop(request.id)
@@ -170,20 +193,26 @@ class WebSocketClient(Base):
     async def application_update(
         self,
         model: Update,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Update application."""
         self._logger.info("Updating application")
         return await self._send_message(
             TYPE_APPLICATION_UPDATE,
+            request_id,
             asdict(model),
             wait_for_response=False,
         )
 
-    async def exit_backend(self) -> Response:
+    async def exit_backend(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Exit backend."""
         self._logger.info("Exiting backend")
         return await self._send_message(
             TYPE_EXIT_APPLICATION,
+            request_id,
             {},
             wait_for_response=False,
         )
@@ -191,20 +220,27 @@ class WebSocketClient(Base):
     async def get_data(
         self,
         model: GetData,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Get data from server."""
         self._logger.info("Getting data from server: %s", model)
         return await self._send_message(
             TYPE_GET_DATA,
+            request_id,
             asdict(model),
             wait_for_response=False,
         )
 
-    async def get_directories(self) -> list[MediaDirectory]:
+    async def get_directories(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> list[MediaDirectory]:
         """Get directories."""
+        print("Getting directories..")
         self._logger.info("Getting directories..")
         response = await self._send_message(
             TYPE_GET_DIRECTORIES,
+            request_id,
             {},
         )
         return [
@@ -218,11 +254,13 @@ class WebSocketClient(Base):
     async def get_files(
         self,
         model: MediaGetFiles,
+        request_id: str = uuid4().hex,
     ) -> MediaFiles:
         """Get files."""
         self._logger.info("Getting files: %s", model)
         response = await self._send_message(
             TYPE_GET_FILES,
+            request_id,
             asdict(model),
         )
 
@@ -236,11 +274,13 @@ class WebSocketClient(Base):
     async def get_file(
         self,
         model: MediaGetFile,
+        request_id: str = uuid4().hex,
     ) -> MediaFile:
         """Get files."""
         self._logger.info("Getting file: %s", model)
         response = await self._send_message(
             TYPE_GET_FILE,
+            request_id,
             asdict(model),
         )
         return MediaFile(
@@ -260,125 +300,163 @@ class WebSocketClient(Base):
     async def register_data_listener(
         self,
         model: RegisterDataListener,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Register data listener."""
         self._logger.info("Registering data listener: %s", model)
         return await self._send_message(
             TYPE_REGISTER_DATA_LISTENER,
+            request_id,
             asdict(model),
         )
 
     async def keyboard_keypress(
         self,
         model: KeyboardKey,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Keyboard keypress."""
         self._logger.info("Press key: %s", model)
         return await self._send_message(
             TYPE_KEYBOARD_KEYPRESS,
+            request_id,
             asdict(model),
         )
 
     async def keyboard_text(
         self,
         model: KeyboardText,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Keyboard keypress."""
         self._logger.info("Enter text: %s", model)
         return await self._send_message(
             TYPE_KEYBOARD_TEXT,
+            request_id,
             asdict(model),
         )
 
     async def media_control(
         self,
         model: MediaControl,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Media control."""
         self._logger.info("Media control: %s", model)
         return await self._send_message(
             TYPE_MEDIA_CONTROL,
+            request_id,
             asdict(model),
         )
 
     async def send_notification(
         self,
         model: Notification,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Send notification."""
         self._logger.info("Send notification: %s", model)
         return await self._send_message(
             TYPE_NOTIFICATION,
+            request_id,
             asdict(model),
         )
 
     async def open_path(
         self,
         model: OpenPath,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Open path."""
         self._logger.info("Opening path: %s", model)
         return await self._send_message(
             TYPE_OPEN,
+            request_id,
             asdict(model),
         )
 
     async def open_url(
         self,
         model: OpenUrl,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Open url."""
         self._logger.info("Opening URL: %s", model)
         return await self._send_message(
             TYPE_OPEN,
+            request_id,
             asdict(model),
         )
 
-    async def power_sleep(self) -> Response:
+    async def power_sleep(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power sleep."""
         self._logger.info("Power sleep")
         return await self._send_message(
             TYPE_POWER_SLEEP,
+            request_id,
             {},
         )
 
-    async def power_hibernate(self) -> Response:
+    async def power_hibernate(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power hibernate."""
         self._logger.info("Power hibernate")
         return await self._send_message(
             TYPE_POWER_HIBERNATE,
+            request_id,
             {},
         )
 
-    async def power_restart(self) -> Response:
+    async def power_restart(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power restart."""
         self._logger.info("Power restart")
         return await self._send_message(
             TYPE_POWER_RESTART,
+            request_id,
             {},
         )
 
-    async def power_shutdown(self) -> Response:
+    async def power_shutdown(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power shutdown."""
         self._logger.info("Power shutdown")
         return await self._send_message(
             TYPE_POWER_SHUTDOWN,
+            request_id,
             {},
         )
 
-    async def power_lock(self) -> Response:
+    async def power_lock(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power lock."""
         self._logger.info("Power lock")
         return await self._send_message(
             TYPE_POWER_LOCK,
+            request_id,
             {},
         )
 
-    async def power_logout(self) -> Response:
+    async def power_logout(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power logout."""
         self._logger.info("Power logout")
         return await self._send_message(
             TYPE_POWER_LOGOUT,
+            request_id,
             {},
         )
 
