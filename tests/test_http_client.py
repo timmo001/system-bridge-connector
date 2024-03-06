@@ -41,13 +41,7 @@ async def test_delete(aiohttp_client: ClientSessionGenerator):
     """Test the delete method."""
     client = await _get_http_client(aiohttp_client)
     response = await client.delete("/", None)
-    assert response is not None
-
-    status = await response.status
-    assert status == 200
-
-    data = await response.json()
-    assert data == {"test": "test"}
+    assert response == {"test": "test"}
 
 
 @pytest.mark.asyncio
@@ -55,10 +49,20 @@ async def test_get(aiohttp_client: ClientSessionGenerator):
     """Test the get method."""
     client = await _get_http_client(aiohttp_client)
     response = await client.get("/")
-    assert response is not None
+    assert response == {"test": "test"}
 
-    status = await response.status
-    assert status == 200
 
-    data = await response.json()
-    assert data == {"test": "test"}
+@pytest.mark.asyncio
+async def test_post(aiohttp_client: ClientSessionGenerator):
+    """Test the post method."""
+    client = await _get_http_client(aiohttp_client)
+    response = await client.post("/", None)
+    assert response == {"test": "test"}
+
+
+@pytest.mark.asyncio
+async def test_put(aiohttp_client: ClientSessionGenerator):
+    """Test the put method."""
+    client = await _get_http_client(aiohttp_client)
+    response = await client.put("/", None)
+    assert response == {"test": "test"}
