@@ -119,7 +119,8 @@ async def ws_client(
         )
 
         websocket = await client.ws_connect(WEBSOCKET_PATH)
-        _ = await websocket.receive_json()
+        received_json = await websocket.receive_json()
+        print("Received JSON:", received_json)
 
         await websocket.send_json(asdict(response))
 
