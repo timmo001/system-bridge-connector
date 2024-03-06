@@ -3,7 +3,7 @@
 import asyncio
 from unittest.mock import patch
 
-from aiohttp import ClientConnectorError, web
+from aiohttp import web
 import pytest
 
 from systembridgeconnector.exceptions import (
@@ -148,6 +148,6 @@ async def test_connection_error(aiohttp_client: ClientSessionGenerator):
     client = await _get_http_client(aiohttp_client)
     with patch(
         "aiohttp.client.ClientSession.request",
-        side_effect=ClientConnectorError,
+        side_effect=ConnectionResetError,
     ), pytest.raises(ConnectionErrorException):
         await client.get("/test/json")
