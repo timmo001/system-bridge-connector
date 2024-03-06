@@ -15,6 +15,12 @@ TOKEN: Final[str] = "abc123"
 WEBSOCKET_PATH: Final[str] = "/api/websocket"
 
 
+class MockClientWebSocket(ClientWebSocketResponse):
+    """Protocol for a wrapped ClientWebSocketResponse."""
+
+    client: TestClient
+
+
 ClientSessionGenerator = Callable[..., Coroutine[Any, Any, TestClient]]
 
-WebSocketGenerator = Callable[..., Coroutine[Any, Any, ClientWebSocketResponse]]
+WebSocketGenerator = Callable[..., Coroutine[Any, Any, MockClientWebSocket]]
