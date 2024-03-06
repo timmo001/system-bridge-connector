@@ -11,6 +11,7 @@ from systembridgeconnector.const import (
     TYPE_DATA_GET,
     TYPE_DATA_LISTENER_REGISTERED,
     TYPE_DIRECTORIES,
+    TYPE_ERROR,
     TYPE_FILE,
     TYPE_FILES,
     TYPE_KEYBOARD_KEY_PRESSED,
@@ -103,6 +104,28 @@ async def test_connection_closed(ws_client: WebSocketGenerator):
         side_effect=aiohttp.ClientConnectionError,
     ), pytest.raises(ConnectionClosedException):
         await websocket_client.application_update(Update(version="0.0.0"))
+
+
+@pytest.mark.asyncio
+async def test_timeout(ws_client: WebSocketGenerator):
+    """Test timeout."""
+    websocket_client = await _get_websocket_client(ws_client, base_response)
+    assert websocket_client.connected is True
+
+    with patch(
+        "systembridgeconnector.websocket_client.WebSocketClient._wait_for_future",
+        side_effect=asyncio.TimeoutError,
+    ):
+        response = await websocket_client.get_data(
+            GetData(
+                modules=[MODEL_SYSTEM],
+            ),
+            request_id=REQUEST_ID,
+        )
+
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_ERROR
 
 
 @pytest.mark.asyncio
