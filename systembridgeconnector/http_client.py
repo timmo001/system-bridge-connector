@@ -147,7 +147,6 @@ class HTTPClient(Base):
                             "method": method,
                             "url": url,
                         },
-                        "response": await response.json(),
                         "status": response.status,
                     }
                 )
