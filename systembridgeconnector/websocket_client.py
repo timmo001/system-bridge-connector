@@ -134,8 +134,16 @@ class WebSocketClient(Base):
                         data={},
                     )
                 # otherwise, await the future
-                self._logger.info("Awaiting future: %s", request.id)
-                print("Awaiting future:", request.id)
+                self._logger.info(
+                    "Awaiting future: %s (%s)",
+                    request.id,
+                    response_type,
+                )
+                print(
+                    "Awaiting future:",
+                    request.id,
+                    response_type,
+                )
                 return await future
             finally:
                 self._responses.pop(request.id)
