@@ -255,12 +255,12 @@ class WebSocketClient(Base):
             wait_for_response=True,
             response_type=TYPE_DIRECTORIES,
         )
-        if response.data is None:
-            return []
-        if not isinstance(response.data, list):
-            return []
 
-        return [MediaDirectory(**directory) for directory in response.data]
+        return (
+            [MediaDirectory(**directory) for directory in response.data]
+            if response.data is not None and isinstance(response.data, list)
+            else []
+        )
 
     async def get_files(
         self,
@@ -276,21 +276,21 @@ class WebSocketClient(Base):
             wait_for_response=True,
             response_type=TYPE_FILES,
         )
-        if response.data is None:
-            return MediaFiles(files=[], path="")
-        if not isinstance(response.data, dict):
-            return MediaFiles(files=[], path="")
 
-        return MediaFiles(
-            files=[MediaFile(**file) for file in response.data.get("files", [])],
-            path=response.data.get("path", ""),
+        return (
+            MediaFiles(
+                files=[MediaFile(**file) for file in response.data.get("files", [])],
+                path=response.data.get("path", ""),
+            )
+            if response.data is not None and isinstance(response.data, dict)
+            else MediaFiles(files=[], path="")
         )
 
     async def get_file(
         self,
         model: MediaGetFile,
         request_id: str = uuid4().hex,
-    ) -> MediaFile:
+    ) -> MediaFile | None:
         """Get files."""
         self._logger.info("Getting file: %s", model)
         response = await self._send_message(
@@ -300,12 +300,12 @@ class WebSocketClient(Base):
             wait_for_response=True,
             response_type=TYPE_FILE,
         )
-        if response.data is None:
-            raise ValueError("No data returned")
-        if not isinstance(response.data, dict):
-            raise TypeError("Data is not a dictionary")
 
-        return MediaFile(**response.data)
+        return (
+            MediaFile(**response.data)
+            if response.data is not None and isinstance(response.data, dict)
+            else None
+        )
 
     async def register_data_listener(
         self,
