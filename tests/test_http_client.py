@@ -1,5 +1,7 @@
 """Test the http client module."""
 
+from unittest.mock import patch
+
 from aiohttp import web
 import pytest
 
@@ -79,3 +81,29 @@ async def test_put(aiohttp_client: ClientSessionGenerator):
     response_json = await client.put("/test/json", None)
     assert isinstance(response_json, dict)
     assert response_json == {"test": "test"}
+
+
+# @pytest.mark.asyncio
+# async def test_timeout(aiohttp_client: ClientSessionGenerator):
+#     """Test the timeout."""
+#     client = await _get_http_client(aiohttp_client)
+#     with patch(
+#         "systembridgeconnector.http_client.HTTPClient.request",
+#         side_effect="asyncio.TimeoutError",
+#     ) as mock_request:
+#         await client.get("/test/json")
+
+#     mock_request.assert_called_once()
+
+
+# @pytest.mark.asyncio
+# async def test_connection_error(aiohttp_client: ClientSessionGenerator):
+#     """Test the connection error."""
+#     client = await _get_http_client(aiohttp_client)
+#     with patch(
+#         "systembridgeconnector.http_client.HTTPClient.request",
+#         side_effect="aiohttp.client_exceptions.ClientConnectorError",
+#     ) as mock_request:
+#         await client.get("/test/json")
+
+#     mock_request.assert_called_once()
