@@ -63,6 +63,18 @@ async def _get_websocket_client(
 
 
 @pytest.mark.asyncio
+async def test_connection_error(ws_client: WebSocketGenerator):
+    """Test connection error."""
+    websocket_client = await _get_websocket_client(ws_client, base_response)
+
+    with patch(
+        "aiohttp.ClientSession.ws_connect",
+        side_effect=aiohttp.ClientConnectionError,
+    ), pytest.raises(ConnectionErrorException):
+        await websocket_client.connect()
+
+
+@pytest.mark.asyncio
 async def test_close(ws_client: WebSocketGenerator):
     """Test close."""
     websocket_client = await _get_websocket_client(ws_client, base_response)
@@ -145,15 +157,3 @@ async def test_get_directories(ws_client: WebSocketGenerator):
     assert isinstance(response[0], MediaDirectory)
     assert response[0].key == "documents"
     assert response[0].path == "/documents"
-
-
-@pytest.mark.asyncio
-async def test_connection_error(ws_client: WebSocketGenerator):
-    """Test connection error."""
-    websocket_client = await _get_websocket_client(ws_client, base_response)
-
-    with patch(
-        "aiohttp.ClientSession.ws_connect",
-        side_effect=aiohttp.ClientConnectionError,
-    ), pytest.raises(ConnectionErrorException):
-        await websocket_client.connect()
