@@ -1,6 +1,7 @@
 """Test the websocket client module."""
 
 import asyncio
+from typing import Any
 from unittest.mock import patch
 
 import aiohttp
@@ -38,7 +39,7 @@ from systembridgemodels.media_directories import MediaDirectory
 from systembridgemodels.media_files import MediaFile, MediaFiles
 from systembridgemodels.media_get_file import MediaGetFile
 from systembridgemodels.media_get_files import MediaGetFiles
-from systembridgemodels.modules import GetData, RegisterDataListener
+from systembridgemodels.modules import GetData, ModulesData, RegisterDataListener
 from systembridgemodels.notification import Notification
 from systembridgemodels.open_path import OpenPath
 from systembridgemodels.open_url import OpenUrl
@@ -52,6 +53,8 @@ base_response = Response(
     type="TEST",
     data={"test": "test"},
 )
+
+modules_data = ModulesData()
 
 
 async def _get_websocket_client(
@@ -69,9 +72,16 @@ async def _get_websocket_client(
         websocket=ws,
     )
 
+    async def _handle_module_data(
+        module: str,
+        data: Any,
+    ) -> None:
+        """Handle module data."""
+        setattr(modules_data, module, data)
+
     # Run the listener in the background
     asyncio.get_event_loop().create_task(
-        websocket_client.listen(callback=None),
+        websocket_client.listen(callback=_handle_module_data),
         name="WebSocket Listener",
     )
 
@@ -189,6 +199,12 @@ async def test_get_data(ws_client: WebSocketGenerator):
     assert response.id == REQUEST_ID
     assert response.type == TYPE_DATA_GET
     assert response.data == {EVENT_MODULES: [MODEL_SYSTEM]}
+
+    # Test wait for data
+    while modules_data.system is None:
+        await asyncio.sleep(0.1)
+
+    assert modules_data.system is not None
 
 
 @pytest.mark.asyncio

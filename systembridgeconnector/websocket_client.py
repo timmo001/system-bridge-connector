@@ -512,13 +512,7 @@ class WebSocketClient(Base):
                 is not None
             ):
                 future, response_type = response_tuple
-                if response_type is not None and response_type != message[EVENT_TYPE]:
-                    self._logger.info(
-                        "Response type '%s' does not match requested type '%s'.",
-                        message[EVENT_TYPE],
-                        response_type,
-                    )
-                else:
+                if response_type is not None and response_type == message[EVENT_TYPE]:
                     response = Response(**message)
 
                     if (
