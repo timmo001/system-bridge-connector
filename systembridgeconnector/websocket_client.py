@@ -89,6 +89,8 @@ class WebSocketClient(Base):
         api_host: str,
         api_port: int,
         token: str,
+        session: aiohttp.ClientSession,
+        websocket: aiohttp.ClientWebSocketResponse | None = None,
     ) -> None:
         """Initialise."""
         super().__init__()
@@ -96,8 +98,8 @@ class WebSocketClient(Base):
         self._api_port = api_port
         self._token = token
         self._responses: dict[str, tuple[asyncio.Future[Response], str | None]] = {}
-        self._session: aiohttp.ClientSession | None = None
-        self._websocket: aiohttp.ClientWebSocketResponse | None = None
+        self._session = session
+        self._websocket = websocket
 
     @property
     def connected(self) -> bool:
@@ -125,6 +127,7 @@ class WebSocketClient(Base):
 
         future: asyncio.Future[Response] = asyncio.get_running_loop().create_future()
         self._responses[request.id] = future, response_type
+
         await self._websocket.send_json(asdict(request))
         self._logger.debug("Sent message: %s", request)
         print("Sent message:", request)
@@ -159,7 +162,16 @@ class WebSocketClient(Base):
                     request.id,
                     response_type,
                 )
-                return await future
+                try:
+                    return await asyncio.wait_for(future, timeout=8.0)
+                except asyncio.TimeoutError:
+                    self._logger.error("Timeout waiting for future: %s", request.id)
+                    return Response(
+                        id=request.id,
+                        type=TYPE_ERROR,
+                        message="Timeout waiting for response",
+                        data={},
+                    )
             finally:
                 self._responses.pop(request.id)
         return Response(
@@ -182,16 +194,8 @@ class WebSocketClient(Base):
         if self._session is not None and not keep_session_active:
             await self._session.close()
 
-    async def connect(
-        self,
-        session: aiohttp.ClientSession | None = None,
-    ) -> None:
+    async def connect(self) -> None:
         """Connect to server."""
-        if session:
-            self._session = session
-        else:
-            self._logger.info("Creating new aiohttp client session")
-            self._session = aiohttp.ClientSession()
         url = f"ws://{self._api_host}:{self._api_port}/api/websocket"
         self._logger.info(
             "Connecting to WebSocket: %s (aiohttp: %s)",
@@ -211,7 +215,6 @@ class WebSocketClient(Base):
                 error,
             )
             raise ConnectionErrorException from error
-        self._logger.info("Connected to WebSocket")
 
     async def application_update(
         self,

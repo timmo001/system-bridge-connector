@@ -1,5 +1,7 @@
 """Test the websocket client module."""
 
+import asyncio
+import concurrent.futures
 from typing import Final
 from unittest.mock import patch
 
@@ -41,14 +43,20 @@ async def _get_websocket_client(
     response: Response,
 ) -> WebSocketClient:
     """Return a websocket client."""
+    ws = await ws_client(response=response)
+
     websocket_client = WebSocketClient(
         API_HOST,
         API_PORT,
         TOKEN,
+        session=ws.client.session,
+        websocket=ws,
     )
 
-    ws = await ws_client(response=response)
-    await websocket_client.connect(session=ws.client.session)
+    # Run the listener in a separate thread
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        asyncio.get_event_loop().run_in_executor(executor, websocket_client.listen)
+
     return websocket_client
 
 
