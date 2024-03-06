@@ -13,8 +13,20 @@ import pytest
 from systembridgeconnector.const import (
     EVENT_MODULES,
     TYPE_DATA_GET,
+    TYPE_DATA_LISTENER_REGISTERED,
     TYPE_DIRECTORIES,
+    TYPE_FILE,
     TYPE_FILES,
+    TYPE_KEYBOARD_KEY_PRESSED,
+    TYPE_KEYBOARD_TEXT_SENT,
+    TYPE_NOTIFICATION_SENT,
+    TYPE_OPENED,
+    TYPE_POWER_HIBERNATING,
+    TYPE_POWER_LOCKING,
+    TYPE_POWER_LOGGINGOUT,
+    TYPE_POWER_RESTARTING,
+    TYPE_POWER_SHUTTINGDOWN,
+    TYPE_POWER_SLEEPING,
 )
 from systembridgeconnector.exceptions import ConnectionErrorException
 from systembridgeconnector.websocket_client import WebSocketClient
@@ -213,3 +225,343 @@ async def test_get_files(ws_client: WebSocketGenerator):
     assert response.files[0].is_link is False
     assert response.files[0].mime_type is None
     assert response.path == "path/to"
+
+
+@pytest.mark.asyncio
+async def test_get_file(ws_client: WebSocketGenerator):
+    """Test get file."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_FILE,
+            data={
+                "name": "test",
+                "path": "path/to",
+                "fullpath": "path/to/test",
+                "size": 0,
+                "last_accessed": 0,
+                "created": 0,
+                "modified": 0,
+                "is_directory": False,
+                "is_file": True,
+                "is_link": False,
+                "mime_type": None,
+            },
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.get_file(
+        MediaGetFile(
+            base="documents",
+            path="path/to/test",
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, MediaFile)
+    assert response.name == "test"
+    assert response.path == "path/to"
+    assert response.fullpath == "path/to/test"
+    assert response.size == 0
+    assert response.last_accessed == 0
+    assert response.created == 0
+    assert response.modified == 0
+    assert response.is_directory is False
+    assert response.is_file is True
+    assert response.is_link is False
+    assert response.mime_type is None
+
+
+@pytest.mark.asyncio
+async def test_register_data_listener(ws_client: WebSocketGenerator):
+    """Test register data listener."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_DATA_LISTENER_REGISTERED,
+            data={EVENT_MODULES: [MODEL_SYSTEM]},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.register_data_listener(
+        RegisterDataListener(
+            modules=[MODEL_SYSTEM],
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_DATA_LISTENER_REGISTERED
+    assert response.data == {EVENT_MODULES: [MODEL_SYSTEM]}
+
+
+@pytest.mark.asyncio
+async def test_keyboard_keypress(ws_client: WebSocketGenerator):
+    """Test keyboard keypress."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_KEYBOARD_KEY_PRESSED,
+            data={"key": "a"},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.keyboard_keypress(
+        KeyboardKey(
+            key="a",
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_KEYBOARD_KEY_PRESSED
+    assert response.data == {"key": "a"}
+
+
+@pytest.mark.asyncio
+async def test_keyboard_text(ws_client: WebSocketGenerator):
+    """Test keyboard text."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_KEYBOARD_TEXT_SENT,
+            data={"text": "test"},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.keyboard_text(
+        KeyboardText(
+            text="test",
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_KEYBOARD_TEXT_SENT
+    assert response.data == {"text": "test"}
+
+
+@pytest.mark.asyncio
+async def test_media_control(ws_client: WebSocketGenerator):
+    """Test media control."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type="N/A",
+            data={},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.media_control(
+        MediaControl(
+            action="play",
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == "N/A"
+    assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_send_notification(ws_client: WebSocketGenerator):
+    """Test send notification."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_NOTIFICATION_SENT,
+            data={"title": "test", "message": "test"},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.send_notification(
+        Notification(
+            title="test",
+            message="test",
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_NOTIFICATION_SENT
+    assert response.data == {"title": "test", "message": "test"}
+
+
+@pytest.mark.asyncio
+async def test_open_path(ws_client: WebSocketGenerator):
+    """Test open path."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_OPENED,
+            data={"path": "test"},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.open_path(
+        OpenPath(
+            path="test",
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_OPENED
+    assert response.data == {"path": "test"}
+
+
+@pytest.mark.asyncio
+async def test_open_url(ws_client: WebSocketGenerator):
+    """Test open url."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_OPENED,
+            data={"url": "test"},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.open_url(
+        OpenUrl(
+            url="test",
+        ),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_OPENED
+    assert response.data == {"url": "test"}
+
+
+@pytest.mark.asyncio
+async def test_power_control(ws_client: WebSocketGenerator):
+    """Test power control."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_POWER_SLEEPING,
+            data={},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.power_sleep(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_POWER_SLEEPING
+    assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_power_hibernate(ws_client: WebSocketGenerator):
+    """Test power control."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_POWER_HIBERNATING,
+            data={},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.power_hibernate(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_POWER_HIBERNATING
+    assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_power_restart(ws_client: WebSocketGenerator):
+    """Test power control."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_POWER_RESTARTING,
+            data={},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.power_restart(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_POWER_RESTARTING
+    assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_power_shutdown(ws_client: WebSocketGenerator):
+    """Test power control."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_POWER_SHUTTINGDOWN,
+            data={},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.power_shutdown(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_POWER_SHUTTINGDOWN
+    assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_power_lock(ws_client: WebSocketGenerator):
+    """Test power control."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_POWER_LOCKING,
+            data={},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.power_lock(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_POWER_LOCKING
+    assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_power_logout(ws_client: WebSocketGenerator):
+    """Test power control."""
+    websocket_client = await _get_websocket_client(
+        ws_client,
+        Response(
+            id=REQUEST_ID,
+            type=TYPE_POWER_LOGGINGOUT,
+            data={},
+        ),
+    )
+    assert websocket_client.connected is True
+    response = await websocket_client.power_logout(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(response, Response)
+    assert response.id == REQUEST_ID
+    assert response.type == TYPE_POWER_LOGGINGOUT
+    assert response.data == {}

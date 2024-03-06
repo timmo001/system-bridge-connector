@@ -309,19 +309,12 @@ class WebSocketClient(Base):
             wait_for_response=True,
             response_type=TYPE_FILE,
         )
-        return MediaFile(
-            name=getattr(response.data, "name"),
-            path=getattr(response.data, "path"),
-            fullpath=getattr(response.data, "fullpath"),
-            size=getattr(response.data, "size"),
-            last_accessed=getattr(response.data, "last_accessed"),
-            created=getattr(response.data, "created"),
-            modified=getattr(response.data, "modified"),
-            is_directory=getattr(response.data, "is_directory"),
-            is_file=getattr(response.data, "is_file"),
-            is_link=getattr(response.data, "is_link"),
-            mime_type=getattr(response.data, "mime_type"),
-        )
+        if response.data is None:
+            raise ValueError("No data returned")
+        if not isinstance(response.data, dict):
+            raise TypeError("Data is not a dictionary")
+
+        return MediaFile(**response.data)
 
     async def register_data_listener(
         self,
