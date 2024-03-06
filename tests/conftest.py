@@ -6,7 +6,13 @@ from pytest_socket import disable_socket
 
 from systembridgemodels.response import Response
 
-from . import API_PORT, REQUEST_ID, URL, ClientSessionGenerator, WebSocketGenerator
+from . import (
+    API_PORT,
+    REQUEST_ID,
+    WEBSOCKET_PATH,
+    ClientSessionGenerator,
+    WebSocketGenerator,
+)
 
 
 def pytest_runtest_setup():
@@ -37,7 +43,7 @@ async def ws_client(
             },
         )
 
-        websocket = await client.ws_connect(URL)
+        websocket = await client.ws_connect(WEBSOCKET_PATH)
         _ = await websocket.receive_json()
 
         await websocket.send_json(asdict(response))

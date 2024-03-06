@@ -12,7 +12,7 @@ API_HOST: Final[str] = "localhost"
 API_PORT: Final[int] = 9123
 REQUEST_ID: Final[str] = "test"
 TOKEN: Final[str] = "abc123"
-URL: Final[str] = "/api/websocket"
+WEBSOCKET_PATH: Final[str] = "/api/websocket"
 
 
 ClientSessionGenerator = Callable[..., Coroutine[Any, Any, TestClient]]
