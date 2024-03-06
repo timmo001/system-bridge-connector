@@ -22,7 +22,7 @@
     {
       "type": "shell",
       "label": "pytest coverage",
-      "command": "python -m pytest -qq --cov=systembridgeconnector --cov-report=xml --cov-report=term-missing -o console_output_style=count -p no:sugar tests",
+      "command": "python -m pytest -qq --timeout=9 --cov=systembridgeconnector --cov-report=xml --cov-report=term-missing -o console_output_style=count -p no:sugar tests",
       "dependsOn": ["pip install test requirements"]
     }
   ]

@@ -6,6 +6,7 @@ import aiohttp
 from aiohttp import web
 import pytest
 
+from systembridgeconnector.const import TYPE_DIRECTORIES
 from systembridgeconnector.exceptions import ConnectionErrorException
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.const import MODEL_SYSTEM
@@ -29,37 +30,35 @@ from . import API_HOST, API_PORT, TOKEN, ClientSessionGenerator
 
 async def _websocket_response(
     request: web.Request,
-    response: Response | None = None,
+    response: Response,
 ) -> web.WebSocketResponse:
     """Return a websocket response."""
     ws = web.WebSocketResponse()
     await ws.prepare(request)
-    if response is not None:
-        await ws.send_json(response)
+    await ws.send_json(response)
     await ws.close()
     return ws
 
 
-async def _websocket_alive_response(request: web.Request) -> web.WebSocketResponse:
-    """Return a websocket response."""
-    return await _websocket_response(
-        request,
-        Response(
-            id="test",
-            type="TEST",
-            data={"test": "test"},
-        ),
-    )
-
-
 async def _get_websocket_client(
     aiohttp_client: ClientSessionGenerator,
+    response: Response = Response(
+        id="test",
+        type="TEST",
+        data={"test": "test"},
+    ),
 ) -> WebSocketClient:
     """Return a websocket client."""
     app = web.Application()
 
     # Add websocket route at /api/websocket
-    app.router.add_get("/api/websocket", _websocket_response)
+    app.router.add_get(
+        "/api/websocket",
+        lambda request: _websocket_response(
+            request,
+            response,
+        ),
+    )
 
     client = await aiohttp_client(
         app,
@@ -125,6 +124,25 @@ async def test_get_data(aiohttp_client: ClientSessionGenerator):
     assert isinstance(response, Response)
     assert response.type == "N/A"
     assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_get_directories(aiohttp_client: ClientSessionGenerator):
+    """Test get directories."""
+    websocket_client = await _get_websocket_client(
+        aiohttp_client,
+        Response(
+            id="test",
+            type=TYPE_DIRECTORIES,
+            data=[{"key": "documents", "path": "/documents"}],
+        ),
+    )
+    response = await websocket_client.get_directories()
+    assert isinstance(response, list)
+    assert len(response) == 1
+    assert isinstance(response[0], MediaDirectory)
+    assert response[0].key == "documents"
+    assert response[0].path == "/documents"
 
 
 @pytest.mark.asyncio
