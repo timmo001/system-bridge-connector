@@ -8,7 +8,21 @@ import pytest
 
 from systembridgeconnector.exceptions import ConnectionErrorException
 from systembridgeconnector.websocket_client import WebSocketClient
+from systembridgemodels.const import MODEL_SYSTEM
+from systembridgemodels.keyboard_key import KeyboardKey
+from systembridgemodels.keyboard_text import KeyboardText
+from systembridgemodels.media_control import MediaControl
+from systembridgemodels.media_directories import MediaDirectory
+from systembridgemodels.media_files import MediaFile, MediaFiles
+from systembridgemodels.media_get_file import MediaGetFile
+from systembridgemodels.media_get_files import MediaGetFiles
+from systembridgemodels.modules import GetData, RegisterDataListener
+from systembridgemodels.notification import Notification
+from systembridgemodels.open_path import OpenPath
+from systembridgemodels.open_url import OpenUrl
+from systembridgemodels.request import Request
 from systembridgemodels.response import Response
+from systembridgemodels.update import Update
 
 from . import API_HOST, API_PORT, TOKEN, ClientSessionGenerator
 
@@ -73,6 +87,44 @@ async def test_close(aiohttp_client: ClientSessionGenerator):
 
     await websocket_client.close()
     assert websocket_client.connected is False
+
+
+@pytest.mark.asyncio
+async def test_applicaiton_update(aiohttp_client: ClientSessionGenerator):
+    """Test application update."""
+    websocket_client = await _get_websocket_client(aiohttp_client)
+    response = await websocket_client.application_update(
+        Update(
+            version="0.0.0",
+        )
+    )
+    assert isinstance(response, Response)
+    assert response.type == "N/A"
+    assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_exit_backend(aiohttp_client: ClientSessionGenerator):
+    """Test exit backend."""
+    websocket_client = await _get_websocket_client(aiohttp_client)
+    response = await websocket_client.exit_backend()
+    assert isinstance(response, Response)
+    assert response.type == "N/A"
+    assert response.data == {}
+
+
+@pytest.mark.asyncio
+async def test_get_data(aiohttp_client: ClientSessionGenerator):
+    """Test get data."""
+    websocket_client = await _get_websocket_client(aiohttp_client)
+    response = await websocket_client.get_data(
+        GetData(
+            modules=[MODEL_SYSTEM],
+        )
+    )
+    assert isinstance(response, Response)
+    assert response.type == "N/A"
+    assert response.data == {}
 
 
 @pytest.mark.asyncio
