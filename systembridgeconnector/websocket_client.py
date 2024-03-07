@@ -279,11 +279,14 @@ class WebSocketClient(Base):
 
         return (
             MediaFiles(
-                files=[MediaFile(**file) for file in response.data.get("files", [])],
-                path=response.data.get("path", ""),
+                files=[MediaFile(**file) for file in response.data],
+                path=model.path if model.path is not None else "",
             )
-            if response.data is not None and isinstance(response.data, dict)
-            else MediaFiles(files=[], path="")
+            if response.data is not None and isinstance(response.data, list)
+            else MediaFiles(
+                files=[],
+                path=model.path if model.path is not None else "",
+            )
         )
 
     async def get_file(
