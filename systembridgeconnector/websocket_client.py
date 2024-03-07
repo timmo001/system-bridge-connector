@@ -1,4 +1,5 @@
 """WebSocket Client."""
+
 from __future__ import annotations
 
 import asyncio
@@ -37,24 +38,39 @@ from .const import (
     SUBTYPE_BAD_TOKEN,
     SUBTYPE_LISTENER_ALREADY_REGISTERED,
     TYPE_APPLICATION_UPDATE,
+    TYPE_DATA_GET,
+    TYPE_DATA_LISTENER_REGISTERED,
     TYPE_DATA_UPDATE,
+    TYPE_DIRECTORIES,
     TYPE_ERROR,
     TYPE_EXIT_APPLICATION,
+    TYPE_FILE,
+    TYPE_FILES,
     TYPE_GET_DATA,
     TYPE_GET_DIRECTORIES,
     TYPE_GET_FILE,
     TYPE_GET_FILES,
+    TYPE_KEYBOARD_KEY_PRESSED,
     TYPE_KEYBOARD_KEYPRESS,
     TYPE_KEYBOARD_TEXT,
+    TYPE_KEYBOARD_TEXT_SENT,
     TYPE_MEDIA_CONTROL,
     TYPE_NOTIFICATION,
+    TYPE_NOTIFICATION_SENT,
     TYPE_OPEN,
+    TYPE_OPENED,
     TYPE_POWER_HIBERNATE,
+    TYPE_POWER_HIBERNATING,
     TYPE_POWER_LOCK,
+    TYPE_POWER_LOCKING,
+    TYPE_POWER_LOGGINGOUT,
     TYPE_POWER_LOGOUT,
     TYPE_POWER_RESTART,
+    TYPE_POWER_RESTARTING,
     TYPE_POWER_SHUTDOWN,
+    TYPE_POWER_SHUTTINGDOWN,
     TYPE_POWER_SLEEP,
+    TYPE_POWER_SLEEPING,
     TYPE_REGISTER_DATA_LISTENER,
 )
 from .exceptions import (
@@ -73,6 +89,8 @@ class WebSocketClient(Base):
         api_host: str,
         api_port: int,
         token: str,
+        session: aiohttp.ClientSession,
+        websocket: aiohttp.ClientWebSocketResponse | None = None,
     ) -> None:
         """Initialise."""
         super().__init__()
@@ -80,19 +98,27 @@ class WebSocketClient(Base):
         self._api_port = api_port
         self._token = token
         self._responses: dict[str, tuple[asyncio.Future[Response], str | None]] = {}
-        self._session: aiohttp.ClientSession | None = None
-        self._websocket: aiohttp.ClientWebSocketResponse | None = None
+        self._session = session
+        self._websocket = websocket
 
     @property
     def connected(self) -> bool:
         """Get connection state."""
         return self._websocket is not None and not self._websocket.closed
 
+    async def _wait_for_future(
+        self,
+        future: asyncio.Future[Response],
+    ) -> Response:
+        """Wait for future."""
+        return await asyncio.wait_for(future, timeout=8.0)
+
     async def _send_message(
         self,
         event: str,
+        request_id: str,
         data: dict[str, Any],
-        wait_for_response: bool = True,
+        wait_for_response: bool,
         response_type: str | None = None,
     ) -> Response:
         """Send a message to the WebSocket."""
@@ -101,21 +127,37 @@ class WebSocketClient(Base):
 
         request = Request(
             token=self._token,
-            id=uuid4().hex,
+            id=request_id,
             event=event,
             data=data,
         )
 
         future: asyncio.Future[Response] = asyncio.get_running_loop().create_future()
         self._responses[request.id] = future, response_type
+
         await self._websocket.send_json(asdict(request))
         self._logger.debug("Sent message: %s", request)
 
         if wait_for_response:
+            self._logger.info(
+                "Awaiting future: %s (%s)",
+                request.id,
+                response_type,
+            )
             try:
-                return await future
+                return await self._wait_for_future(future)
+            except asyncio.TimeoutError:
+                self._logger.error("Timeout waiting for future: %s", request.id)
+                return Response(
+                    id=request.id,
+                    type=TYPE_ERROR,
+                    subtype="TIMEOUT",
+                    message="Timeout waiting for response",
+                    data={},
+                )
             finally:
                 self._responses.pop(request.id)
+
         return Response(
             id=request.id,
             type="N/A",
@@ -136,16 +178,8 @@ class WebSocketClient(Base):
         if self._session is not None and not keep_session_active:
             await self._session.close()
 
-    async def connect(
-        self,
-        session: aiohttp.ClientSession | None = None,
-    ) -> None:
+    async def connect(self) -> None:
         """Connect to server."""
-        if session:
-            self._session = session
-        else:
-            self._logger.info("Creating new aiohttp client session")
-            self._session = aiohttp.ClientSession()
         url = f"ws://{self._api_host}:{self._api_port}/api/websocket"
         self._logger.info(
             "Connecting to WebSocket: %s (aiohttp: %s)",
@@ -165,25 +199,30 @@ class WebSocketClient(Base):
                 error,
             )
             raise ConnectionErrorException from error
-        self._logger.info("Connected to WebSocket")
 
     async def application_update(
         self,
         model: Update,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Update application."""
         self._logger.info("Updating application")
         return await self._send_message(
             TYPE_APPLICATION_UPDATE,
+            request_id,
             asdict(model),
             wait_for_response=False,
         )
 
-    async def exit_backend(self) -> Response:
+    async def exit_backend(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Exit backend."""
         self._logger.info("Exiting backend")
         return await self._send_message(
             TYPE_EXIT_APPLICATION,
+            request_id,
             {},
             wait_for_response=False,
         )
@@ -191,195 +230,269 @@ class WebSocketClient(Base):
     async def get_data(
         self,
         model: GetData,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Get data from server."""
         self._logger.info("Getting data from server: %s", model)
         return await self._send_message(
             TYPE_GET_DATA,
+            request_id,
             asdict(model),
-            wait_for_response=False,
+            wait_for_response=True,
+            response_type=TYPE_DATA_GET,
         )
 
-    async def get_directories(self) -> list[MediaDirectory]:
+    async def get_directories(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> list[MediaDirectory]:
         """Get directories."""
         self._logger.info("Getting directories..")
         response = await self._send_message(
             TYPE_GET_DIRECTORIES,
+            request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_DIRECTORIES,
         )
-        return [
-            MediaDirectory(
-                key=getattr(directory, "key"),
-                path=getattr(directory, "path"),
-            )
-            for directory in response.data
-        ]
+
+        return (
+            [MediaDirectory(**directory) for directory in response.data]
+            if response.data is not None and isinstance(response.data, list)
+            else []
+        )
 
     async def get_files(
         self,
         model: MediaGetFiles,
+        request_id: str = uuid4().hex,
     ) -> MediaFiles:
         """Get files."""
         self._logger.info("Getting files: %s", model)
         response = await self._send_message(
             TYPE_GET_FILES,
+            request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_FILES,
         )
 
-        files = getattr(response.data, "files")
-        path = getattr(response.data, "path")
-        return MediaFiles(
-            files=files if files is not None else [],
-            path=path if path is not None else "",
+        return (
+            MediaFiles(
+                files=[MediaFile(**file) for file in response.data.get("files", [])],
+                path=response.data.get("path", ""),
+            )
+            if response.data is not None and isinstance(response.data, dict)
+            else MediaFiles(files=[], path="")
         )
 
     async def get_file(
         self,
         model: MediaGetFile,
-    ) -> MediaFile:
+        request_id: str = uuid4().hex,
+    ) -> MediaFile | None:
         """Get files."""
         self._logger.info("Getting file: %s", model)
         response = await self._send_message(
             TYPE_GET_FILE,
+            request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_FILE,
         )
-        return MediaFile(
-            name=getattr(response.data, "name"),
-            path=getattr(response.data, "path"),
-            fullpath=getattr(response.data, "fullpath"),
-            size=getattr(response.data, "size"),
-            last_accessed=getattr(response.data, "last_accessed"),
-            created=getattr(response.data, "created"),
-            modified=getattr(response.data, "modified"),
-            is_directory=getattr(response.data, "is_directory"),
-            is_file=getattr(response.data, "is_file"),
-            is_link=getattr(response.data, "is_link"),
-            mime_type=getattr(response.data, "mime_type"),
+
+        return (
+            MediaFile(**response.data)
+            if response.data is not None and isinstance(response.data, dict)
+            else None
         )
 
     async def register_data_listener(
         self,
         model: RegisterDataListener,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Register data listener."""
         self._logger.info("Registering data listener: %s", model)
         return await self._send_message(
             TYPE_REGISTER_DATA_LISTENER,
+            request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_DATA_LISTENER_REGISTERED,
         )
 
     async def keyboard_keypress(
         self,
         model: KeyboardKey,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Keyboard keypress."""
         self._logger.info("Press key: %s", model)
         return await self._send_message(
             TYPE_KEYBOARD_KEYPRESS,
+            request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_KEYBOARD_KEY_PRESSED,
         )
 
     async def keyboard_text(
         self,
         model: KeyboardText,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Keyboard keypress."""
         self._logger.info("Enter text: %s", model)
         return await self._send_message(
             TYPE_KEYBOARD_TEXT,
+            request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_KEYBOARD_TEXT_SENT,
         )
 
     async def media_control(
         self,
         model: MediaControl,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Media control."""
         self._logger.info("Media control: %s", model)
         return await self._send_message(
             TYPE_MEDIA_CONTROL,
+            request_id,
             asdict(model),
+            wait_for_response=False,
         )
 
     async def send_notification(
         self,
         model: Notification,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Send notification."""
         self._logger.info("Send notification: %s", model)
         return await self._send_message(
             TYPE_NOTIFICATION,
+            request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_NOTIFICATION_SENT,
         )
 
     async def open_path(
         self,
         model: OpenPath,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Open path."""
         self._logger.info("Opening path: %s", model)
         return await self._send_message(
             TYPE_OPEN,
+            request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_OPENED,
         )
 
     async def open_url(
         self,
         model: OpenUrl,
+        request_id: str = uuid4().hex,
     ) -> Response:
         """Open url."""
         self._logger.info("Opening URL: %s", model)
         return await self._send_message(
             TYPE_OPEN,
+            request_id,
             asdict(model),
+            wait_for_response=True,
+            response_type=TYPE_OPENED,
         )
 
-    async def power_sleep(self) -> Response:
+    async def power_sleep(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power sleep."""
         self._logger.info("Power sleep")
         return await self._send_message(
             TYPE_POWER_SLEEP,
+            request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_SLEEPING,
         )
 
-    async def power_hibernate(self) -> Response:
+    async def power_hibernate(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power hibernate."""
         self._logger.info("Power hibernate")
         return await self._send_message(
             TYPE_POWER_HIBERNATE,
+            request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_HIBERNATING,
         )
 
-    async def power_restart(self) -> Response:
+    async def power_restart(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power restart."""
         self._logger.info("Power restart")
         return await self._send_message(
             TYPE_POWER_RESTART,
+            request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_RESTARTING,
         )
 
-    async def power_shutdown(self) -> Response:
+    async def power_shutdown(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power shutdown."""
         self._logger.info("Power shutdown")
         return await self._send_message(
             TYPE_POWER_SHUTDOWN,
+            request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_SHUTTINGDOWN,
         )
 
-    async def power_lock(self) -> Response:
+    async def power_lock(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power lock."""
         self._logger.info("Power lock")
         return await self._send_message(
             TYPE_POWER_LOCK,
+            request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_LOCKING,
         )
 
-    async def power_logout(self) -> Response:
+    async def power_logout(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> Response:
         """Power logout."""
         self._logger.info("Power logout")
         return await self._send_message(
             TYPE_POWER_LOGOUT,
+            request_id,
             {},
+            wait_for_response=True,
+            response_type=TYPE_POWER_LOGGINGOUT,
         )
 
     async def listen(
@@ -399,13 +512,7 @@ class WebSocketClient(Base):
                 is not None
             ):
                 future, response_type = response_tuple
-                if response_type is not None and response_type != message[EVENT_TYPE]:
-                    self._logger.info(
-                        "Response type '%s' does not match requested type '%s'.",
-                        message[EVENT_TYPE],
-                        response_type,
-                    )
-                else:
+                if response_type is not None and response_type == message[EVENT_TYPE]:
                     response = Response(**message)
 
                     if (
@@ -485,6 +592,7 @@ class WebSocketClient(Base):
         callback: Callable[[dict[Any, Any]], Awaitable[None]],
     ) -> None:
         """Listen for messages."""
+
         if not self.connected:
             raise ConnectionClosedException("Connection is closed")
 

@@ -1,4 +1,5 @@
 """Version."""
+
 from __future__ import annotations
 
 from aiohttp import ClientSession
@@ -36,13 +37,13 @@ class Version(Base):
         """Check if the system is running a supported version."""
         if (
             await self.check_version_2() is None
-            and (version := await self.check_version_3()) is not None
+            and (version := await self.check_version()) is not None
         ):
             return parse_version(version) >= parse_version(SUPPORTED_VERSION)
         return False
 
     async def check_version_2(self) -> str | None:
-        """Check if the system is running v2.x.x version."""
+        """Check if the system version for v2.x.x versions."""
         try:
             information = await self._http_client.get("/information")
             if (
@@ -62,10 +63,9 @@ class Version(Base):
             ):
                 return None
             raise exception
-        return None
 
-    async def check_version_3(self) -> str | None:
-        """Check if the system is running v3.x.x version."""
+    async def check_version(self) -> str | None:
+        """Check the system version for 3.x.x and above."""
         try:
             response = await self._http_client.get("/api/data/system")
             system = System(**response)
@@ -83,4 +83,3 @@ class Version(Base):
             ):
                 return None
             raise exception
-        return None

@@ -1,4 +1,5 @@
 """HTTP Client."""
+
 from __future__ import annotations
 
 import asyncio
@@ -8,7 +9,11 @@ from aiohttp import ClientResponse, ClientSession
 from aiohttp.client_exceptions import ClientConnectorError, ServerDisconnectedError
 
 from .base import Base
-from .exceptions import AuthenticationException, ConnectionErrorException
+from .exceptions import (
+    AuthenticationException,
+    BadRequestException,
+    ConnectionErrorException,
+)
 
 BASE_HEADERS = {
     "Accept": "application/json",
@@ -114,6 +119,17 @@ class HTTPClient(Base):
                     **kwargs,
                 )
             if response.status not in (200, 201, 202, 204):
+                if response.status == 400:
+                    raise BadRequestException(
+                        {
+                            "request": {
+                                "method": method,
+                                "url": url,
+                            },
+                            "response": await response.json(),
+                            "status": response.status,
+                        }
+                    )
                 if response.status in (401, 403):
                     raise AuthenticationException(
                         {
@@ -131,7 +147,6 @@ class HTTPClient(Base):
                             "method": method,
                             "url": url,
                         },
-                        "response": await response.json(),
                         "status": response.status,
                     }
                 )
