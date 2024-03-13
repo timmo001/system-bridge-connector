@@ -8,7 +8,7 @@ from typing import Any, Final
 from aiohttp import ClientWebSocketResponse
 from aiohttp.test_utils import TestClient
 
-API_HOST: Final[str] = "localhost"
+API_HOST: Final[str] = "127.0.0.1"
 API_PORT: Final[int] = 9123
 REQUEST_ID: Final[str] = "test"
 TOKEN: Final[str] = "abc123"
