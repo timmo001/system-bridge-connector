@@ -19,7 +19,7 @@ from systembridgemodels.media_directories import MediaDirectory
 from systembridgemodels.media_files import MediaFile, MediaFiles
 from systembridgemodels.media_get_file import MediaGetFile
 from systembridgemodels.media_get_files import MediaGetFiles
-from systembridgemodels.modules import GetData, RegisterDataListener
+from systembridgemodels.modules import GetData, ModulesData, RegisterDataListener
 from systembridgemodels.notification import Notification
 from systembridgemodels.open_path import OpenPath
 from systembridgemodels.open_url import OpenUrl
@@ -78,6 +78,7 @@ from .exceptions import (
     BadMessageException,
     ConnectionClosedException,
     ConnectionErrorException,
+    DataMissingException,
 )
 
 
@@ -231,16 +232,48 @@ class WebSocketClient(Base):
         self,
         model: GetData,
         request_id: str = uuid4().hex,
-    ) -> Response:
+        timeout: int = 10,
+    ) -> ModulesData:
         """Get data from server."""
         self._logger.info("Getting data from server: %s", model)
-        return await self._send_message(
+
+        modules_data = ModulesData()
+
+        async def handle_module(
+            module_name: str,
+            module: Any,
+        ) -> None:
+            """Handle returned data."""
+            self._logger.debug("Set new data for: %s", module_name)
+            setattr(modules_data, module_name, module)
+
+        await self.listen(
+            callback=handle_module,
+            accept_other_types=False,
+        )
+
+        await self._send_message(
             TYPE_GET_DATA,
             request_id,
             asdict(model),
             wait_for_response=True,
             response_type=TYPE_DATA_GET,
         )
+
+        # Wait for all data modules to be set
+        try:
+            async with asyncio.timeout(timeout):
+                while not all(
+                    getattr(modules_data, module_name) is not None
+                    for module_name in model.modules
+                ):
+                    await asyncio.sleep(0.1)
+        except asyncio.TimeoutError as exception:
+            raise DataMissingException(
+                f"Timeout waiting for data after {timeout} seconds"
+            ) from exception
+
+        return modules_data
 
     async def get_directories(
         self,

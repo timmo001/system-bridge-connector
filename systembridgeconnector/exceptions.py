@@ -19,3 +19,7 @@ class ConnectionClosedException(BaseException):
 
 class ConnectionErrorException(BaseException):
     """Raise this when error connecting."""
+
+
+class DataMissingException(BaseException):
+    """Raise this when data is missing."""
