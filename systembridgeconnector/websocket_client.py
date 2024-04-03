@@ -247,9 +247,12 @@ class WebSocketClient(Base):
             self._logger.debug("Set new data for: %s", module_name)
             setattr(modules_data, module_name, module)
 
-        await self.listen(
-            callback=handle_module,
-            accept_other_types=False,
+        listener_task = asyncio.create_task(
+            self.listen(
+                callback=handle_module,
+                accept_other_types=False,
+            ),
+            name="Get data WebSocket Listener",
         )
 
         await self._send_message(
@@ -272,6 +275,10 @@ class WebSocketClient(Base):
             raise DataMissingException(
                 f"Timeout waiting for data after {timeout} seconds"
             ) from exception
+        finally:
+            self._logger.debug("Cancelling listener task")
+            if not listener_task.done():
+                listener_task.cancel()
 
         return modules_data
 
