@@ -35,8 +35,6 @@ from systembridgemodels.const import MODEL_SYSTEM
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
-from systembridgemodels.media_directories import MediaDirectory
-from systembridgemodels.media_files import MediaFile, MediaFiles
 from systembridgemodels.media_get_file import MediaGetFile
 from systembridgemodels.media_get_files import MediaGetFiles
 from systembridgemodels.modules import GetData, ModulesData, RegisterDataListener
@@ -136,7 +134,6 @@ async def test_timeout(
             request_id=REQUEST_ID,
         )
 
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_timeout",
     )
@@ -166,7 +163,6 @@ async def test_application_update(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_application_update",
     )
@@ -183,7 +179,6 @@ async def test_exit_backend(
     response = await websocket_client.exit_backend(
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_exit_backend",
     )
@@ -210,7 +205,6 @@ async def test_get_data(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_get_data",
     )
@@ -234,7 +228,6 @@ async def test_get_directories(
     response = await websocket_client.get_directories(
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, list)
     assert response == snapshot(
         name="websocket_client_get_directories",
     )
@@ -279,7 +272,6 @@ async def test_get_files(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, MediaFiles)
     assert response == snapshot(
         name="websocket_client_get_files",
     )
@@ -319,7 +311,6 @@ async def test_get_file(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, MediaFile)
     assert response == snapshot(
         name="websocket_client_get_file",
     )
@@ -346,7 +337,6 @@ async def test_register_data_listener(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_register_data_listener",
     )
@@ -373,7 +363,6 @@ async def test_keyboard_keypress(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_keyboard_keypress",
     )
@@ -400,7 +389,6 @@ async def test_keyboard_text(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_keyboard_text",
     )
@@ -427,7 +415,6 @@ async def test_media_control(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_media_control",
     )
@@ -455,7 +442,6 @@ async def test_send_notification(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_send_notification",
     )
@@ -482,7 +468,6 @@ async def test_open_path(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_open_path",
     )
@@ -509,7 +494,6 @@ async def test_open_url(
         ),
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_open_url",
     )
@@ -533,7 +517,6 @@ async def test_power_sleep(
     response = await websocket_client.power_sleep(
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_power_sleep",
     )
@@ -557,7 +540,6 @@ async def test_power_hibernate(
     response = await websocket_client.power_hibernate(
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_power_hibernate",
     )
@@ -581,7 +563,6 @@ async def test_power_restart(
     response = await websocket_client.power_restart(
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_power_restart",
     )
@@ -605,7 +586,6 @@ async def test_power_shutdown(
     response = await websocket_client.power_shutdown(
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_power_shutdown",
     )
@@ -629,7 +609,6 @@ async def test_power_lock(
     response = await websocket_client.power_lock(
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_power_lock",
     )
@@ -653,7 +632,6 @@ async def test_power_logout(
     response = await websocket_client.power_logout(
         request_id=REQUEST_ID,
     )
-    assert isinstance(response, Response)
     assert response == snapshot(
         name="websocket_client_power_logout",
     )
