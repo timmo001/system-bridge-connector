@@ -535,12 +535,13 @@ class WebSocketClient(Base):
         self,
         callback: Callable[[str, Any], Awaitable[None]] | None = None,
         accept_other_types: bool = False,
+        name: str = "WebSocket Client",
     ) -> None:
         """Listen for messages and map to modules."""
 
         async def _callback_message(message: dict) -> None:
             """Message Callback."""
-            self._logger.debug("New message: %s", message[EVENT_TYPE])
+            self._logger.debug("[%s] New message: %s", name, message[EVENT_TYPE])
 
             if (
                 message.get(EVENT_ID) is not None
@@ -560,11 +561,11 @@ class WebSocketClient(Base):
                         model = MODEL_MAP.get(message[EVENT_MODULE])
                         if model is None:
                             self._logger.warning(
-                                "Unknown model: %s", message[EVENT_MODULE]
+                                "[%s] Unknown model: %s", name, message[EVENT_MODULE]
                             )
                         else:
                             self._logger.debug(
-                                "Mapping data to model: %s", model.__name__
+                                "[%s] Mapping data to model: %s", name, model.__name__
                             )
                             if isinstance(message[EVENT_DATA], list):
                                 response.data = [
@@ -573,37 +574,57 @@ class WebSocketClient(Base):
                             else:
                                 response.data = model(**message[EVENT_DATA])
 
-                    self._logger.info("Response: %s", response)
+                    self._logger.info("[%s] Response: %s", name, response)
 
                     try:
                         future.set_result(response)
                     except asyncio.InvalidStateError:
                         self._logger.debug(
-                            "Future already set for response ID: %s",
+                            "[%s] Future already set for response ID: %s",
+                            name,
                             message[EVENT_ID],
                         )
 
             if message[EVENT_TYPE] == TYPE_ERROR:
                 if message[EVENT_SUBTYPE] == SUBTYPE_LISTENER_ALREADY_REGISTERED:
-                    self._logger.debug(message)
+                    self._logger.debug(
+                        "[%s]: %s",
+                        name,
+                        message,
+                    )
                 elif (
                     message[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
                     or message[EVENT_SUBTYPE] == "BAD_API_KEY"
                 ):
-                    self._logger.error(message)
+                    self._logger.error(
+                        "[%s]: %s",
+                        name,
+                        message,
+                    )
                     raise AuthenticationException(message[EVENT_MESSAGE])
                 else:
-                    self._logger.warning("Error message: %s", message)
+                    self._logger.warning(
+                        "[%s]: %s",
+                        name,
+                        message,
+                    )
             elif (
                 message[EVENT_TYPE] == TYPE_DATA_UPDATE
                 and message[EVENT_DATA] is not None
             ):
                 self._logger.debug(
-                    "New data for: %s\n%s", message[EVENT_MODULE], message[EVENT_DATA]
+                    "[%s] New data for: %s\n%s",
+                    name,
+                    message[EVENT_MODULE],
+                    message[EVENT_DATA],
                 )
                 model = MODEL_MAP.get(message[EVENT_MODULE])
                 if model is None:
-                    self._logger.warning("Unknown model: %s", message[EVENT_MODULE])
+                    self._logger.warning(
+                        "[%s] Unknown model: %s",
+                        name,
+                        message[EVENT_MODULE],
+                    )
                 elif callback is not None:
                     await callback(
                         message[EVENT_MODULE],
@@ -612,7 +633,11 @@ class WebSocketClient(Base):
                         else model(**message[EVENT_DATA]),
                     )
             else:
-                self._logger.debug("Other message: %s", message[EVENT_TYPE])
+                self._logger.debug(
+                    "[%s] Other message: %s",
+                    name,
+                    message[EVENT_TYPE],
+                )
                 if accept_other_types:
                     model = MODEL_MAP.get(EVENT_TYPE, MODEL_MAP[MODEL_RESPONSE])
                     if model is not None and callback is not None:
@@ -621,18 +646,25 @@ class WebSocketClient(Base):
                             model(**message),
                         )
 
-        await self.listen_for_messages(callback=_callback_message)
+        await self.listen_for_messages(
+            callback=_callback_message,
+            name=name,
+        )
 
     async def listen_for_messages(
         self,
         callback: Callable[[dict[Any, Any]], Awaitable[None]],
+        name: str = "WebSocket Client",
     ) -> None:
         """Listen for messages."""
 
         if not self.connected:
             raise ConnectionClosedException("Connection is closed")
 
-        self._logger.info("Listen for messages")
+        self._logger.info(
+            "[%s] Listen for messages",
+            name,
+        )
         if self._websocket is not None:
             while not self._websocket.closed:
                 message = await self.receive_message()
