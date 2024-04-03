@@ -1,0 +1,63 @@
+# serializer version: 1
+# name: test_application_update[websocket_client_application_update]
+  Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
+# ---
+# name: test_exit_backend[websocket_client_exit_backend]
+  Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
+# ---
+# name: test_get_data[websocket_client_get_data]
+  Response(id='test', type='DATA_GET', data={'modules': ['system']}, subtype=None, message=None, module=None)
+# ---
+# name: test_get_directories[websocket_client_get_directories]
+  list([
+    MediaDirectory(key='documents', path='/documents'),
+  ])
+# ---
+# name: test_get_file[websocket_client_get_file]
+  MediaFile(name='test', path='path/to', fullpath='path/to/test', size=0, last_accessed=0, created=0, modified=0, is_directory=False, is_file=True, is_link=False, mime_type=None)
+# ---
+# name: test_get_files[websocket_client_get_files]
+  MediaFiles(files=[], path='path/to')
+# ---
+# name: test_keyboard_keypress[websocket_client_keyboard_keypress]
+  Response(id='test', type='KEYBOARD_KEY_PRESSED', data={'key': 'a'}, subtype=None, message=None, module=None)
+# ---
+# name: test_keyboard_text[websocket_client_keyboard_text]
+  Response(id='test', type='KEYBOARD_TEXT_SENT', data={'text': 'test'}, subtype=None, message=None, module=None)
+# ---
+# name: test_media_control[websocket_client_media_control]
+  Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
+# ---
+# name: test_open_path[websocket_client_open_path]
+  Response(id='test', type='OPENED', data={'path': 'test'}, subtype=None, message=None, module=None)
+# ---
+# name: test_open_url[websocket_client_open_url]
+  Response(id='test', type='OPENED', data={'url': 'test'}, subtype=None, message=None, module=None)
+# ---
+# name: test_power_hibernate[websocket_client_power_hibernate]
+  Response(id='test', type='POWER_HIBERNATING', data={}, subtype=None, message=None, module=None)
+# ---
+# name: test_power_lock[websocket_client_power_lock]
+  Response(id='test', type='POWER_LOCKING', data={}, subtype=None, message=None, module=None)
+# ---
+# name: test_power_logout[websocket_client_power_logout]
+  Response(id='test', type='POWER_LOGGINGOUT', data={}, subtype=None, message=None, module=None)
+# ---
+# name: test_power_restart[websocket_client_power_restart]
+  Response(id='test', type='POWER_RESTARTING', data={}, subtype=None, message=None, module=None)
+# ---
+# name: test_power_shutdown[websocket_client_power_shutdown]
+  Response(id='test', type='POWER_SHUTTINGDOWN', data={}, subtype=None, message=None, module=None)
+# ---
+# name: test_power_sleep[websocket_client_power_sleep]
+  Response(id='test', type='POWER_SLEEPING', data={}, subtype=None, message=None, module=None)
+# ---
+# name: test_register_data_listener[websocket_client_register_data_listener]
+  Response(id='test', type='DATA_LISTENER_REGISTERED', data={'modules': ['system']}, subtype=None, message=None, module=None)
+# ---
+# name: test_send_notification[websocket_client_send_notification]
+  Response(id='test', type='NOTIFICATION_SENT', data={'title': 'test', 'message': 'test'}, subtype=None, message=None, module=None)
+# ---
+# name: test_timeout[websocket_client_timeout]
+  Response(id='test', type='ERROR', data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
