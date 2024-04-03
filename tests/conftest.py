@@ -1,4 +1,5 @@
 """Fixtures for testing."""
+
 from dataclasses import asdict
 from typing import cast
 
