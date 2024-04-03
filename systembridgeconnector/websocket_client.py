@@ -11,7 +11,7 @@ from uuid import uuid4
 
 import aiohttp
 
-from systembridgemodels.const import MODEL_MAP, MODEL_RESPONSE
+from systembridgemodels.const import MODEL_MAP
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
@@ -28,51 +28,7 @@ from systembridgemodels.response import Response
 from systembridgemodels.update import Update
 
 from .base import Base
-from .const import (
-    EVENT_DATA,
-    EVENT_ID,
-    EVENT_MESSAGE,
-    EVENT_MODULE,
-    EVENT_SUBTYPE,
-    EVENT_TYPE,
-    SUBTYPE_BAD_TOKEN,
-    SUBTYPE_LISTENER_ALREADY_REGISTERED,
-    TYPE_APPLICATION_UPDATE,
-    TYPE_DATA_GET,
-    TYPE_DATA_LISTENER_REGISTERED,
-    TYPE_DATA_UPDATE,
-    TYPE_DIRECTORIES,
-    TYPE_ERROR,
-    TYPE_EXIT_APPLICATION,
-    TYPE_FILE,
-    TYPE_FILES,
-    TYPE_GET_DATA,
-    TYPE_GET_DIRECTORIES,
-    TYPE_GET_FILE,
-    TYPE_GET_FILES,
-    TYPE_KEYBOARD_KEY_PRESSED,
-    TYPE_KEYBOARD_KEYPRESS,
-    TYPE_KEYBOARD_TEXT,
-    TYPE_KEYBOARD_TEXT_SENT,
-    TYPE_MEDIA_CONTROL,
-    TYPE_NOTIFICATION,
-    TYPE_NOTIFICATION_SENT,
-    TYPE_OPEN,
-    TYPE_OPENED,
-    TYPE_POWER_HIBERNATE,
-    TYPE_POWER_HIBERNATING,
-    TYPE_POWER_LOCK,
-    TYPE_POWER_LOCKING,
-    TYPE_POWER_LOGGINGOUT,
-    TYPE_POWER_LOGOUT,
-    TYPE_POWER_RESTART,
-    TYPE_POWER_RESTARTING,
-    TYPE_POWER_SHUTDOWN,
-    TYPE_POWER_SHUTTINGDOWN,
-    TYPE_POWER_SLEEP,
-    TYPE_POWER_SLEEPING,
-    TYPE_REGISTER_DATA_LISTENER,
-)
+from .const import EventKey, EventSubType, EventType
 from .exceptions import (
     AuthenticationException,
     BadMessageException,
@@ -151,7 +107,7 @@ class WebSocketClient(Base):
                 self._logger.error("Timeout waiting for future: %s", request.id)
                 return Response(
                     id=request.id,
-                    type=TYPE_ERROR,
+                    type=EventType.ERROR,
                     subtype="TIMEOUT",
                     message="Timeout waiting for response",
                     data={},
@@ -209,7 +165,7 @@ class WebSocketClient(Base):
         """Update application."""
         self._logger.info("Updating application")
         return await self._send_message(
-            TYPE_APPLICATION_UPDATE,
+            EventType.APPLICATION_UPDATE,
             request_id,
             asdict(model),
             wait_for_response=False,
@@ -222,7 +178,7 @@ class WebSocketClient(Base):
         """Exit backend."""
         self._logger.info("Exiting backend")
         return await self._send_message(
-            TYPE_EXIT_APPLICATION,
+            EventType.EXIT_APPLICATION,
             request_id,
             {},
             wait_for_response=False,
@@ -256,11 +212,11 @@ class WebSocketClient(Base):
         )
 
         await self._send_message(
-            TYPE_GET_DATA,
+            EventType.GET_DATA,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_DATA_GET,
+            response_type=EventType.DATA_GET,
         )
 
         # Wait for all data modules to be set
@@ -289,11 +245,11 @@ class WebSocketClient(Base):
         """Get directories."""
         self._logger.info("Getting directories..")
         response = await self._send_message(
-            TYPE_GET_DIRECTORIES,
+            EventType.GET_DIRECTORIES,
             request_id,
             {},
             wait_for_response=True,
-            response_type=TYPE_DIRECTORIES,
+            response_type=EventType.DIRECTORIES,
         )
 
         return (
@@ -310,11 +266,11 @@ class WebSocketClient(Base):
         """Get files."""
         self._logger.info("Getting files: %s", model)
         response = await self._send_message(
-            TYPE_GET_FILES,
+            EventType.GET_FILES,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_FILES,
+            response_type=EventType.FILES,
         )
 
         return (
@@ -337,11 +293,11 @@ class WebSocketClient(Base):
         """Get files."""
         self._logger.info("Getting file: %s", model)
         response = await self._send_message(
-            TYPE_GET_FILE,
+            EventType.GET_FILE,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_FILE,
+            response_type=EventType.FILE,
         )
 
         return (
@@ -358,11 +314,11 @@ class WebSocketClient(Base):
         """Register data listener."""
         self._logger.info("Registering data listener: %s", model)
         return await self._send_message(
-            TYPE_REGISTER_DATA_LISTENER,
+            EventType.REGISTER_DATA_LISTENER,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_DATA_LISTENER_REGISTERED,
+            response_type=EventType.DATA_LISTENER_REGISTERED,
         )
 
     async def keyboard_keypress(
@@ -373,11 +329,11 @@ class WebSocketClient(Base):
         """Keyboard keypress."""
         self._logger.info("Press key: %s", model)
         return await self._send_message(
-            TYPE_KEYBOARD_KEYPRESS,
+            EventType.KEYBOARD_KEYPRESS,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_KEYBOARD_KEY_PRESSED,
+            response_type=EventType.KEYBOARD_KEY_PRESSED,
         )
 
     async def keyboard_text(
@@ -388,11 +344,11 @@ class WebSocketClient(Base):
         """Keyboard keypress."""
         self._logger.info("Enter text: %s", model)
         return await self._send_message(
-            TYPE_KEYBOARD_TEXT,
+            EventType.KEYBOARD_TEXT,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_KEYBOARD_TEXT_SENT,
+            response_type=EventType.KEYBOARD_TEXT_SENT,
         )
 
     async def media_control(
@@ -403,7 +359,7 @@ class WebSocketClient(Base):
         """Media control."""
         self._logger.info("Media control: %s", model)
         return await self._send_message(
-            TYPE_MEDIA_CONTROL,
+            EventType.MEDIA_CONTROL,
             request_id,
             asdict(model),
             wait_for_response=False,
@@ -417,11 +373,11 @@ class WebSocketClient(Base):
         """Send notification."""
         self._logger.info("Send notification: %s", model)
         return await self._send_message(
-            TYPE_NOTIFICATION,
+            EventType.NOTIFICATION,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_NOTIFICATION_SENT,
+            response_type=EventType.NOTIFICATION_SENT,
         )
 
     async def open_path(
@@ -432,11 +388,11 @@ class WebSocketClient(Base):
         """Open path."""
         self._logger.info("Opening path: %s", model)
         return await self._send_message(
-            TYPE_OPEN,
+            EventType.OPEN,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_OPENED,
+            response_type=EventType.OPENED,
         )
 
     async def open_url(
@@ -447,11 +403,11 @@ class WebSocketClient(Base):
         """Open url."""
         self._logger.info("Opening URL: %s", model)
         return await self._send_message(
-            TYPE_OPEN,
+            EventType.OPEN,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=TYPE_OPENED,
+            response_type=EventType.OPENED,
         )
 
     async def power_sleep(
@@ -461,11 +417,11 @@ class WebSocketClient(Base):
         """Power sleep."""
         self._logger.info("Power sleep")
         return await self._send_message(
-            TYPE_POWER_SLEEP,
+            EventType.POWER_SLEEP,
             request_id,
             {},
             wait_for_response=True,
-            response_type=TYPE_POWER_SLEEPING,
+            response_type=EventType.POWER_SLEEPING,
         )
 
     async def power_hibernate(
@@ -475,11 +431,11 @@ class WebSocketClient(Base):
         """Power hibernate."""
         self._logger.info("Power hibernate")
         return await self._send_message(
-            TYPE_POWER_HIBERNATE,
+            EventType.POWER_HIBERNATE,
             request_id,
             {},
             wait_for_response=True,
-            response_type=TYPE_POWER_HIBERNATING,
+            response_type=EventType.POWER_HIBERNATING,
         )
 
     async def power_restart(
@@ -489,11 +445,11 @@ class WebSocketClient(Base):
         """Power restart."""
         self._logger.info("Power restart")
         return await self._send_message(
-            TYPE_POWER_RESTART,
+            EventType.POWER_RESTART,
             request_id,
             {},
             wait_for_response=True,
-            response_type=TYPE_POWER_RESTARTING,
+            response_type=EventType.POWER_RESTARTING,
         )
 
     async def power_shutdown(
@@ -503,11 +459,11 @@ class WebSocketClient(Base):
         """Power shutdown."""
         self._logger.info("Power shutdown")
         return await self._send_message(
-            TYPE_POWER_SHUTDOWN,
+            EventType.POWER_SHUTDOWN,
             request_id,
             {},
             wait_for_response=True,
-            response_type=TYPE_POWER_SHUTTINGDOWN,
+            response_type=EventType.POWER_SHUTTINGDOWN,
         )
 
     async def power_lock(
@@ -517,11 +473,11 @@ class WebSocketClient(Base):
         """Power lock."""
         self._logger.info("Power lock")
         return await self._send_message(
-            TYPE_POWER_LOCK,
+            EventType.POWER_LOCK,
             request_id,
             {},
             wait_for_response=True,
-            response_type=TYPE_POWER_LOCKING,
+            response_type=EventType.POWER_LOCKING,
         )
 
     async def power_logout(
@@ -531,11 +487,11 @@ class WebSocketClient(Base):
         """Power logout."""
         self._logger.info("Power logout")
         return await self._send_message(
-            TYPE_POWER_LOGOUT,
+            EventType.POWER_LOGOUT,
             request_id,
             {},
             wait_for_response=True,
-            response_type=TYPE_POWER_LOGGINGOUT,
+            response_type=EventType.POWER_LOGGINGOUT,
         )
 
     async def listen(
@@ -548,38 +504,41 @@ class WebSocketClient(Base):
 
         async def _callback_message(message: dict) -> None:
             """Message Callback."""
-            self._logger.debug("[%s] New message: %s", name, message[EVENT_TYPE])
+            self._logger.debug("[%s] New message: %s", name, message[EventKey.TYPE])
 
             if (
-                message.get(EVENT_ID) is not None
-                and (response_tuple := self._responses.get(message[EVENT_ID]))
+                message.get(EventKey.ID) is not None
+                and (response_tuple := self._responses.get(message[EventKey.ID]))
                 is not None
             ):
                 future, response_type = response_tuple
-                if response_type is not None and response_type == message[EVENT_TYPE]:
+                if (
+                    response_type is not None
+                    and response_type == message[EventKey.TYPE]
+                ):
                     response = Response(**message)
 
                     if (
-                        response.type == TYPE_DATA_UPDATE
+                        response.type == EventType.DATA_UPDATE
                         and response.module is not None
-                        and message[EVENT_DATA] is not None
+                        and message[EventKey.DATA] is not None
                     ):
                         # Find model from module
-                        model = MODEL_MAP.get(message[EVENT_MODULE])
+                        model = MODEL_MAP.get(message[EventKey.MODULE])
                         if model is None:
                             self._logger.warning(
-                                "[%s] Unknown model: %s", name, message[EVENT_MODULE]
+                                "[%s] Unknown model: %s", name, message[EventKey.MODULE]
                             )
                         else:
                             self._logger.debug(
                                 "[%s] Mapping data to model: %s", name, model.__name__
                             )
-                            if isinstance(message[EVENT_DATA], list):
+                            if isinstance(message[EventKey.DATA], list):
                                 response.data = [
-                                    model(**data) for data in message[EVENT_DATA]
+                                    model(**data) for data in message[EventKey.DATA]
                                 ]
                             else:
-                                response.data = model(**message[EVENT_DATA])
+                                response.data = model(**message[EventKey.DATA])
 
                     self._logger.info("[%s] Response: %s", name, response)
 
@@ -589,26 +548,29 @@ class WebSocketClient(Base):
                         self._logger.debug(
                             "[%s] Future already set for response ID: %s",
                             name,
-                            message[EVENT_ID],
+                            message[EventKey.ID],
                         )
 
-            if message[EVENT_TYPE] == TYPE_ERROR:
-                if message[EVENT_SUBTYPE] == SUBTYPE_LISTENER_ALREADY_REGISTERED:
+            if message[EventKey.TYPE] == EventType.ERROR:
+                if (
+                    message[EventKey.SUBTYPE]
+                    == EventSubType.LISTENER_ALREADY_REGISTERED
+                ):
                     self._logger.debug(
                         "[%s]: %s",
                         name,
                         message,
                     )
                 elif (
-                    message[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
-                    or message[EVENT_SUBTYPE] == "BAD_API_KEY"
+                    message[EventKey.SUBTYPE] == EventSubType.BAD_TOKEN
+                    or message[EventKey.SUBTYPE] == "BAD_API_KEY"
                 ):
                     self._logger.error(
                         "[%s]: %s",
                         name,
                         message,
                     )
-                    raise AuthenticationException(message[EVENT_MESSAGE])
+                    raise AuthenticationException(message[EventKey.MESSAGE])
                 else:
                     self._logger.warning(
                         "[%s]: %s",
@@ -616,40 +578,40 @@ class WebSocketClient(Base):
                         message,
                     )
             elif (
-                message[EVENT_TYPE] == TYPE_DATA_UPDATE
-                and message[EVENT_DATA] is not None
+                message[EventKey.TYPE] == EventType.DATA_UPDATE
+                and message[EventKey.DATA] is not None
             ):
                 self._logger.debug(
                     "[%s] New data for: %s\n%s",
                     name,
-                    message[EVENT_MODULE],
-                    message[EVENT_DATA],
+                    message[EventKey.MODULE],
+                    message[EventKey.DATA],
                 )
-                model = MODEL_MAP.get(message[EVENT_MODULE])
+                model = MODEL_MAP.get(message[EventKey.MODULE])
                 if model is None:
                     self._logger.warning(
                         "[%s] Unknown model: %s",
                         name,
-                        message[EVENT_MODULE],
+                        message[EventKey.MODULE],
                     )
                 elif callback is not None:
                     await callback(
-                        message[EVENT_MODULE],
-                        [model(**data) for data in message[EVENT_DATA]]
-                        if isinstance(message[EVENT_DATA], list)
-                        else model(**message[EVENT_DATA]),
+                        message[EventKey.MODULE],
+                        [model(**data) for data in message[EventKey.DATA]]
+                        if isinstance(message[EventKey.DATA], list)
+                        else model(**message[EventKey.DATA]),
                     )
             else:
                 self._logger.debug(
                     "[%s] Other message: %s",
                     name,
-                    message[EVENT_TYPE],
+                    message[EventKey.TYPE],
                 )
                 if accept_other_types:
-                    model = MODEL_MAP.get(EVENT_TYPE, MODEL_MAP[MODEL_RESPONSE])
+                    model = MODEL_MAP.get(EventKey.TYPE, MODEL_MAP[MODEL_RESPONSE])
                     if model is not None and callback is not None:
                         await callback(
-                            message[EVENT_TYPE],
+                            message[EventKey.TYPE],
                             model(**message),
                         )
 
@@ -701,11 +663,11 @@ class WebSocketClient(Base):
         if message.type == aiohttp.WSMsgType.TEXT:
             message_json = message.json()
 
-            if message_json[EVENT_TYPE] == TYPE_ERROR and (
-                message_json[EVENT_SUBTYPE] == SUBTYPE_BAD_TOKEN
-                or message_json[EVENT_SUBTYPE] == "BAD_API_KEY"
+            if message_json[EventKey.TYPE] == EventType.ERROR and (
+                message_json[EventKey.SUBTYPE] == EventSubType.BAD_TOKEN
+                or message_json[EventKey.SUBTYPE] == "BAD_API_KEY"
             ):
-                raise AuthenticationException(message_json[EVENT_MESSAGE])
+                raise AuthenticationException(message_json[EventKey.MESSAGE])
 
             return message_json
 
