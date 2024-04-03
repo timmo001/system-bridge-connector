@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from aiohttp import ClientSession
-from pkg_resources import parse_version
+from packaging.version import parse
 
 from systembridgemodels.modules.system import System
 
@@ -39,7 +39,7 @@ class Version(Base):
             await self.check_version_2() is None
             and (version := await self.check_version()) is not None
         ):
-            return parse_version(version) >= parse_version(SUPPORTED_VERSION)
+            return parse(version) >= parse(SUPPORTED_VERSION)
         return False
 
     async def check_version_2(self) -> str | None:
@@ -72,7 +72,7 @@ class Version(Base):
             if (
                 system
                 and system.version is not None
-                and parse_version(system.version) >= parse_version("3.0.0")
+                and parse(system.version) >= parse("3.0.0")
             ):
                 return system.version
         except ConnectionErrorException as exception:
