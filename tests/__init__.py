@@ -9,7 +9,7 @@ from aiohttp import ClientWebSocketResponse
 from aiohttp.test_utils import TestClient
 
 API_HOST: Final[str] = "127.0.0.1"
-API_PORT: Final[int] = 9123
+API_PORT: Final[int] = 9170
 REQUEST_ID: Final[str] = "test"
 TOKEN: Final[str] = "abc123"
 WEBSOCKET_PATH: Final[str] = "/api/websocket"
