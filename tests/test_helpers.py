@@ -174,6 +174,9 @@ async def test_gpu_memory_used_percentage(
 ) -> None:
     """Test GPU memory used percentage."""
     assert gpu_memory_used_percentage(mock_modules_data, 0) == snapshot
+    assert mock_modules_data.gpus
+    mock_modules_data.gpus[0].memory_used = None
+    assert gpu_memory_used_percentage(mock_modules_data, 0) is None
     assert gpu_memory_used_percentage(EMPTY_MODULES_DATA, 0) is None
 
 
