@@ -1,12 +1,8 @@
 """Fixtures for testing."""
 
-from dataclasses import asdict
-from typing import cast
-
 from aiohttp import web
 from aiohttp.test_utils import TestClient
 import pytest
-import pytest_socket
 
 from systembridgemodels.fixtures.modules.battery import FIXTURE_BATTERY
 from systembridgemodels.fixtures.modules.cpu import FIXTURE_CPU
@@ -20,15 +16,8 @@ from systembridgemodels.fixtures.modules.processes import FIXTURE_PROCESSES
 from systembridgemodels.fixtures.modules.sensors import FIXTURE_SENSORS
 from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
 from systembridgemodels.modules import ModulesData
-from systembridgemodels.response import Response
 
-from . import (
-    API_PORT,
-    WEBSOCKET_PATH,
-    ClientSessionGenerator,
-    MockClientWebSocket,
-    WebSocketGenerator,
-)
+from . import API_PORT, ClientSessionGenerator
 
 
 async def _bad_request_response(_: web.Request):
@@ -57,22 +46,22 @@ async def _unauthorised_response(_: web.Request):
     )
 
 
-async def _websocket_response(
-    request: web.Request,
-    response: Response,
-) -> web.WebSocketResponse:
-    """Return a websocket response."""
-    ws = web.WebSocketResponse()
-    await ws.prepare(request)
-    await ws.send_json(asdict(response))
-    await ws.close()
-    return ws
+# async def _websocket_response(
+#     request: web.Request,
+#     response: Response,
+# ) -> web.WebSocketResponse:
+#     """Return a websocket response."""
+#     ws = web.WebSocketResponse()
+#     await ws.prepare(request)
+#     await ws.send_json(asdict(response))
+#     await ws.close()
+#     return ws
 
 
-def pytest_runtest_setup():
-    """Disable socket."""
-    pytest_socket.socket_allow_hosts(["127.0.0.1"])
-    pytest_socket.disable_socket(allow_unix_socket=True)
+# def pytest_runtest_setup():
+#     """Disable socket."""
+#     pytest_socket.socket_allow_hosts(["127.0.0.1"])
+#     pytest_socket.disable_socket(allow_unix_socket=True)
 
 
 @pytest.fixture
@@ -103,48 +92,48 @@ def http_client(
     return create_client
 
 
-@pytest.fixture
-async def ws_client(
-    aiohttp_client: ClientSessionGenerator,
-    response: Response,
-    socket_enabled: None,
-) -> WebSocketGenerator:
-    """Websocket client fixture connected to websocket server."""
+# @pytest.fixture
+# async def ws_client(
+#     aiohttp_client: ClientSessionGenerator,
+#     response: Response,
+#     socket_enabled: None,
+# ) -> WebSocketGenerator:
+#     """Websocket client fixture connected to websocket server."""
 
-    async def create_client(response: Response = response) -> MockClientWebSocket:
-        """Create a websocket client."""
-        app = web.Application()
+#     async def create_client(response: Response = response) -> MockClientWebSocket:
+#         """Create a websocket client."""
+#         app = web.Application()
 
-        # Add websocket route at /api/websocket
-        app.router.add_route(
-            "GET",
-            WEBSOCKET_PATH,
-            lambda request: _websocket_response(request, response),
-        )
-        client = await aiohttp_client(
-            app,
-            server_kwargs={
-                "port": API_PORT,
-            },
-        )
+#         # Add websocket route at /api/websocket
+#         app.router.add_route(
+#             "GET",
+#             WEBSOCKET_PATH,
+#             lambda request: _websocket_response(request, response),
+#         )
+#         client = await aiohttp_client(
+#             app,
+#             server_kwargs={
+#                 "port": API_PORT,
+#             },
+#         )
 
-        websocket = await client.ws_connect(WEBSOCKET_PATH)
+#         websocket = await client.ws_connect(WEBSOCKET_PATH)
 
-        wrapped_websocket = cast(MockClientWebSocket, websocket)
-        wrapped_websocket.client = client
-        return wrapped_websocket
+#         wrapped_websocket = cast(MockClientWebSocket, websocket)
+#         wrapped_websocket.client = client
+#         return wrapped_websocket
 
-    return create_client
+#     return create_client
 
 
-@pytest.fixture(name="response")
-def ws_response() -> Response:
-    """Return a response."""
-    return Response(
-        id="test",
-        type="TEST",
-        data={"test": "test"},
-    )
+# @pytest.fixture(name="response")
+# def ws_response() -> Response:
+#     """Return a response."""
+#     return Response(
+#         id="test",
+#         type="TEST",
+#         data={"test": "test"},
+#     )
 
 
 @pytest.fixture
