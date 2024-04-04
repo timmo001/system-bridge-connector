@@ -13,17 +13,17 @@ from systembridgemodels.modules.gpus import GPU
 utcnow = partial(dt.datetime.now, UTC)
 
 
-def camera_in_use(data: ModulesData) -> bool | None:
-    """Return if any camera is in use."""
-    if data.system and data.system.camera_usage is not None:
-        return len(data.system.camera_usage) > 0
-    return None
-
-
 def battery_time_remaining(data: ModulesData) -> datetime | None:
     """Return the battery time remaining."""
     if data.battery and (battery_time := data.battery.time_remaining) is not None:
         return utcnow() + timedelta(seconds=battery_time)
+    return None
+
+
+def camera_in_use(data: ModulesData) -> bool | None:
+    """Return if any camera is in use."""
+    if data.system and data.system.camera_usage is not None:
+        return len(data.system.camera_usage) > 0
     return None
 
 
