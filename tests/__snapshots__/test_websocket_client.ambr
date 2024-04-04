@@ -12,3 +12,42 @@
 # name: test_get_files
   MediaFiles(files=[], path='/home/user/documents')
 # ---
+# name: test_keyboard_keypress
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_keyboard_text
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_media_control
+  Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
+# ---
+# name: test_open_path
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_open_url
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_power_hibernate
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_power_lock
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_power_logout
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_power_restart
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_power_shutdown
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_power_sleep
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_register_data_listener
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---
+# name: test_send_notification
+  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+# ---

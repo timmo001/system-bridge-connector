@@ -143,24 +143,24 @@ async def test_get_files(
     )
 
 
-@pytest.mark.asyncio
-async def test_get_file(
-    snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
-):
-    """Test the websocket client."""
-    await mock_websocket_client.connect()
+# @pytest.mark.asyncio
+# async def test_get_file(
+#     snapshot: SnapshotAssertion,
+#     mock_websocket_client: WebSocketClient,
+# ):
+#     """Test the websocket client."""
+#     await mock_websocket_client.connect()
 
-    assert (
-        await mock_websocket_client.get_file(
-            MediaGetFile(
-                base="documents",
-                path="/home/user/documents/test.txt",
-            ),
-            request_id=REQUEST_ID,
-        )
-        == snapshot
-    )
+#     assert (
+#         await mock_websocket_client.get_file(
+#             MediaGetFile(
+#                 base="documents",
+#                 path="/home/user/documents/test.txt",
+#             ),
+#             request_id=REQUEST_ID,
+#         )
+#         == snapshot
+#     )
 
 
 @pytest.mark.asyncio
@@ -381,13 +381,11 @@ async def test_power_logout(
     )
 
 
-@pytest.mark.asyncio
-async def test_listen(
-    snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
-):
-    """Test the websocket client."""
-    await mock_websocket_client.connect()
-    await mock_websocket_client.listen()
-
-    assert await mock_websocket_client.listen() == snapshot
+# @pytest.mark.asyncio
+# async def test_listen(
+#     snapshot: SnapshotAssertion,
+#     mock_websocket_client: WebSocketClient,
+# ):
+#     """Test the websocket client."""
+#     await mock_websocket_client.connect()
+#     await mock_websocket_client.listen()

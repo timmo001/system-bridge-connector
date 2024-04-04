@@ -26,6 +26,7 @@ from . import (
     ClientSessionGenerator,
     bad_request_response,
     json_response,
+    process_message,
     text_response,
     unauthorised_response,
 )
@@ -118,7 +119,7 @@ async def mock_websocket_session_generator(
 
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
-                await ws.send_str(msg.data)
+                await ws.send_str(await process_message(msg.data))
             elif msg.type == web.WSMsgType.BINARY:
                 await ws.send_bytes(msg.data)
             elif msg.type == web.WSMsgType.CLOSE:
