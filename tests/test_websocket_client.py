@@ -371,10 +371,12 @@ async def test_wait_for_response_timeout(
 
 
 @pytest.mark.asyncio
-async def test_get_data_data_missing(mock_websocket_client_connected: WebSocketClient):
+async def test_get_data_data_missing(
+    mock_websocket_client_listening: WebSocketClient,
+):
     """Test the websocket client."""
     with pytest.raises(DataMissingException):
-        await mock_websocket_client_connected.get_data(
+        await mock_websocket_client_listening.get_data(
             GetData(modules=[Module.CPU]),
             request_id=REQUEST_ID,
             timeout=1,
@@ -383,14 +385,14 @@ async def test_get_data_data_missing(mock_websocket_client_connected: WebSocketC
 
 @pytest.mark.asyncio
 async def test_get_data_task_cancelled(
-    mock_websocket_client_connected: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
     with patch(
         "systembridgeconnector.websocket_client.WebSocketClient.listen",
         side_effect=asyncio.CancelledError(),
     ), pytest.raises(asyncio.CancelledError):
-        await mock_websocket_client_connected.get_data(
+        await mock_websocket_client_listening.get_data(
             GetData(modules=[Module.SYSTEM]),
             request_id=REQUEST_ID,
             timeout=1,
@@ -399,15 +401,33 @@ async def test_get_data_task_cancelled(
 
 @pytest.mark.asyncio
 async def test_get_data_task_exception(
-    mock_websocket_client_connected: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
     with patch(
         "systembridgeconnector.websocket_client.WebSocketClient.listen",
         side_effect=ConnectionClosedException(),
     ), pytest.raises(ConnectionClosedException):
-        await mock_websocket_client_connected.get_data(
+        await mock_websocket_client_listening.get_data(
             GetData(modules=[Module.SYSTEM]),
             request_id=REQUEST_ID,
             timeout=1,
         )
+
+
+@pytest.mark.asyncio
+async def test_unknown_message(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test the websocket client."""
+    assert (
+        await mock_websocket_client_listening.send_message(
+            event="BAD_TYPE",
+            request_id=REQUEST_ID,
+            data={},
+            wait_for_response=False,
+            response_type="BAD_TYPE",
+        )
+        == snapshot
+    )

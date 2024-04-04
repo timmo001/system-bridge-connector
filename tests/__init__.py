@@ -86,13 +86,21 @@ async def process_request(request: Request) -> Response:
     """Process a request."""
     _LOGGER.info("Event: %s", request.event)
 
+    if request.token != TOKEN:
+        return Response(
+            id=request.id,
+            type=EventType.ERROR,
+            subtype=EventSubType.BAD_TOKEN,
+            data=request.data,
+        )
+
     if request.event == EventType.GET_DATA:
         return Response(
             id=request.id,
             type=EventType.DATA_GET,
             data=request.data,
         )
-    elif request.event == EventType.GET_DIRECTORIES:
+    if request.event == EventType.GET_DIRECTORIES:
         return Response(
             id=request.id,
             type=EventType.DIRECTORIES,
@@ -103,13 +111,13 @@ async def process_request(request: Request) -> Response:
                 )
             ),
         )
-    elif request.event == EventType.GET_FILES:
+    if request.event == EventType.GET_FILES:
         return Response(
             id=request.id,
             type=EventType.FILES,
             data=asdict(FIXTURE_MEDIA_FILES),
         )
-    elif request.event == EventType.GET_FILE:
+    if request.event == EventType.GET_FILE:
         return Response(
             id=request.id,
             type=EventType.FILE,
@@ -117,68 +125,67 @@ async def process_request(request: Request) -> Response:
                 FIXTURE_MEDIA_FILES.files[0],
             ),
         )
-    elif request.event == EventType.REGISTER_DATA_LISTENER:
+    if request.event == EventType.REGISTER_DATA_LISTENER:
         return Response(
             id=request.id,
             type=EventType.DATA_LISTENER_REGISTERED,
-            subtype=EventSubType.LISTENER_ALREADY_REGISTERED,
             data=request.data,
         )
-    elif request.event == EventType.KEYBOARD_KEYPRESS:
+    if request.event == EventType.KEYBOARD_KEYPRESS:
         return Response(
             id=request.id,
             type=EventType.KEYBOARD_KEY_PRESSED,
             data=request.data,
         )
-    elif request.event == EventType.KEYBOARD_TEXT:
+    if request.event == EventType.KEYBOARD_TEXT:
         return Response(
             id=request.id,
             type=EventType.KEYBOARD_TEXT_SENT,
             data=request.data,
         )
-    elif request.event == EventType.NOTIFICATION:
+    if request.event == EventType.NOTIFICATION:
         return Response(
             id=request.id,
             type=EventType.NOTIFICATION_SENT,
             data=request.data,
         )
-    elif request.event == EventType.OPEN:
+    if request.event == EventType.OPEN:
         return Response(
             id=request.id,
             type=EventType.OPENED,
             data=request.data,
         )
-    elif request.event == EventType.POWER_SLEEP:
+    if request.event == EventType.POWER_SLEEP:
         return Response(
             id=request.id,
             type=EventType.POWER_SLEEPING,
             data=request.data,
         )
-    elif request.event == EventType.POWER_HIBERNATE:
+    if request.event == EventType.POWER_HIBERNATE:
         return Response(
             id=request.id,
             type=EventType.POWER_HIBERNATING,
             data=request.data,
         )
-    elif request.event == EventType.POWER_RESTART:
+    if request.event == EventType.POWER_RESTART:
         return Response(
             id=request.id,
             type=EventType.POWER_RESTARTING,
             data=request.data,
         )
-    elif request.event == EventType.POWER_SHUTDOWN:
+    if request.event == EventType.POWER_SHUTDOWN:
         return Response(
             id=request.id,
             type=EventType.POWER_SHUTTINGDOWN,
             data=request.data,
         )
-    elif request.event == EventType.POWER_LOCK:
+    if request.event == EventType.POWER_LOCK:
         return Response(
             id=request.id,
             type=EventType.POWER_LOCKING,
             data=request.data,
         )
-    elif request.event == EventType.POWER_LOGOUT:
+    if request.event == EventType.POWER_LOGOUT:
         return Response(
             id=request.id,
             type=EventType.POWER_LOGGINGOUT,
