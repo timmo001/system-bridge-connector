@@ -235,12 +235,12 @@ class WebSocketClient(Base):
             if not listener_task.done():
                 listener_task.cancel()
 
-        # If the listener task threw an exception, raise it here
-        if (
-            listener_task.done()
-            and (exception := listener_task.exception()) is not None
-        ):
-            raise exception
+            # If the listener task threw an exception, raise it here
+            if (
+                listener_task.done()
+                and (exception := listener_task.exception()) is not None
+            ):
+                raise exception
 
         return modules_data
 
