@@ -460,3 +460,75 @@ async def test_bad_token(
         )
         == snapshot
     )
+
+
+@pytest.mark.asyncio
+async def test_listen_for_messages_disconnnected(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    await mock_websocket_client_connected.close()
+
+    async def callback(_):
+        pass
+
+    with pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_connected.listen_for_messages(
+            callback=callback,
+            name="Test WebSocket Listener",
+        )
+
+
+@pytest.mark.asyncio
+async def test_receive_message_disconnnected(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    await mock_websocket_client_connected.close()
+
+    with pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_connected.receive_message()
+
+
+@pytest.mark.asyncio
+async def test_receive_message_runtime_error(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        side_effect=RuntimeError(),
+    ):
+        assert await mock_websocket_client_connected.receive_message() is None
+
+
+@pytest.mark.asyncio
+async def test_receive_message_type_error(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        return_value=aiohttp.WSMessage(
+            type=aiohttp.WSMsgType.ERROR,
+            data=None,
+            extra=None,
+        ),
+    ), pytest.raises(ConnectionErrorException):
+        await mock_websocket_client_connected.receive_message()
+
+
+@pytest.mark.asyncio
+async def test_receive_message_type_close(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        return_value=aiohttp.WSMessage(
+            type=aiohttp.WSMsgType.CLOSE,
+            data=None,
+            extra=None,
+        ),
+    ), pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_connected.receive_message()
