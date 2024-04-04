@@ -192,7 +192,7 @@ async def process_request(request: Request) -> Response:
     )
 
 
-async def process_message(message_data: str) -> str:
+async def process_message(message_data: str) -> Response:
     """Process a message."""
     message_dict = loads(message_data)
     _LOGGER.debug("Message: %s", message_dict)
@@ -200,4 +200,4 @@ async def process_message(message_data: str) -> str:
     _LOGGER.debug("Request: %s", request)
     response = await process_request(request)
     _LOGGER.debug("Response: %s", response)
-    return dumps(asdict(response))
+    return response

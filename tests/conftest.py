@@ -2,14 +2,19 @@
 
 import asyncio
 from collections.abc import AsyncGenerator
+from dataclasses import asdict
+from json import dumps
 
 from aiohttp import web
 from aiohttp.test_utils import TestClient
 import pytest
 
+from systembridgeconnector.const import EventType
 from systembridgeconnector.http_client import HTTPClient
 from systembridgeconnector.websocket_client import WebSocketClient
-from systembridgemodels.modules import ModulesData
+from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
+from systembridgemodels.modules import Module, ModulesData
+from systembridgemodels.response import Response
 
 from . import (
     _LOGGER,
@@ -103,8 +108,24 @@ async def mock_websocket_session_generator(
             if msg.type == web.WSMsgType.TEXT:
                 response = await process_message(msg.data)
                 _LOGGER.info(response)
-                await ws.send_str(response)
+
+                response_str = dumps(asdict(response))
+                await ws.send_str(response_str)
                 _LOGGER.debug("Sent text message")
+
+                if response.type == EventType.DATA_GET:
+                    data_response = Response(
+                        id=response.id,
+                        type=EventType.DATA_UPDATE,
+                        module=Module.SYSTEM,
+                        data=asdict(FIXTURE_SYSTEM),
+                    )
+
+                    _LOGGER.info(
+                        "Data requested, sending system data: %s",
+                        data_response,
+                    )
+                    await ws.send_str(dumps(asdict(data_response)))
             elif msg.type == web.WSMsgType.BINARY:
                 await ws.send_bytes(msg.data)
                 _LOGGER.debug("Sent binary message")

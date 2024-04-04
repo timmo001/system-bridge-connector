@@ -5,6 +5,9 @@
 # name: test_exit_backend
   Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
 # ---
+# name: test_get_data
+  ModulesData(battery=None, cpu=None, disks=None, displays=None, gpus=None, media=None, memory=None, networks=None, processes=None, sensors=None, system=System(boot_time=1234, fqdn='hostname.local', hostname='hostname', ip_address_4='192.168.1.100', mac_address='00:00:00:00:00:00', platform_version='1.0.0', platform='platform', uptime=1234, users=[{'name': 'username', 'active': True, 'terminal': 'terminal', 'host': 'host', 'started': 1234, 'pid': 1234}], uuid='uuid', version='1.0.0', camera_usage=['camera1', 'camera2'], ip_address_6='::1', pending_reboot=True, version_latest='4.99.0', version_newer_available=True))
+# ---
 # name: test_get_directories
   list([
   ])

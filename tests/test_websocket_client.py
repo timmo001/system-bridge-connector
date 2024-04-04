@@ -16,20 +16,13 @@ from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
 from systembridgemodels.media_get_file import MediaGetFile
 from systembridgemodels.media_get_files import MediaGetFiles
-from systembridgemodels.modules import (
-    GetData,
-    Module,
-    ModulesData,
-    RegisterDataListener,
-)
+from systembridgemodels.modules import GetData, Module, RegisterDataListener
 from systembridgemodels.notification import Notification
 from systembridgemodels.open_path import OpenPath
 from systembridgemodels.open_url import OpenUrl
 from systembridgemodels.update import Update
 
 from . import REQUEST_ID
-
-modules_data = ModulesData()
 
 
 @pytest.mark.asyncio
@@ -97,20 +90,20 @@ async def test_exit_backend(
     )
 
 
-# @pytest.mark.asyncio
-# async def test_get_data(
-#     snapshot: SnapshotAssertion,
-#     mock_websocket_client_connected: WebSocketClient,
-# ):
-#     """Test the websocket client."""
-#     assert (
-#         await mock_websocket_client_connected.get_data(
-#             GetData(modules=[Module.SYSTEM]),
-#             request_id=REQUEST_ID,
-#             timeout=6,
-#         )
-#         == snapshot
-#     )
+@pytest.mark.asyncio
+async def test_get_data(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    assert (
+        await mock_websocket_client_connected.get_data(
+            GetData(modules=[Module.SYSTEM]),
+            request_id=REQUEST_ID,
+            timeout=8,
+        )
+        == snapshot
+    )
 
 
 @pytest.mark.asyncio
