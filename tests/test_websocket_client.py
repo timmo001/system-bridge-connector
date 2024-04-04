@@ -145,22 +145,22 @@ async def test_get_files(
     )
 
 
-# @pytest.mark.asyncio
-# async def test_get_file(
-#     snapshot: SnapshotAssertion,
-#     mock_websocket_client_listening: WebSocketClient,
-# ):
-#     """Test the websocket client."""
-#     assert (
-#         await mock_websocket_client_listening.get_file(
-#             MediaGetFile(
-#                 base="documents",
-#                 path="/home/user/documents/test.txt",
-#             ),
-#             request_id=REQUEST_ID,
-#         )
-#         == snapshot
-#     )
+@pytest.mark.asyncio
+async def test_get_file(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test the websocket client."""
+    assert (
+        await mock_websocket_client_listening.get_file(
+            MediaGetFile(
+                base="documents",
+                path="/home/user/documents/test.txt",
+            ),
+            request_id=REQUEST_ID,
+        )
+        == snapshot
+    )
 
 
 @pytest.mark.asyncio
