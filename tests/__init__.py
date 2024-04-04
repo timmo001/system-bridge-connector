@@ -121,6 +121,7 @@ async def process_request(request: Request) -> Response:
         return Response(
             id=request.id,
             type=EventType.DATA_LISTENER_REGISTERED,
+            subtype=EventSubType.LISTENER_ALREADY_REGISTERED,
             data=request.data,
         )
     elif request.event == EventType.KEYBOARD_KEYPRESS:

@@ -139,21 +139,6 @@ async def mock_websocket_session_generator(
                         data_response,
                     )
                     await ws.send_str(dumps(asdict(data_response)))
-
-                    _LOGGER.info("Also sending a simulated already registered message")
-                    await ws.send_str(
-                        dumps(
-                            asdict(
-                                Response(
-                                    id=response.id,
-                                    type=EventType.DATA_LISTENER_REGISTERED,
-                                    subtype=EventSubType.LISTENER_ALREADY_REGISTERED,
-                                    message="Listener already registered",
-                                    data={},
-                                )
-                            )
-                        )
-                    )
             elif msg.type == web.WSMsgType.BINARY:
                 await ws.send_bytes(msg.data)
                 _LOGGER.debug("Sent binary message")
