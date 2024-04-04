@@ -532,3 +532,19 @@ async def test_receive_message_type_close(
         ),
     ), pytest.raises(ConnectionClosedException):
         await mock_websocket_client_connected.receive_message()
+
+
+@pytest.mark.asyncio
+async def test_receive_message_type_bad_message(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        return_value=aiohttp.WSMessage(
+            type=aiohttp.WSMsgType.CLOSE,
+            data=None,
+            extra=None,
+        ),
+    ), pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_connected.receive_message()
