@@ -48,6 +48,7 @@ class WebSocketClient(Base):
         token: str,
         session: aiohttp.ClientSession,
         websocket: aiohttp.ClientWebSocketResponse | None = None,
+        can_close_session: bool = False,
     ) -> None:
         """Initialise."""
         super().__init__()
@@ -57,6 +58,7 @@ class WebSocketClient(Base):
         self._responses: dict[str, tuple[asyncio.Future[Response], str | None]] = {}
         self._session = session
         self._websocket = websocket
+        self._can_close_session = can_close_session
 
     @property
     def connected(self) -> bool:
@@ -124,15 +126,12 @@ class WebSocketClient(Base):
             data={},
         )
 
-    async def close(
-        self,
-        keep_session_active: bool = False,
-    ) -> None:
+    async def close(self) -> None:
         """Close connection."""
         self._logger.info("Closing WebSocket connection")
         if self._websocket is not None:
             await self._websocket.close()
-        if self._session is not None and not keep_session_active:
+        if self._session is not None and self._can_close_session:
             await self._session.close()
 
     async def connect(self) -> None:
