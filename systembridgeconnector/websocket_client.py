@@ -207,7 +207,7 @@ class WebSocketClient(Base):
             self.listen(
                 callback=handle_module,
                 accept_other_types=False,
-                name="Get data WebSocket Listener"
+                name="Get data WebSocket Listener",
             ),
             name="Get data WebSocket Listener",
         )
@@ -228,6 +228,8 @@ class WebSocketClient(Base):
                     for module_name in model.modules
                 ):
                     await asyncio.sleep(0.1)
+                    if listener_task.done():
+                        break
         except asyncio.TimeoutError as exception:
             raise DataMissingException(
                 f"Timeout waiting for data after {timeout} seconds"
@@ -236,6 +238,13 @@ class WebSocketClient(Base):
             self._logger.debug("Cancelling listener task")
             if not listener_task.done():
                 listener_task.cancel()
+
+        # If the listener task threw an exception, raise it here
+        if (
+            listener_task.done()
+            and (exception := listener_task.exception()) is not None
+        ):
+            raise exception
 
         return modules_data
 
