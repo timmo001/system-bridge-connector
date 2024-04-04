@@ -11,7 +11,7 @@ from typing import Any, Final
 from aiohttp import web
 from aiohttp.test_utils import TestClient
 
-from systembridgeconnector.const import EventKey, EventSubType, EventType
+from systembridgeconnector.const import EventSubType, EventType
 from systembridgemodels.fixtures.media_files import FIXTURE_MEDIA_FILES
 from systembridgemodels.fixtures.modules.battery import FIXTURE_BATTERY
 from systembridgemodels.fixtures.modules.cpu import FIXTURE_CPU
@@ -25,9 +25,7 @@ from systembridgemodels.fixtures.modules.processes import FIXTURE_PROCESSES
 from systembridgemodels.fixtures.modules.sensors import FIXTURE_SENSORS
 from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
 from systembridgemodels.media_directories import MediaDirectory
-from systembridgemodels.media_files import MediaFile, MediaFiles
-from systembridgemodels.modules import Module, ModulesData
-from systembridgemodels.notification import Notification
+from systembridgemodels.modules import ModulesData
 from systembridgemodels.request import Request
 from systembridgemodels.response import Response
 
