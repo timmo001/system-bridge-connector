@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Coroutine
 from dataclasses import asdict
-from json import dumps, loads
+from json import loads
 import logging
 from typing import Any, Final
 
