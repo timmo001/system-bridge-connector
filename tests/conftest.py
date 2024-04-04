@@ -9,7 +9,7 @@ from aiohttp import web
 from aiohttp.test_utils import TestClient
 import pytest
 
-from systembridgeconnector.const import EventType
+from systembridgeconnector.const import EventSubType, EventType
 from systembridgeconnector.http_client import HTTPClient
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
@@ -147,6 +147,7 @@ async def mock_websocket_session_generator(
                                 Response(
                                     id=response.id,
                                     type=EventType.DATA_LISTENER_REGISTERED,
+                                    subtype=EventSubType.LISTENER_ALREADY_REGISTERED,
                                     message="Listener already registered",
                                     data={},
                                 )
