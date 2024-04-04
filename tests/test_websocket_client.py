@@ -371,8 +371,18 @@ async def test_wait_for_response_timeout(
 
 
 @pytest.mark.asyncio
+async def test_get_data_data_missing(mock_websocket_client_connected: WebSocketClient):
+    """Test the websocket client."""
+    with pytest.raises(DataMissingException):
+        await mock_websocket_client_connected.get_data(
+            GetData(modules=[Module.CPU]),
+            request_id=REQUEST_ID,
+            timeout=1,
+        )
+
+
+@pytest.mark.asyncio
 async def test_get_data_task_cancelled(
-    snapshot: SnapshotAssertion,
     mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
@@ -380,25 +390,24 @@ async def test_get_data_task_cancelled(
         "systembridgeconnector.websocket_client.WebSocketClient.listen",
         side_effect=asyncio.CancelledError(),
     ), pytest.raises(asyncio.CancelledError):
-        assert (
-            await mock_websocket_client_connected.get_data(
-                GetData(modules=[Module.SYSTEM]),
-                request_id=REQUEST_ID,
-                timeout=1,
-            )
-            == snapshot
+        await mock_websocket_client_connected.get_data(
+            GetData(modules=[Module.SYSTEM]),
+            request_id=REQUEST_ID,
+            timeout=1,
         )
 
 
 @pytest.mark.asyncio
-async def test_get_data_data_missing(
-    snapshot: SnapshotAssertion,
+async def test_get_data_task_exception(
     mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
-    with pytest.raises(DataMissingException):
+    with patch(
+        "systembridgeconnector.websocket_client.WebSocketClient.listen",
+        side_effect=ConnectionClosedException(),
+    ), pytest.raises(ConnectionClosedException):
         await mock_websocket_client_connected.get_data(
-            GetData(modules=[Module.CPU]),
+            GetData(modules=[Module.SYSTEM]),
             request_id=REQUEST_ID,
             timeout=1,
         )
