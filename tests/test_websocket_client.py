@@ -10,6 +10,7 @@ from syrupy.assertion import SnapshotAssertion
 from systembridgeconnector.exceptions import (
     ConnectionClosedException,
     ConnectionErrorException,
+    DataMissingException,
 )
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.keyboard_key import KeyboardKey
@@ -366,4 +367,38 @@ async def test_wait_for_response_timeout(
                 timeout=1,
             )
             == snapshot
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_data_task_cancelled(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "systembridgeconnector.websocket_client.WebSocketClient.listen",
+        side_effect=asyncio.CancelledError(),
+    ), pytest.raises(asyncio.CancelledError):
+        assert (
+            await mock_websocket_client_connected.get_data(
+                GetData(modules=[Module.SYSTEM]),
+                request_id=REQUEST_ID,
+                timeout=1,
+            )
+            == snapshot
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_data_data_missing(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with pytest.raises(DataMissingException):
+        await mock_websocket_client_connected.get_data(
+            GetData(modules=[Module.CPU]),
+            request_id=REQUEST_ID,
+            timeout=1,
         )
