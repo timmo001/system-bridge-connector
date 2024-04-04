@@ -17,7 +17,14 @@ from systembridgemodels.fixtures.modules.sensors import FIXTURE_SENSORS
 from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
 from systembridgemodels.modules import ModulesData
 
-from . import API_PORT, ClientSessionGenerator, bad_request_response, json_response, text_response, unauthorised_response,
+from . import (
+    API_PORT,
+    ClientSessionGenerator,
+    bad_request_response,
+    json_response,
+    text_response,
+    unauthorised_response,
+)
 
 
 @pytest.fixture
@@ -64,3 +71,31 @@ def mock_modules_data() -> ModulesData:
         sensors=FIXTURE_SENSORS,
         system=FIXTURE_SYSTEM,
     )
+
+
+@pytest.fixture
+async def mock_websocket_server(
+    aiohttp_client: ClientSessionGenerator,
+) -> TestClient:
+    """Return a websocket client."""
+
+    async def websocket_response(request) -> web.WebSocketResponse:
+        """Return a websocket response."""
+        ws = web.WebSocketResponse()
+        await ws.prepare(request)
+
+        async for msg in ws:
+            if msg.type == web.WSMsgType.TEXT:
+                await ws.send_str(msg.data)
+            elif msg.type == web.WSMsgType.BINARY:
+                await ws.send_bytes(msg.data)
+            elif msg.type == web.WSMsgType.CLOSE:
+                await ws.close()
+
+        return ws
+
+    app = web.Application()
+    app.router.add_get("/api/websocket", websocket_response)
+
+    return await aiohttp_client(app)
+
