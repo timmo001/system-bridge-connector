@@ -8,6 +8,18 @@ from aiohttp.test_utils import TestClient
 import pytest
 import pytest_socket
 
+from systembridgemodels.fixtures.modules.battery import FIXTURE_BATTERY
+from systembridgemodels.fixtures.modules.cpu import FIXTURE_CPU
+from systembridgemodels.fixtures.modules.disks import FIXTURE_DISKS
+from systembridgemodels.fixtures.modules.displays import FIXTURE_DISPLAYS
+from systembridgemodels.fixtures.modules.gpus import FIXTURE_GPUS
+from systembridgemodels.fixtures.modules.media import FIXTURE_MEDIA
+from systembridgemodels.fixtures.modules.memory import FIXTURE_MEMORY
+from systembridgemodels.fixtures.modules.networks import FIXTURE_NETWORKS
+from systembridgemodels.fixtures.modules.processes import FIXTURE_PROCESSES
+from systembridgemodels.fixtures.modules.sensors import FIXTURE_SENSORS
+from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
+from systembridgemodels.modules import ModulesData
 from systembridgemodels.response import Response
 
 from . import (
@@ -132,4 +144,22 @@ def ws_response() -> Response:
         id="test",
         type="TEST",
         data={"test": "test"},
+    )
+
+
+@pytest.fixture
+def mock_modules_data() -> ModulesData:
+    """Return a mock ModulesData."""
+    return ModulesData(
+        battery=FIXTURE_BATTERY,
+        cpu=FIXTURE_CPU,
+        disks=FIXTURE_DISKS,
+        displays=FIXTURE_DISPLAYS,
+        gpus=FIXTURE_GPUS,
+        media=FIXTURE_MEDIA,
+        memory=FIXTURE_MEMORY,
+        networks=FIXTURE_NETWORKS,
+        processes=FIXTURE_PROCESSES,
+        sensors=FIXTURE_SENSORS,
+        system=FIXTURE_SYSTEM,
     )
