@@ -27,9 +27,9 @@ system = System(
 
 
 @pytest.mark.asyncio
-async def test_check_supported(mock_http_client: ClientSessionGenerator):
+async def test_check_supported(mock_http_client_session: ClientSessionGenerator):
     """Test check supported."""
-    client = await mock_http_client()
+    client = await mock_http_client_session()
     version = Version(
         api_host=API_HOST,
         api_port=API_PORT,
@@ -63,9 +63,9 @@ async def test_check_supported(mock_http_client: ClientSessionGenerator):
 
 
 @pytest.mark.asyncio
-async def test_check_version_2(mock_http_client: ClientSessionGenerator):
+async def test_check_version_2(mock_http_client_session: ClientSessionGenerator):
     """Test check version 2."""
-    client = await mock_http_client()
+    client = await mock_http_client_session()
     version = Version(
         api_host=API_HOST,
         api_port=API_PORT,
@@ -83,9 +83,9 @@ async def test_check_version_2(mock_http_client: ClientSessionGenerator):
         assert result == "2.0.0"
 
 
-async def test_check_version_2_connection_error(mock_http_client: ClientSessionGenerator):
+async def test_check_version_2_connection_error(mock_http_client_session: ClientSessionGenerator):
     """Test check version 2 connection error."""
-    client = await mock_http_client()
+    client = await mock_http_client_session()
     version = Version(
         api_host=API_HOST,
         api_port=API_PORT,
@@ -118,9 +118,9 @@ async def test_check_version_2_connection_error(mock_http_client: ClientSessionG
 
 
 @pytest.mark.asyncio
-async def test_check_version(mock_http_client: ClientSessionGenerator):
+async def test_check_version(mock_http_client_session: ClientSessionGenerator):
     """Test check version."""
-    client = await mock_http_client()
+    client = await mock_http_client_session()
     version = Version(
         api_host=API_HOST,
         api_port=API_PORT,
@@ -139,9 +139,9 @@ async def test_check_version(mock_http_client: ClientSessionGenerator):
 
 
 @pytest.mark.asyncio
-async def test_check_version_connection_error(mock_http_client: ClientSessionGenerator):
+async def test_check_version_connection_error(mock_http_client_session: ClientSessionGenerator):
     """Test check version connection error."""
-    client = await mock_http_client()
+    client = await mock_http_client_session()
     version = Version(
         api_host=API_HOST,
         api_port=API_PORT,
