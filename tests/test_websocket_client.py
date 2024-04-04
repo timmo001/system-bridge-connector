@@ -33,11 +33,9 @@ modules_data = ModulesData()
 
 
 @pytest.mark.asyncio
-async def test_connect(mock_websocket_client: WebSocketClient):
+async def test_connect(mock_websocket_client_connected: WebSocketClient):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
-    assert mock_websocket_client.connected
+    assert mock_websocket_client_connected.connected
 
 
 @pytest.mark.asyncio
@@ -51,24 +49,33 @@ async def test_connect_error(mock_websocket_client: WebSocketClient):
 
 
 @pytest.mark.asyncio
-async def test_close(mock_websocket_client: WebSocketClient):
+async def test_connection_closed(mock_websocket_client_connected: WebSocketClient):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-    await mock_websocket_client.close()
+    await mock_websocket_client_connected.close()
 
-    assert not mock_websocket_client.connected
+    with pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_connected.application_update(
+            Update(version="1.0.0"),
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_close(mock_websocket_client_connected: WebSocketClient):
+    """Test the websocket client."""
+    await mock_websocket_client_connected.close()
+
+    assert not mock_websocket_client_connected.connected
 
 
 @pytest.mark.asyncio
 async def test_application_update(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.application_update(
+        await mock_websocket_client_connected.application_update(
             Update(version="1.0.0"),
             request_id=REQUEST_ID,
         )
@@ -79,13 +86,11 @@ async def test_application_update(
 @pytest.mark.asyncio
 async def test_exit_backend(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.exit_backend(
+        await mock_websocket_client_connected.exit_backend(
             request_id=REQUEST_ID,
         )
         == snapshot
@@ -95,13 +100,11 @@ async def test_exit_backend(
 # @pytest.mark.asyncio
 # async def test_get_data(
 #     snapshot: SnapshotAssertion,
-#     mock_websocket_client: WebSocketClient,
+#     mock_websocket_client_connected: WebSocketClient,
 # ):
 #     """Test the websocket client."""
-#     await mock_websocket_client.connect()
-
 #     assert (
-#         await mock_websocket_client.get_data(
+#         await mock_websocket_client_connected.get_data(
 #             GetData(modules=[Module.SYSTEM]),
 #             request_id=REQUEST_ID,
 #             timeout=6,
@@ -113,13 +116,11 @@ async def test_exit_backend(
 @pytest.mark.asyncio
 async def test_get_directories(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.get_directories(
+        await mock_websocket_client_listening.get_directories(
             request_id=REQUEST_ID,
         )
         == snapshot
@@ -129,13 +130,11 @@ async def test_get_directories(
 @pytest.mark.asyncio
 async def test_get_files(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.get_files(
+        await mock_websocket_client_listening.get_files(
             MediaGetFiles(
                 base="documents",
                 path="/home/user/documents",
@@ -149,13 +148,11 @@ async def test_get_files(
 # @pytest.mark.asyncio
 # async def test_get_file(
 #     snapshot: SnapshotAssertion,
-#     mock_websocket_client: WebSocketClient,
+#     mock_websocket_client_listening: WebSocketClient,
 # ):
 #     """Test the websocket client."""
-#     await mock_websocket_client.connect()
-
 #     assert (
-#         await mock_websocket_client.get_file(
+#         await mock_websocket_client_listening.get_file(
 #             MediaGetFile(
 #                 base="documents",
 #                 path="/home/user/documents/test.txt",
@@ -169,13 +166,11 @@ async def test_get_files(
 @pytest.mark.asyncio
 async def test_register_data_listener(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.register_data_listener(
+        await mock_websocket_client_listening.register_data_listener(
             RegisterDataListener(modules=[Module.SYSTEM]),
             request_id=REQUEST_ID,
         )
@@ -186,13 +181,11 @@ async def test_register_data_listener(
 @pytest.mark.asyncio
 async def test_keyboard_keypress(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.keyboard_keypress(
+        await mock_websocket_client_listening.keyboard_keypress(
             KeyboardKey(key="a"),
             request_id=REQUEST_ID,
         )
@@ -203,13 +196,11 @@ async def test_keyboard_keypress(
 @pytest.mark.asyncio
 async def test_keyboard_text(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.keyboard_text(
+        await mock_websocket_client_listening.keyboard_text(
             KeyboardText(text="test"),
             request_id=REQUEST_ID,
         )
@@ -220,13 +211,11 @@ async def test_keyboard_text(
 @pytest.mark.asyncio
 async def test_media_control(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.media_control(
+        await mock_websocket_client_connected.media_control(
             MediaControl(action="play"),
             request_id=REQUEST_ID,
         )
@@ -237,13 +226,11 @@ async def test_media_control(
 @pytest.mark.asyncio
 async def test_send_notification(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.send_notification(
+        await mock_websocket_client_listening.send_notification(
             Notification(
                 title="Test",
                 message="test",
@@ -257,13 +244,11 @@ async def test_send_notification(
 @pytest.mark.asyncio
 async def test_open_path(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.open_path(
+        await mock_websocket_client_listening.open_path(
             OpenPath(path="/home/user/documents"),
             request_id=REQUEST_ID,
         )
@@ -274,13 +259,11 @@ async def test_open_path(
 @pytest.mark.asyncio
 async def test_open_url(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.open_url(
+        await mock_websocket_client_listening.open_url(
             OpenUrl(url="https://www.google.com"),
             request_id=REQUEST_ID,
         )
@@ -291,13 +274,11 @@ async def test_open_url(
 @pytest.mark.asyncio
 async def test_power_sleep(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.power_sleep(
+        await mock_websocket_client_listening.power_sleep(
             request_id=REQUEST_ID,
         )
         == snapshot
@@ -307,13 +288,11 @@ async def test_power_sleep(
 @pytest.mark.asyncio
 async def test_power_hibernate(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.power_hibernate(
+        await mock_websocket_client_listening.power_hibernate(
             request_id=REQUEST_ID,
         )
         == snapshot
@@ -323,13 +302,11 @@ async def test_power_hibernate(
 @pytest.mark.asyncio
 async def test_power_restart(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.power_restart(
+        await mock_websocket_client_listening.power_restart(
             request_id=REQUEST_ID,
         )
         == snapshot
@@ -339,13 +316,11 @@ async def test_power_restart(
 @pytest.mark.asyncio
 async def test_power_shutdown(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.power_shutdown(
+        await mock_websocket_client_listening.power_shutdown(
             request_id=REQUEST_ID,
         )
         == snapshot
@@ -355,13 +330,11 @@ async def test_power_shutdown(
 @pytest.mark.asyncio
 async def test_power_lock(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.power_lock(
+        await mock_websocket_client_listening.power_lock(
             request_id=REQUEST_ID,
         )
         == snapshot
@@ -371,40 +344,12 @@ async def test_power_lock(
 @pytest.mark.asyncio
 async def test_power_logout(
     snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
+    mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    await mock_websocket_client.connect()
-
     assert (
-        await mock_websocket_client.power_logout(
+        await mock_websocket_client_listening.power_logout(
             request_id=REQUEST_ID,
         )
         == snapshot
     )
-
-
-# @pytest.mark.asyncio
-# async def test_listen(
-#     snapshot: SnapshotAssertion,
-#     mock_websocket_client: WebSocketClient,
-# ):
-#     """Test the websocket client."""
-#     await mock_websocket_client.connect()
-#     await mock_websocket_client.listen()
-
-
-@pytest.mark.asyncio
-async def test_connection_closed(
-    snapshot: SnapshotAssertion,
-    mock_websocket_client: WebSocketClient,
-):
-    """Test the websocket client."""
-    await mock_websocket_client.connect()
-    await mock_websocket_client.close()
-
-    with pytest.raises(ConnectionClosedException):
-        await mock_websocket_client.application_update(
-            Update(version="1.0.0"),
-            request_id=REQUEST_ID,
-        )

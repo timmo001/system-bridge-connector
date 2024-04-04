@@ -13,41 +13,41 @@
   MediaFiles(files=[], path='/home/user/documents')
 # ---
 # name: test_keyboard_keypress
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='KEYBOARD_KEY_PRESSED', data={'key': 'a'}, subtype=None, message=None, module=None)
 # ---
 # name: test_keyboard_text
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='KEYBOARD_TEXT_SENT', data={'text': 'test'}, subtype=None, message=None, module=None)
 # ---
 # name: test_media_control
   Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
 # ---
 # name: test_open_path
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='OPENED', data={'path': '/home/user/documents'}, subtype=None, message=None, module=None)
 # ---
 # name: test_open_url
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='OPENED', data={'url': 'https://www.google.com'}, subtype=None, message=None, module=None)
 # ---
 # name: test_power_hibernate
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='POWER_HIBERNATING', data={}, subtype=None, message=None, module=None)
 # ---
 # name: test_power_lock
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='POWER_LOCKING', data={}, subtype=None, message=None, module=None)
 # ---
 # name: test_power_logout
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='POWER_LOGGINGOUT', data={}, subtype=None, message=None, module=None)
 # ---
 # name: test_power_restart
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='POWER_RESTARTING', data={}, subtype=None, message=None, module=None)
 # ---
 # name: test_power_shutdown
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='POWER_SHUTTINGDOWN', data={}, subtype=None, message=None, module=None)
 # ---
 # name: test_power_sleep
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='POWER_SLEEPING', data={}, subtype=None, message=None, module=None)
 # ---
 # name: test_register_data_listener
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='DATA_LISTENER_REGISTERED', data={'modules': ['system']}, subtype=None, message=None, module=None)
 # ---
 # name: test_send_notification
-  Response(id='test', type=<EventType.ERROR: 'ERROR'>, data={}, subtype='TIMEOUT', message='Timeout waiting for response', module=None)
+  Response(id='test', type='NOTIFICATION_SENT', data={'title': 'Test', 'message': 'test', 'icon': None, 'image': None, 'actions': None, 'timeout': None, 'audio': None}, subtype=None, message=None, module=None)
 # ---

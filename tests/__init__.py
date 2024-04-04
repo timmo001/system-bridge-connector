@@ -173,7 +173,7 @@ async def process_request(request: Request) -> Response:
             type=EventType.POWER_SHUTTINGDOWN,
             data=request.data,
         )
-    elif request.event == EventType.POWER_LOCKING:
+    elif request.event == EventType.POWER_LOCK:
         return Response(
             id=request.id,
             type=EventType.POWER_LOCKING,

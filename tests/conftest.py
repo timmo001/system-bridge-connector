@@ -1,5 +1,8 @@
 """Fixtures for testing."""
 
+import asyncio
+from collections.abc import AsyncGenerator
+
 from aiohttp import web
 from aiohttp.test_utils import TestClient
 import pytest
@@ -114,8 +117,8 @@ async def mock_websocket_session_generator(
     return create_client
 
 
-@pytest.fixture
-async def mock_websocket_client(
+@pytest.fixture(name="mock_websocket_client")
+async def mock_websocket_client_not_connected(
     mock_websocket_session: ClientSessionGenerator,
 ) -> WebSocketClient:
     """Return a websocket client."""
@@ -130,3 +133,37 @@ async def mock_websocket_client(
         websocket=ws,
         can_close_session=True,
     )
+
+
+@pytest.fixture(name="mock_websocket_client_connected")
+async def mock_connected_websocket_client(
+    mock_websocket_client: WebSocketClient,
+) -> WebSocketClient:
+    """Return a websocket client which is connected."""
+    await mock_websocket_client.connect()
+
+    return mock_websocket_client
+
+
+@pytest.fixture(name="mock_websocket_client_listening")
+async def mock_listening_websocket_client(
+    mock_websocket_client_connected: WebSocketClient,
+) -> AsyncGenerator[WebSocketClient, None]:
+    """Return a websocket client which is connected and listening."""
+    listener_task = asyncio.create_task(
+        mock_websocket_client_connected.listen(
+            callback=None,
+            accept_other_types=False,
+            name="Test WebSocket Listener",
+        ),
+        name="Test WebSocket Listener",
+    )
+
+    yield mock_websocket_client_connected
+
+    if not listener_task.done():
+        listener_task.cancel()
+
+    # If the listener task threw an exception, raise it here
+    if listener_task.done() and (exception := listener_task.exception()) is not None:
+        raise exception
