@@ -207,6 +207,7 @@ class WebSocketClient(Base):
             self.listen(
                 callback=handle_module,
                 accept_other_types=False,
+                name="Get data WebSocket Listener"
             ),
             name="Get data WebSocket Listener",
         )
@@ -498,7 +499,7 @@ class WebSocketClient(Base):
         self,
         callback: Callable[[str, Any], Awaitable[None]] | None = None,
         accept_other_types: bool = False,
-        name: str = "WebSocket Client",
+        name: str = "WebSocket Listener",
     ) -> None:
         """Listen for messages and map to modules."""
 
@@ -628,7 +629,7 @@ class WebSocketClient(Base):
     async def listen_for_messages(
         self,
         callback: Callable[[dict[Any, Any]], Awaitable[None]],
-        name: str = "WebSocket Client",
+        name: str = "WebSocket Listener",
     ) -> None:
         """Listen for messages."""
 

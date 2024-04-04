@@ -66,7 +66,11 @@ async def _get_websocket_client(
 
     # Run the listener in the background
     asyncio.get_event_loop().create_task(
-        websocket_client.listen(callback=_handle_module_data),
+        websocket_client.listen(
+            callback=_handle_module_data,
+            accept_other_types=False,
+            name="Test WebSocket Listener",
+        ),
         name="WebSocket Listener",
     )
 
