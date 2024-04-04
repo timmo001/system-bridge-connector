@@ -4,6 +4,7 @@ from aiohttp import web
 from aiohttp.test_utils import TestClient
 import pytest
 
+from systembridgeconnector.http_client import HTTPClient
 from systembridgemodels.fixtures.modules.battery import FIXTURE_BATTERY
 from systembridgemodels.fixtures.modules.cpu import FIXTURE_CPU
 from systembridgemodels.fixtures.modules.disks import FIXTURE_DISKS
@@ -18,7 +19,9 @@ from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
 from systembridgemodels.modules import ModulesData
 
 from . import (
+    API_HOST,
     API_PORT,
+    TOKEN,
     ClientSessionGenerator,
     bad_request_response,
     json_response,
@@ -27,8 +30,8 @@ from . import (
 )
 
 
-@pytest.fixture
-def mock_http_client(
+@pytest.fixture(name="mock_http_client_session")
+def mock_http_client_session_generator(
     aiohttp_client: ClientSessionGenerator,
     socket_enabled: None,
 ) -> ClientSessionGenerator:
@@ -53,6 +56,21 @@ def mock_http_client(
         )
 
     return create_client
+
+
+@pytest.fixture
+async def mock_http_client(
+    mock_http_client_session: ClientSessionGenerator,
+) -> HTTPClient:
+    """Return a HTTP client."""
+    client = await mock_http_client_session()
+
+    return HTTPClient(
+        api_host=API_HOST,
+        api_port=API_PORT,
+        token=TOKEN,
+        session=client.session,
+    )
 
 
 @pytest.fixture
