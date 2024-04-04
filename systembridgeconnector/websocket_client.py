@@ -106,13 +106,17 @@ class WebSocketClient(Base):
             try:
                 return await self._wait_for_future(future)
             except asyncio.TimeoutError:
-                self._logger.error("Timeout waiting for future: %s", request.id)
+                self._logger.error(
+                    "Timeout waiting for future event '%s' for id: %s",
+                    request.event,
+                    request.id,
+                )
                 return Response(
                     id=request.id,
                     type=EventType.ERROR,
                     subtype="TIMEOUT",
                     message="Timeout waiting for response",
-                    data={},
+                    data=asdict(request),
                 )
             finally:
                 self._responses.pop(request.id)
