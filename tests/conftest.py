@@ -5,6 +5,7 @@ from aiohttp.test_utils import TestClient
 import pytest
 
 from systembridgeconnector.http_client import HTTPClient
+from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.fixtures.modules.battery import FIXTURE_BATTERY
 from systembridgemodels.fixtures.modules.cpu import FIXTURE_CPU
 from systembridgemodels.fixtures.modules.disks import FIXTURE_DISKS
@@ -91,11 +92,24 @@ def mock_modules_data() -> ModulesData:
     )
 
 
-@pytest.fixture
-async def mock_websocket_server(
+@pytest.fixture(name="mock_websocket_session")
+async def mock_websocket_session_generator(
     aiohttp_client: ClientSessionGenerator,
-) -> TestClient:
+    socket_enabled: None,
+) -> ClientSessionGenerator:
     """Return a websocket client."""
+
+    async def create_client() -> TestClient:
+        """Create a client session."""
+        app = web.Application()
+        app.router.add_get("/api/websocket", websocket_response)
+
+        return await aiohttp_client(
+            app,
+            server_kwargs={
+                "port": API_PORT,
+            },
+        )
 
     async def websocket_response(request) -> web.WebSocketResponse:
         """Return a websocket response."""
@@ -112,8 +126,22 @@ async def mock_websocket_server(
 
         return ws
 
-    app = web.Application()
-    app.router.add_get("/api/websocket", websocket_response)
+    return create_client
 
-    return await aiohttp_client(app)
 
+@pytest.fixture
+async def mock_websocket_client(
+    mock_websocket_session: ClientSessionGenerator,
+) -> WebSocketClient:
+    """Return a websocket client."""
+    client = await mock_websocket_session()
+    ws = await client.ws_connect("/api/websocket")
+
+    return WebSocketClient(
+        api_host=API_HOST,
+        api_port=API_PORT,
+        token=TOKEN,
+        session=client.session,
+        websocket=ws,
+        can_close_session=True,
+    )

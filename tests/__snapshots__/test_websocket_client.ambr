@@ -1,0 +1,14 @@
+# serializer version: 1
+# name: test_application_update
+  Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
+# ---
+# name: test_exit_backend
+  Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
+# ---
+# name: test_get_directories
+  list([
+  ])
+# ---
+# name: test_get_files
+  MediaFiles(files=[], path='/home/user/documents')
+# ---
