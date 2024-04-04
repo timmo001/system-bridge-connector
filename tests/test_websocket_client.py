@@ -24,7 +24,7 @@ from systembridgemodels.open_path import OpenPath
 from systembridgemodels.open_url import OpenUrl
 from systembridgemodels.update import Update
 
-from . import REQUEST_ID
+from . import API_HOST, API_PORT, REQUEST_ID, ClientSessionGenerator
 
 
 @pytest.mark.asyncio
@@ -372,11 +372,11 @@ async def test_wait_for_response_timeout(
 
 @pytest.mark.asyncio
 async def test_get_data_data_missing(
-    mock_websocket_client_listening: WebSocketClient,
+    mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
     with pytest.raises(DataMissingException):
-        await mock_websocket_client_listening.get_data(
+        await mock_websocket_client_connected.get_data(
             GetData(modules=[Module.CPU]),
             request_id=REQUEST_ID,
             timeout=1,
@@ -428,6 +428,35 @@ async def test_unknown_message(
             data={},
             wait_for_response=False,
             response_type="BAD_TYPE",
+        )
+        == snapshot
+    )
+
+
+@pytest.mark.asyncio
+async def test_bad_token(
+    snapshot: SnapshotAssertion,
+    mock_websocket_session: ClientSessionGenerator,
+):
+    """Test the websocket client."""
+    client = await mock_websocket_session()
+    ws = await client.ws_connect("/api/websocket")
+
+    websocket_client = WebSocketClient(
+        api_host=API_HOST,
+        api_port=API_PORT,
+        token="badtoken",
+        session=client.session,
+        websocket=ws,
+        can_close_session=True,
+    )
+
+    await websocket_client.connect()
+
+    assert (
+        await websocket_client.application_update(
+            Update(version="1.0.0"),
+            request_id=REQUEST_ID,
         )
         == snapshot
     )

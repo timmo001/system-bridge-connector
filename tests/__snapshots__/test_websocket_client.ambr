@@ -2,6 +2,9 @@
 # name: test_application_update
   Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
 # ---
+# name: test_bad_token
+  Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
+# ---
 # name: test_exit_backend
   Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)
 # ---
