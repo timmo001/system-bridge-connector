@@ -65,13 +65,6 @@ class WebSocketClient(Base):
         """Get connection state."""
         return self._websocket is not None and not self._websocket.closed
 
-    async def _wait_for_future(
-        self,
-        future: asyncio.Future[Response],
-    ) -> Response:
-        """Wait for future."""
-        return await asyncio.wait_for(future, timeout=8.0)
-
     async def _send_message(
         self,
         event: str,
@@ -99,20 +92,24 @@ class WebSocketClient(Base):
 
         if wait_for_response:
             self._logger.info(
-                "Awaiting future: %s (%s)",
-                request.id,
+                "Waiting for future: event '%s' for request: %s",
                 response_type,
+                request,
             )
             try:
-                return await self._wait_for_future(future)
+                return await asyncio.wait_for(future, timeout=8.0)
             except asyncio.TimeoutError:
-                self._logger.error("Timeout waiting for future: %s", request.id)
+                self._logger.error(
+                    "Timeout waiting for future event '%s' for request: %s",
+                    response_type,
+                    request,
+                )
                 return Response(
                     id=request.id,
                     type=EventType.ERROR,
                     subtype="TIMEOUT",
                     message="Timeout waiting for response",
-                    data={},
+                    data=asdict(request),
                 )
             finally:
                 self._responses.pop(request.id)
@@ -238,12 +235,12 @@ class WebSocketClient(Base):
             if not listener_task.done():
                 listener_task.cancel()
 
-        # If the listener task threw an exception, raise it here
-        if (
-            listener_task.done()
-            and (exception := listener_task.exception()) is not None
-        ):
-            raise exception
+            # If the listener task threw an exception, raise it here
+            if (
+                listener_task.done()
+                and (exception := listener_task.exception()) is not None
+            ):
+                raise exception
 
         return modules_data
 
