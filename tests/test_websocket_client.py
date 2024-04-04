@@ -1,5 +1,6 @@
 """Test the websocket client module."""
 
+import asyncio
 from unittest.mock import patch
 
 import aiohttp
@@ -346,3 +347,23 @@ async def test_power_logout(
         )
         == snapshot
     )
+
+
+@pytest.mark.asyncio
+async def test_wait_for_response_timeout(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "systembridgeconnector.websocket_client.asyncio.wait_for",
+        side_effect=asyncio.TimeoutError(),
+    ):
+        assert (
+            await mock_websocket_client_connected.get_data(
+                GetData(modules=[Module.SYSTEM]),
+                request_id=REQUEST_ID,
+                timeout=1,
+            )
+            == snapshot
+        )
