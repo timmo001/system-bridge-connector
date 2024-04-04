@@ -11,7 +11,7 @@ from uuid import uuid4
 
 import aiohttp
 
-from systembridgemodels.const import MODEL_MAP
+from systembridgemodels.const import MODEL_MAP, Model
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
@@ -524,21 +524,23 @@ class WebSocketClient(Base):
                         and message[EventKey.DATA] is not None
                     ):
                         # Find model from module
-                        model = MODEL_MAP.get(message[EventKey.MODULE])
-                        if model is None:
+                        model_cls = MODEL_MAP.get(message[EventKey.MODULE])
+                        if model_cls is None:
                             self._logger.warning(
                                 "[%s] Unknown model: %s", name, message[EventKey.MODULE]
                             )
                         else:
                             self._logger.debug(
-                                "[%s] Mapping data to model: %s", name, model.__name__
+                                "[%s] Mapping data to model: %s",
+                                name,
+                                model_cls.__name__,
                             )
                             if isinstance(message[EventKey.DATA], list):
                                 response.data = [
-                                    model(**data) for data in message[EventKey.DATA]
+                                    model_cls(**data) for data in message[EventKey.DATA]
                                 ]
                             else:
-                                response.data = model(**message[EventKey.DATA])
+                                response.data = model_cls(**message[EventKey.DATA])
 
                     self._logger.info("[%s] Response: %s", name, response)
 
@@ -587,8 +589,8 @@ class WebSocketClient(Base):
                     message[EventKey.MODULE],
                     message[EventKey.DATA],
                 )
-                model = MODEL_MAP.get(message[EventKey.MODULE])
-                if model is None:
+                model_cls = MODEL_MAP.get(message[EventKey.MODULE])
+                if model_cls is None:
                     self._logger.warning(
                         "[%s] Unknown model: %s",
                         name,
@@ -597,9 +599,9 @@ class WebSocketClient(Base):
                 elif callback is not None:
                     await callback(
                         message[EventKey.MODULE],
-                        [model(**data) for data in message[EventKey.DATA]]
+                        [model_cls(**data) for data in message[EventKey.DATA]]
                         if isinstance(message[EventKey.DATA], list)
-                        else model(**message[EventKey.DATA]),
+                        else model_cls(**message[EventKey.DATA]),
                     )
             else:
                 self._logger.debug(
@@ -608,11 +610,14 @@ class WebSocketClient(Base):
                     message[EventKey.TYPE],
                 )
                 if accept_other_types:
-                    model = MODEL_MAP.get(EventKey.TYPE, MODEL_MAP[MODEL_RESPONSE])
-                    if model is not None and callback is not None:
+                    model_cls = MODEL_MAP.get(
+                        message[EventKey.TYPE],
+                        Model.RESPONSE,
+                    )
+                    if model_cls is not None and callback is not None:
                         await callback(
                             message[EventKey.TYPE],
-                            model(**message),
+                            model_cls(**message),
                         )
 
         await self.listen_for_messages(
