@@ -9,7 +9,7 @@ from aiohttp import web
 from aiohttp.test_utils import TestClient
 import pytest
 
-from systembridgeconnector.const import EventType
+from systembridgeconnector.const import EventSubType, EventType
 from systembridgeconnector.http_client import HTTPClient
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
@@ -126,6 +126,34 @@ async def mock_websocket_session_generator(
                         data_response,
                     )
                     await ws.send_str(dumps(asdict(data_response)))
+                elif response.type == EventType.DATA_LISTENER_REGISTERED:
+                    data_response = Response(
+                        id=response.id,
+                        type=EventType.DATA_UPDATE,
+                        module=Module.SYSTEM,
+                        data=asdict(FIXTURE_SYSTEM),
+                    )
+
+                    _LOGGER.info(
+                        "Listener registered, sending system data: %s",
+                        data_response,
+                    )
+                    await ws.send_str(dumps(asdict(data_response)))
+
+                    _LOGGER.info("Also sending a simulated already registered message")
+                    await ws.send_str(
+                        dumps(
+                            asdict(
+                                Response(
+                                    id=response.id,
+                                    type=EventType.ERROR,
+                                    subtype=EventSubType.LISTENER_ALREADY_REGISTERED,
+                                    message="Listener already registered",
+                                    data={},
+                                )
+                            )
+                        )
+                    )
             elif msg.type == web.WSMsgType.BINARY:
                 await ws.send_bytes(msg.data)
                 _LOGGER.debug("Sent binary message")

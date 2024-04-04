@@ -65,64 +65,6 @@ class WebSocketClient(Base):
         """Get connection state."""
         return self._websocket is not None and not self._websocket.closed
 
-    async def _send_message(
-        self,
-        event: str,
-        request_id: str,
-        data: dict[str, Any],
-        wait_for_response: bool,
-        response_type: str | None = None,
-    ) -> Response:
-        """Send a message to the WebSocket."""
-        if not self.connected or self._websocket is None:
-            raise ConnectionClosedException("Connection is closed")
-
-        request = Request(
-            token=self._token,
-            id=request_id,
-            event=event,
-            data=data,
-        )
-
-        future: asyncio.Future[Response] = asyncio.get_running_loop().create_future()
-        self._responses[request.id] = future, response_type
-
-        await self._websocket.send_json(asdict(request))
-        self._logger.debug("Sent message: %s", request)
-
-        if wait_for_response:
-            self._logger.info(
-                "Waiting for future: event '%s' for request: %s",
-                response_type,
-                request,
-            )
-            try:
-                return await asyncio.wait_for(future, timeout=8.0)
-            except asyncio.TimeoutError:
-                self._logger.error(
-                    "Timeout waiting for future event '%s' for request: %s",
-                    response_type,
-                    request,
-                )
-                return Response(
-                    id=request.id,
-                    type=EventType.ERROR,
-                    subtype="TIMEOUT",
-                    message="Timeout waiting for response",
-                    data=asdict(request),
-                )
-            finally:
-                self._responses.pop(request.id)
-
-        return Response(
-            id=request.id,
-            type="N/A",
-            message="Message sent",
-            subtype=None,
-            module=None,
-            data={},
-        )
-
     async def close(self) -> None:
         """Close connection."""
         self._logger.info("Closing WebSocket connection")
@@ -160,7 +102,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Update application."""
         self._logger.info("Updating application")
-        return await self._send_message(
+        return await self.send_message(
             EventType.APPLICATION_UPDATE,
             request_id,
             asdict(model),
@@ -173,7 +115,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Exit backend."""
         self._logger.info("Exiting backend")
-        return await self._send_message(
+        return await self.send_message(
             EventType.EXIT_APPLICATION,
             request_id,
             {},
@@ -208,7 +150,7 @@ class WebSocketClient(Base):
             name="Get data WebSocket Listener",
         )
 
-        await self._send_message(
+        await self.send_message(
             EventType.GET_DATA,
             request_id,
             asdict(model),
@@ -250,7 +192,7 @@ class WebSocketClient(Base):
     ) -> list[MediaDirectory]:
         """Get directories."""
         self._logger.info("Getting directories..")
-        response = await self._send_message(
+        response = await self.send_message(
             EventType.GET_DIRECTORIES,
             request_id,
             {},
@@ -271,7 +213,7 @@ class WebSocketClient(Base):
     ) -> MediaFiles:
         """Get files."""
         self._logger.info("Getting files: %s", model)
-        response = await self._send_message(
+        response = await self.send_message(
             EventType.GET_FILES,
             request_id,
             asdict(model),
@@ -298,7 +240,7 @@ class WebSocketClient(Base):
     ) -> MediaFile | None:
         """Get files."""
         self._logger.info("Getting file: %s", model)
-        response = await self._send_message(
+        response = await self.send_message(
             EventType.GET_FILE,
             request_id,
             asdict(model),
@@ -319,7 +261,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Register data listener."""
         self._logger.info("Registering data listener: %s", model)
-        return await self._send_message(
+        return await self.send_message(
             EventType.REGISTER_DATA_LISTENER,
             request_id,
             asdict(model),
@@ -334,7 +276,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Keyboard keypress."""
         self._logger.info("Press key: %s", model)
-        return await self._send_message(
+        return await self.send_message(
             EventType.KEYBOARD_KEYPRESS,
             request_id,
             asdict(model),
@@ -349,7 +291,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Keyboard keypress."""
         self._logger.info("Enter text: %s", model)
-        return await self._send_message(
+        return await self.send_message(
             EventType.KEYBOARD_TEXT,
             request_id,
             asdict(model),
@@ -364,7 +306,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Media control."""
         self._logger.info("Media control: %s", model)
-        return await self._send_message(
+        return await self.send_message(
             EventType.MEDIA_CONTROL,
             request_id,
             asdict(model),
@@ -378,7 +320,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Send notification."""
         self._logger.info("Send notification: %s", model)
-        return await self._send_message(
+        return await self.send_message(
             EventType.NOTIFICATION,
             request_id,
             asdict(model),
@@ -393,7 +335,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Open path."""
         self._logger.info("Opening path: %s", model)
-        return await self._send_message(
+        return await self.send_message(
             EventType.OPEN,
             request_id,
             asdict(model),
@@ -408,7 +350,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Open url."""
         self._logger.info("Opening URL: %s", model)
-        return await self._send_message(
+        return await self.send_message(
             EventType.OPEN,
             request_id,
             asdict(model),
@@ -422,7 +364,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Power sleep."""
         self._logger.info("Power sleep")
-        return await self._send_message(
+        return await self.send_message(
             EventType.POWER_SLEEP,
             request_id,
             {},
@@ -436,7 +378,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Power hibernate."""
         self._logger.info("Power hibernate")
-        return await self._send_message(
+        return await self.send_message(
             EventType.POWER_HIBERNATE,
             request_id,
             {},
@@ -450,7 +392,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Power restart."""
         self._logger.info("Power restart")
-        return await self._send_message(
+        return await self.send_message(
             EventType.POWER_RESTART,
             request_id,
             {},
@@ -464,7 +406,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Power shutdown."""
         self._logger.info("Power shutdown")
-        return await self._send_message(
+        return await self.send_message(
             EventType.POWER_SHUTDOWN,
             request_id,
             {},
@@ -478,7 +420,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Power lock."""
         self._logger.info("Power lock")
-        return await self._send_message(
+        return await self.send_message(
             EventType.POWER_LOCK,
             request_id,
             {},
@@ -492,7 +434,7 @@ class WebSocketClient(Base):
     ) -> Response:
         """Power logout."""
         self._logger.info("Power logout")
-        return await self._send_message(
+        return await self.send_message(
             EventType.POWER_LOGOUT,
             request_id,
             {},
@@ -683,3 +625,61 @@ class WebSocketClient(Base):
             return message_json
 
         raise BadMessageException(f"Unknown message type: {message.type}")
+
+    async def send_message(
+        self,
+        event: str,
+        request_id: str,
+        data: dict[str, Any],
+        wait_for_response: bool,
+        response_type: str | None = None,
+    ) -> Response:
+        """Send a message to the WebSocket."""
+        if not self.connected or self._websocket is None:
+            raise ConnectionClosedException("Connection is closed")
+
+        request = Request(
+            token=self._token,
+            id=request_id,
+            event=event,
+            data=data,
+        )
+
+        future: asyncio.Future[Response] = asyncio.get_running_loop().create_future()
+        self._responses[request.id] = future, response_type
+
+        await self._websocket.send_json(asdict(request))
+        self._logger.debug("Sent message: %s", request)
+
+        if wait_for_response:
+            self._logger.info(
+                "Waiting for future: event '%s' for request: %s",
+                response_type,
+                request,
+            )
+            try:
+                return await asyncio.wait_for(future, timeout=8.0)
+            except asyncio.TimeoutError:
+                self._logger.error(
+                    "Timeout waiting for future event '%s' for request: %s",
+                    response_type,
+                    request,
+                )
+                return Response(
+                    id=request.id,
+                    type=EventType.ERROR,
+                    subtype="TIMEOUT",
+                    message="Timeout waiting for response",
+                    data=asdict(request),
+                )
+            finally:
+                self._responses.pop(request.id)
+
+        return Response(
+            id=request.id,
+            type="N/A",
+            message="Message sent",
+            subtype=None,
+            module=None,
+            data={},
+        )

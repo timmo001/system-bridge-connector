@@ -1,14 +1,21 @@
 """Test the websocket client module."""
 
+import asyncio
+from dataclasses import asdict
+from json import dumps
 from unittest.mock import patch
 
 import aiohttp
 import pytest
 from syrupy.assertion import SnapshotAssertion
 
+from systembridgeconnector.const import EventSubType, EventType
 from systembridgeconnector.exceptions import (
+    AuthenticationException,
+    BadMessageException,
     ConnectionClosedException,
     ConnectionErrorException,
+    DataMissingException,
 )
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.keyboard_key import KeyboardKey
@@ -20,9 +27,10 @@ from systembridgemodels.modules import GetData, Module, RegisterDataListener
 from systembridgemodels.notification import Notification
 from systembridgemodels.open_path import OpenPath
 from systembridgemodels.open_url import OpenUrl
+from systembridgemodels.response import Response
 from systembridgemodels.update import Update
 
-from . import REQUEST_ID
+from . import API_HOST, API_PORT, REQUEST_ID, ClientSessionGenerator
 
 
 @pytest.mark.asyncio
@@ -346,3 +354,229 @@ async def test_power_logout(
         )
         == snapshot
     )
+
+
+@pytest.mark.asyncio
+async def test_wait_for_response_timeout(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "systembridgeconnector.websocket_client.asyncio.wait_for",
+        side_effect=asyncio.TimeoutError(),
+    ):
+        assert (
+            await mock_websocket_client_connected.get_data(
+                GetData(modules=[Module.SYSTEM]),
+                request_id=REQUEST_ID,
+                timeout=1,
+            )
+            == snapshot
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_data_data_missing(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with pytest.raises(DataMissingException):
+        await mock_websocket_client_connected.get_data(
+            GetData(modules=[Module.CPU]),
+            request_id=REQUEST_ID,
+            timeout=1,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_data_task_cancelled(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "systembridgeconnector.websocket_client.WebSocketClient.listen",
+        side_effect=asyncio.CancelledError(),
+    ), pytest.raises(asyncio.CancelledError):
+        await mock_websocket_client_listening.get_data(
+            GetData(modules=[Module.SYSTEM]),
+            request_id=REQUEST_ID,
+            timeout=1,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_data_task_exception(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "systembridgeconnector.websocket_client.WebSocketClient.listen",
+        side_effect=ConnectionClosedException(),
+    ), pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_listening.get_data(
+            GetData(modules=[Module.SYSTEM]),
+            request_id=REQUEST_ID,
+            timeout=1,
+        )
+
+
+@pytest.mark.asyncio
+async def test_unknown_message(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test the websocket client."""
+    assert (
+        await mock_websocket_client_listening.send_message(
+            event="BAD_TYPE",
+            request_id=REQUEST_ID,
+            data={},
+            wait_for_response=False,
+            response_type="BAD_TYPE",
+        )
+        == snapshot
+    )
+
+
+@pytest.mark.asyncio
+async def test_bad_token(
+    snapshot: SnapshotAssertion,
+    mock_websocket_session: ClientSessionGenerator,
+):
+    """Test the websocket client."""
+    client = await mock_websocket_session()
+    ws = await client.ws_connect("/api/websocket")
+
+    websocket_client = WebSocketClient(
+        api_host=API_HOST,
+        api_port=API_PORT,
+        token="badtoken",
+        session=client.session,
+        websocket=ws,
+        can_close_session=True,
+    )
+
+    await websocket_client.connect()
+
+    assert (
+        await websocket_client.application_update(
+            Update(version="1.0.0"),
+            request_id=REQUEST_ID,
+        )
+        == snapshot
+    )
+
+
+@pytest.mark.asyncio
+async def test_listen_for_messages_disconnnected(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    await mock_websocket_client_connected.close()
+
+    async def callback(_):
+        pass
+
+    with pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_connected.listen_for_messages(
+            callback=callback,
+            name="Test WebSocket Listener",
+        )
+
+
+@pytest.mark.asyncio
+async def test_receive_message_disconnnected(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    await mock_websocket_client_connected.close()
+
+    with pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_connected.receive_message()
+
+
+@pytest.mark.asyncio
+async def test_receive_message_runtime_error(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        side_effect=RuntimeError(),
+    ):
+        assert await mock_websocket_client_connected.receive_message() is None
+
+
+@pytest.mark.asyncio
+async def test_receive_message_type_close(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        return_value=aiohttp.WSMessage(
+            type=aiohttp.WSMsgType.CLOSE,
+            data=None,
+            extra=None,
+        ),
+    ), pytest.raises(ConnectionClosedException):
+        await mock_websocket_client_connected.receive_message()
+
+
+@pytest.mark.asyncio
+async def test_receive_message_type_error(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        return_value=aiohttp.WSMessage(
+            type=aiohttp.WSMsgType.ERROR,
+            data=None,
+            extra=None,
+        ),
+    ), pytest.raises(ConnectionErrorException):
+        await mock_websocket_client_connected.receive_message()
+
+
+#
+@pytest.mark.asyncio
+async def test_receive_message_bad_token(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        return_value=aiohttp.WSMessage(
+            type=aiohttp.WSMsgType.TEXT,
+            data=dumps(
+                asdict(
+                    Response(
+                        id=REQUEST_ID,
+                        type=EventType.ERROR,
+                        subtype=EventSubType.BAD_TOKEN,
+                        data={},
+                    )
+                )
+            ),
+            extra=None,
+        ),
+    ), pytest.raises(AuthenticationException):
+        await mock_websocket_client_connected.receive_message()
+
+
+@pytest.mark.asyncio
+async def test_receive_message_type_unknown_message(
+    mock_websocket_client_connected: WebSocketClient,
+):
+    """Test the websocket client."""
+    with patch(
+        "aiohttp.ClientWebSocketResponse.receive",
+        return_value=aiohttp.WSMessage(
+            type=aiohttp.WSMsgType.BINARY,
+            data=None,
+            extra=None,
+        ),
+    ), pytest.raises(BadMessageException):
+        await mock_websocket_client_connected.receive_message()
