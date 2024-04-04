@@ -65,13 +65,6 @@ class WebSocketClient(Base):
         """Get connection state."""
         return self._websocket is not None and not self._websocket.closed
 
-    async def _wait_for_future(
-        self,
-        future: asyncio.Future[Response],
-    ) -> Response:
-        """Wait for future."""
-        return await asyncio.wait_for(future, timeout=8.0)
-
     async def _send_message(
         self,
         event: str,
@@ -104,7 +97,7 @@ class WebSocketClient(Base):
                 request,
             )
             try:
-                return await self._wait_for_future(future)
+                return await asyncio.wait_for(future, timeout=8.0)
             except asyncio.TimeoutError:
                 self._logger.error(
                     "Timeout waiting for future event '%s' for request: %s",
