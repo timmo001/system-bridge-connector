@@ -6,7 +6,10 @@ import aiohttp
 import pytest
 from syrupy.assertion import SnapshotAssertion
 
-from systembridgeconnector.exceptions import ConnectionErrorException
+from systembridgeconnector.exceptions import (
+    ConnectionClosedException,
+    ConnectionErrorException,
+)
 from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
@@ -389,3 +392,19 @@ async def test_power_logout(
 #     """Test the websocket client."""
 #     await mock_websocket_client.connect()
 #     await mock_websocket_client.listen()
+
+
+@pytest.mark.asyncio
+async def test_connection_closed(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client: WebSocketClient,
+):
+    """Test the websocket client."""
+    await mock_websocket_client.connect()
+    await mock_websocket_client.close()
+
+    with pytest.raises(ConnectionClosedException):
+        await mock_websocket_client.application_update(
+            Update(version="1.0.0"),
+            request_id=REQUEST_ID,
+        )

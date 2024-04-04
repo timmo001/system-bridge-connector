@@ -6,22 +6,13 @@ import pytest
 
 from systembridgeconnector.http_client import HTTPClient
 from systembridgeconnector.websocket_client import WebSocketClient
-from systembridgemodels.fixtures.modules.battery import FIXTURE_BATTERY
-from systembridgemodels.fixtures.modules.cpu import FIXTURE_CPU
-from systembridgemodels.fixtures.modules.disks import FIXTURE_DISKS
-from systembridgemodels.fixtures.modules.displays import FIXTURE_DISPLAYS
-from systembridgemodels.fixtures.modules.gpus import FIXTURE_GPUS
-from systembridgemodels.fixtures.modules.media import FIXTURE_MEDIA
-from systembridgemodels.fixtures.modules.memory import FIXTURE_MEMORY
-from systembridgemodels.fixtures.modules.networks import FIXTURE_NETWORKS
-from systembridgemodels.fixtures.modules.processes import FIXTURE_PROCESSES
-from systembridgemodels.fixtures.modules.sensors import FIXTURE_SENSORS
-from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
 from systembridgemodels.modules import ModulesData
 
 from . import (
+    _LOGGER,
     API_HOST,
     API_PORT,
+    MODULES_DATA,
     TOKEN,
     ClientSessionGenerator,
     bad_request_response,
@@ -78,19 +69,7 @@ async def mock_http_client(
 @pytest.fixture
 def mock_modules_data() -> ModulesData:
     """Return a mock ModulesData."""
-    return ModulesData(
-        battery=FIXTURE_BATTERY,
-        cpu=FIXTURE_CPU,
-        disks=FIXTURE_DISKS,
-        displays=FIXTURE_DISPLAYS,
-        gpus=FIXTURE_GPUS,
-        media=FIXTURE_MEDIA,
-        memory=FIXTURE_MEMORY,
-        networks=FIXTURE_NETWORKS,
-        processes=FIXTURE_PROCESSES,
-        sensors=FIXTURE_SENSORS,
-        system=FIXTURE_SYSTEM,
-    )
+    return MODULES_DATA
 
 
 @pytest.fixture(name="mock_websocket_session")
@@ -119,11 +98,16 @@ async def mock_websocket_session_generator(
 
         async for msg in ws:
             if msg.type == web.WSMsgType.TEXT:
-                await ws.send_str(await process_message(msg.data))
+                response = await process_message(msg.data)
+                _LOGGER.info(response)
+                await ws.send_str(response)
+                _LOGGER.debug("Sent text message")
             elif msg.type == web.WSMsgType.BINARY:
                 await ws.send_bytes(msg.data)
+                _LOGGER.debug("Sent binary message")
             elif msg.type == web.WSMsgType.CLOSE:
                 await ws.close()
+                _LOGGER.debug("WebSocket closed")
 
         return ws
 
