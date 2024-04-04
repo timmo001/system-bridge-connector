@@ -15,9 +15,9 @@ from systembridgeconnector.http_client import HTTPClient
 from . import API_HOST, API_PORT, TOKEN, ClientSessionGenerator
 
 
-async def _get_http_client(http_client: ClientSessionGenerator) -> HTTPClient:
+async def _get_http_client(mock_http_client: ClientSessionGenerator) -> HTTPClient:
     """Return a HTTP client."""
-    client = await http_client()
+    client = await mock_http_client()
 
     return HTTPClient(
         api_host=API_HOST,
