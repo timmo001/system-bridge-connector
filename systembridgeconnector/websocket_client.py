@@ -99,9 +99,9 @@ class WebSocketClient(Base):
 
         if wait_for_response:
             self._logger.info(
-                "Awaiting future: %s (%s)",
-                request.id,
+                "Waiting for future: event '%s' for request: %s",
                 response_type,
+                request,
             )
             try:
                 return await self._wait_for_future(future)
