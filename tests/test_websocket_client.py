@@ -8,36 +8,23 @@ import aiohttp
 import pytest
 from syrupy.assertion import SnapshotAssertion
 
-from systembridgeconnector.const import (
-    EVENT_MODULES,
-    TYPE_DATA_GET,
-    TYPE_DATA_LISTENER_REGISTERED,
-    TYPE_DIRECTORIES,
-    TYPE_FILE,
-    TYPE_FILES,
-    TYPE_KEYBOARD_KEY_PRESSED,
-    TYPE_KEYBOARD_TEXT_SENT,
-    TYPE_NOTIFICATION_SENT,
-    TYPE_OPENED,
-    TYPE_POWER_HIBERNATING,
-    TYPE_POWER_LOCKING,
-    TYPE_POWER_LOGGINGOUT,
-    TYPE_POWER_RESTARTING,
-    TYPE_POWER_SHUTTINGDOWN,
-    TYPE_POWER_SLEEPING,
-)
+from systembridgeconnector.const import EventKey, EventType
 from systembridgeconnector.exceptions import (
     ConnectionClosedException,
     ConnectionErrorException,
 )
 from systembridgeconnector.websocket_client import WebSocketClient
-from systembridgemodels.const import MODEL_SYSTEM
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
 from systembridgemodels.media_get_file import MediaGetFile
 from systembridgemodels.media_get_files import MediaGetFiles
-from systembridgemodels.modules import GetData, ModulesData, RegisterDataListener
+from systembridgemodels.modules import (
+    GetData,
+    Module,
+    ModulesData,
+    RegisterDataListener,
+)
 from systembridgemodels.notification import Notification
 from systembridgemodels.open_path import OpenPath
 from systembridgemodels.open_url import OpenUrl
@@ -129,7 +116,7 @@ async def test_timeout(
     ):
         response = await websocket_client.get_data(
             GetData(
-                modules=[MODEL_SYSTEM],
+                modules=[Module.SYSTEM],
             ),
             request_id=REQUEST_ID,
         )
@@ -194,14 +181,14 @@ async def test_get_data(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_DATA_GET,
-            data={EVENT_MODULES: [MODEL_SYSTEM]},
+            type=EventType.DATA_GET,
+            data={EventKey.MODULES: [Module.SYSTEM]},
         ),
     )
     assert websocket_client.connected is True
     response = await websocket_client.get_data(
         GetData(
-            modules=[MODEL_SYSTEM],
+            modules=[Module.SYSTEM],
         ),
         request_id=REQUEST_ID,
     )
@@ -220,7 +207,7 @@ async def test_get_directories(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_DIRECTORIES,
+            type=EventType.DIRECTORIES,
             data=[{"key": "documents", "path": "/documents"}],
         ),
     )
@@ -243,7 +230,7 @@ async def test_get_files(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_FILES,
+            type=EventType.FILES,
             data={
                 "files": [
                     {
@@ -287,7 +274,7 @@ async def test_get_file(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_FILE,
+            type=EventType.FILE,
             data={
                 "name": "test",
                 "path": "path/to",
@@ -326,14 +313,14 @@ async def test_register_data_listener(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_DATA_LISTENER_REGISTERED,
-            data={EVENT_MODULES: [MODEL_SYSTEM]},
+            type=EventType.DATA_LISTENER_REGISTERED,
+            data={EventKey.MODULES: [Module.SYSTEM]},
         ),
     )
     assert websocket_client.connected is True
     response = await websocket_client.register_data_listener(
         RegisterDataListener(
-            modules=[MODEL_SYSTEM],
+            modules=[Module.SYSTEM],
         ),
         request_id=REQUEST_ID,
     )
@@ -352,7 +339,7 @@ async def test_keyboard_keypress(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_KEYBOARD_KEY_PRESSED,
+            type=EventType.KEYBOARD_KEY_PRESSED,
             data={"key": "a"},
         ),
     )
@@ -378,7 +365,7 @@ async def test_keyboard_text(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_KEYBOARD_TEXT_SENT,
+            type=EventType.KEYBOARD_TEXT_SENT,
             data={"text": "test"},
         ),
     )
@@ -430,7 +417,7 @@ async def test_send_notification(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_NOTIFICATION_SENT,
+            type=EventType.NOTIFICATION_SENT,
             data={"title": "test", "message": "test"},
         ),
     )
@@ -457,7 +444,7 @@ async def test_open_path(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_OPENED,
+            type=EventType.OPENED,
             data={"path": "test"},
         ),
     )
@@ -483,7 +470,7 @@ async def test_open_url(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_OPENED,
+            type=EventType.OPENED,
             data={"url": "test"},
         ),
     )
@@ -509,7 +496,7 @@ async def test_power_sleep(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_POWER_SLEEPING,
+            type=EventType.POWER_SLEEPING,
             data={},
         ),
     )
@@ -532,7 +519,7 @@ async def test_power_hibernate(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_POWER_HIBERNATING,
+            type=EventType.POWER_HIBERNATING,
             data={},
         ),
     )
@@ -555,7 +542,7 @@ async def test_power_restart(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_POWER_RESTARTING,
+            type=EventType.POWER_RESTARTING,
             data={},
         ),
     )
@@ -578,7 +565,7 @@ async def test_power_shutdown(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_POWER_SHUTTINGDOWN,
+            type=EventType.POWER_SHUTTINGDOWN,
             data={},
         ),
     )
@@ -601,7 +588,7 @@ async def test_power_lock(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_POWER_LOCKING,
+            type=EventType.POWER_LOCKING,
             data={},
         ),
     )
@@ -624,7 +611,7 @@ async def test_power_logout(
         ws_client,
         Response(
             id=REQUEST_ID,
-            type=TYPE_POWER_LOGGINGOUT,
+            type=EventType.POWER_LOGGINGOUT,
             data={},
         ),
     )
