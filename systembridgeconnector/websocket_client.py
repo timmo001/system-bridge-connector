@@ -93,7 +93,7 @@ class WebSocketClient(Base):
                 error.__class__.__name__,
                 error,
             )
-            raise ConnectionErrorException from error
+            raise ConnectionErrorException(error) from error
 
     async def application_update(
         self,
