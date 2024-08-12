@@ -540,7 +540,6 @@ async def test_receive_message_type_error(
         await mock_websocket_client_connected.receive_message()
 
 
-#
 @pytest.mark.asyncio
 async def test_receive_message_bad_token(
     mock_websocket_client_connected: WebSocketClient,
