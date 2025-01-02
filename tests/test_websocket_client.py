@@ -18,7 +18,7 @@ from systembridgeconnector.exceptions import (
     DataMissingException,
 )
 from systembridgeconnector.websocket_client import WebSocketClient
-from systembridgemodels.display import DisplayUpdateSettingOp
+from systembridgemodels.display import DisplaySetting, DisplayUpdateSettingOp
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
@@ -365,7 +365,7 @@ async def test_display_update_setting(
     """Test the websocket client."""
     assert (
         await mock_websocket_client_listening.display_update_setting(
-            DisplayUpdateSettingOp(0, "brightness", 10),
+            DisplayUpdateSettingOp(0, DisplaySetting.BRIGHTNESS, 10),
             request_id=REQUEST_ID,
         )
         == snapshot
