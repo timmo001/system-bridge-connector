@@ -543,6 +543,10 @@ class WebSocketClient(Base):
                         name,
                         message,
                     )
+                    if (response_tuple := self._responses.get(message[EventKey.ID])) is not None:
+                        self._logger.debug("Future cancelled %s", response_tuple)
+                        future, _ = response_tuple
+                        future.cancel(message[EventKey.MESSAGE])
             elif (
                 message[EventKey.TYPE] == EventType.DATA_UPDATE
                 and message[EventKey.DATA] is not None
