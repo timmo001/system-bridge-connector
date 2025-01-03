@@ -12,6 +12,7 @@ from uuid import uuid4
 import aiohttp
 
 from systembridgemodels.const import MODEL_MAP, Model
+from systembridgemodels.display import DisplayUpdateSettingOp
 from systembridgemodels.keyboard_key import KeyboardKey
 from systembridgemodels.keyboard_text import KeyboardText
 from systembridgemodels.media_control import MediaControl
@@ -442,6 +443,21 @@ class WebSocketClient(Base):
             response_type=EventType.POWER_LOGGINGOUT,
         )
 
+    async def display_update_setting(
+        self,
+        model: DisplayUpdateSettingOp,
+        request_id: str = uuid4().hex,
+    ) -> Response:
+        """Update Display Settings."""
+        self._logger.info("Update Display Setting: %s", model)
+        return await self.send_message(
+            EventType.DISPLAY_UPDATE_SETTING,
+            request_id,
+            asdict(model),
+            wait_for_response=True,
+            response_type=EventType.DISPLAY_SETTING_UPDATED,
+        )
+
     async def listen(
         self,
         callback: Callable[[str, Any], Awaitable[None]] | None = None,
@@ -527,6 +543,10 @@ class WebSocketClient(Base):
                         name,
                         message,
                     )
+                    if (response_tuple := self._responses.get(message[EventKey.ID])) is not None:
+                        self._logger.debug("Future cancelled %s", response_tuple)
+                        future, _ = response_tuple
+                        future.cancel(message[EventKey.MESSAGE])
             elif (
                 message[EventKey.TYPE] == EventType.DATA_UPDATE
                 and message[EventKey.DATA] is not None
