@@ -454,8 +454,8 @@ class WebSocketClient(Base):
             EventType.DISPLAY_UPDATE_SETTING,
             request_id,
             asdict(model),
-            wait_for_response=False,
-            # response_type=EventType.DISPLAY_SETTING_UPDATED,
+            wait_for_response=True,
+            response_type=EventType.DISPLAY_SETTING_UPDATED,
         )
 
     async def listen(
