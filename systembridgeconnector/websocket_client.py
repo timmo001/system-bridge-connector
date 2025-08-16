@@ -41,6 +41,7 @@ from .exceptions import (
 class WebSocketClient(Base):
     """WebSocket Client."""
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         api_host: str,
@@ -626,6 +627,7 @@ class WebSocketClient(Base):
 
         raise BadMessageException(f"Unknown message type: {message.type}")
 
+    # pylint: disable=too-many-positional-arguments
     async def send_message(
         self,
         event: str,
