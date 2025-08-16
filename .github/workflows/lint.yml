@@ -45,5 +45,3 @@ jobs:
           pylint --rcfile=pyproject.toml systembridgeconnector
   lint-ruff:
     uses: timmo001/workflows/.github/workflows/lint-ruff.yml@master
-  lint-yamllint:
-    uses: timmo001/workflows/.github/workflows/lint-yamllint.yml@master
