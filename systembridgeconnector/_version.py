@@ -6,12 +6,7 @@ runtime dependency on incremental.
 
 from __future__ import annotations
 
-try:  # Python 3.11+
-    from importlib.metadata import PackageNotFoundError, version as get_version
-except Exception:  # pragma: no cover - very old python not supported in runtime
-    PackageNotFoundError = Exception  # type: ignore[assignment]
-    def get_version(_: str) -> str:  # type: ignore[no-redef]
-        raise PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version as get_version
 
 PACKAGE_NAME = "systembridgeconnector"
 
