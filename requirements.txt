@@ -1,3 +1,3 @@
-aiohttp==3.12.15
+aiohttp>=3.12.15
 packaging>=24.0
 systembridgemodels>=4.2.4
