@@ -6,5 +6,6 @@ rules:
     ignore: |
       .gitlab-ci.yml
       .github/
+      .github/.tmp/
       .yarn/
     level: warning
