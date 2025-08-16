@@ -41,7 +41,6 @@ from .exceptions import (
 class WebSocketClient(Base):
     """WebSocket Client."""
 
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         api_host: str,
