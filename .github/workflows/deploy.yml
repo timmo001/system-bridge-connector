@@ -35,62 +35,20 @@ jobs:
       - name: 🔢 Get old version
         id: get-version-old
         run: |
-          result=$(python <<'PY'
-import pathlib, re
-v = re.search(r'version="([^"]+)"', pathlib.Path('setup.py').read_text(encoding='utf-8')).group(1)
-print(v)
-PY
-          )
+          result=$(python script/get_version.py)
           echo "version=$result" >> $GITHUB_OUTPUT
       - name: 🔢 Set correct version - Development
         if: ${{ github.event_name != 'release' }}
         run: |
-          # Ensure dev suffix in setup.py version
-          python <<'PY'
-import pathlib, re
-p = pathlib.Path('setup.py')
-s = p.read_text(encoding='utf-8')
-m = re.search(r'version="([^"]+)"', s)
-if not m:
-    raise SystemExit('version field not found in setup.py')
-v = m.group(1)
-if 'dev' not in v:
-    new_v = f"{v}.dev0"
-    s = re.sub(r'version="([^"]+)"', f'"version="{new_v}"', s, count=1)
-    p.write_text(s, encoding='utf-8')
-    print(f'Updated version to {new_v}')
-else:
-    print('Version already has dev suffix, no change')
-PY
+          python script/set_dev_version.py
       - name: 🔢 Set correct version - Release
         if: ${{ github.event_name == 'release' }}
         run: |
-          # Strip dev suffix from setup.py version
-          python <<'PY'
-import pathlib, re
-p = pathlib.Path('setup.py')
-s = p.read_text(encoding='utf-8')
-m = re.search(r'version="([^"]+)"', s)
-if not m:
-    raise SystemExit('version field not found in setup.py')
-v = m.group(1)
-new_v = re.sub(r'\.dev\d*$', '', v)
-if new_v != v:
-    s = s.replace(f'version="{v}"', f'version="{new_v}"', 1)
-    p.write_text(s, encoding='utf-8')
-    print(f'Updated version to {new_v}')
-else:
-    print('No dev suffix to strip')
-PY
+          python script/set_release_version.py
       - name: 🔢 Get current version
         id: get-version-current
         run: |
-          result=$(python <<'PY'
-import pathlib, re
-v = re.search(r'version="([^"]+)"', pathlib.Path('setup.py').read_text(encoding='utf-8')).group(1)
-print(v)
-PY
-          )
+          result=$(python script/get_version.py)
           echo "version=$result" >> $GITHUB_OUTPUT
       - name: ⤵️ Pull latest changes from GitHub
         run: |
@@ -112,59 +70,15 @@ PY
       - name: 🔢 Increment version - Development
         if: ${{ github.event_name != 'release' }}
         run: |
-          # Bump dev serial (X.Y.Z.devN -> X.Y.Z.devN+1); if no dev, bump patch and add .dev0
-          python <<'PY'
-import pathlib, re
-p = pathlib.Path('setup.py')
-s = p.read_text(encoding='utf-8')
-m = re.search(r'version="([^"]+)"', s)
-if not m:
-    raise SystemExit('version field not found in setup.py')
-v = m.group(1)
-dev_m = re.search(r'^(\d+)\.(\d+)\.(\d+)(?:\.dev(\d+))?$', v)
-if not dev_m:
-    raise SystemExit(f'Unexpected version format: {v}')
-major, minor, patch, dev = dev_m.groups()
-if dev is None:
-    # bump patch, add dev0
-    new_v = f"{major}.{minor}.{int(patch)+1}.dev0"
-else:
-    new_v = f"{major}.{minor}.{patch}.dev{int(dev)+1}"
-s = s.replace(f'version="{v}"', f'version="{new_v}"', 1)
-p.write_text(s, encoding='utf-8')
-print(f'Updated version to {new_v}')
-PY
+          python script/increment_version_dev.py
       - name: 🔢 Increment version - Release
         if: ${{ github.event_name == 'release' }}
         run: |
-          # Bump patch and set to next development cycle (X.Y.Z -> X.Y.(Z+1).dev0)
-          python <<'PY'
-import pathlib, re
-p = pathlib.Path('setup.py')
-s = p.read_text(encoding='utf-8')
-m = re.search(r'version="([^"]+)"', s)
-if not m:
-    raise SystemExit('version field not found in setup.py')
-v = m.group(1)
-base = re.sub(r'\.dev\d*$', '', v)
-m2 = re.fullmatch(r'^(\d+)\.(\d+)\.(\d+)$', base)
-if not m2:
-    raise SystemExit(f'Unexpected base version format: {base}')
-major, minor, patch = m2.groups()
-new_v = f"{major}.{minor}.{int(patch)+1}.dev0"
-s = s.replace(f'version="{v}"', f'version="{new_v}"', 1)
-p.write_text(s, encoding='utf-8')
-print(f'Updated version to {new_v}')
-PY
+          python script/increment_version_release.py
       - name: 🔢 Get new version
         id: get-version-new
         run: |
-          result=$(python <<'PY'
-import pathlib, re
-v = re.search(r'version="([^"]+)"', pathlib.Path('setup.py').read_text(encoding='utf-8')).group(1)
-print(v)
-PY
-          )
+          result=$(python script/get_version.py)
           echo "version=$result" >> $GITHUB_OUTPUT
       - name: ⤵️ Pull latest changes from GitHub
         run: |
