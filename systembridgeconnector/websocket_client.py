@@ -169,8 +169,18 @@ class WebSocketClient(Base):
                     if listener_task.done():
                         break
         except asyncio.TimeoutError as exception:
+            modules_missing = [
+                module_name
+                for module_name in model.modules
+                if getattr(modules_data, module_name) is None
+            ]
+            self._logger.error(
+                "Timeout waiting for data after %s seconds. Modules missing: %s",
+                timeout,
+                modules_missing,
+            )
             raise DataMissingException(
-                f"Timeout waiting for data after {timeout} seconds"
+                f"Timeout waiting for data after {timeout} seconds. Modules missing: {modules_missing}"
             ) from exception
         finally:
             self._logger.debug("Cancelling listener task")
