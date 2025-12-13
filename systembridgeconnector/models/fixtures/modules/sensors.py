@@ -9,11 +9,25 @@ from systembridgeconnector.models.modules.sensors import (
     SensorsWindows,
     SensorsWindowsHardware,
     SensorsWindowsSensor,
+    Temperature,
 )
 
 FIXTURE_SENSORS = Sensors(
     fans=None,
-    temperatures=None,
+    temperatures=[
+        Temperature(
+            key="cpu",
+            temperature=45.5,
+            high=80.0,
+            critical=100.0,
+        ),
+        Temperature(
+            key="gpu",
+            temperature=65.0,
+            high=85.0,
+            critical=95.0,
+        ),
+    ],
     windows_sensors=SensorsWindows(
         hardware=[
             SensorsWindowsHardware(

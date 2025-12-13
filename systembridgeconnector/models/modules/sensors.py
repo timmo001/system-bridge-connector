@@ -119,6 +119,17 @@ class SensorsNVIDIAGPU:
     type: str | None = None
 
 
+@filter_unexpected_fields
+@dataclass(slots=True)
+class Temperature:
+    """Temperature."""
+
+    key: str
+    temperature: float
+    high: float
+    critical: float
+
+
 @dataclass
 class SensorsNVIDIA:
     """Sensors NVIDIA."""
@@ -183,12 +194,20 @@ class Sensors:
 
     # TODO: Add fan model
     fans: Any | None = None
-    # TODO: Add temperatures model
-    temperatures: Any | None = None
+    temperatures: list[Temperature] | None = None
     windows_sensors: SensorsWindows | None = None
 
     def __post_init__(self):
         """Post Init."""
+        if isinstance(self.temperatures, list) and all(
+            isinstance(item, dict) for item in self.temperatures
+        ):
+            new_temperatures: list[Temperature] = []
+            for t in self.temperatures:
+                temperature: dict = cast(dict, t)
+                new_temperatures.append(Temperature(**temperature))
+            self.temperatures = new_temperatures
+
         if isinstance(self.windows_sensors, dict):
             self.windows_sensors = SensorsWindows(**self.windows_sensors)
 
