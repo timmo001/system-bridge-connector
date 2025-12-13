@@ -36,6 +36,7 @@ class System:
     boot_time: int
     fqdn: str
     hostname: str
+    kernel_version: str
     ip_address_4: str
     mac_address: str
     platform_version: str

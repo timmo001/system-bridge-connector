@@ -6,6 +6,7 @@ FIXTURE_SYSTEM = System(
     boot_time=1234,
     fqdn="hostname.local",
     hostname="hostname",
+    kernel_version="6.1.0",
     ip_address_4="192.168.1.100",
     mac_address="00:00:00:00:00:00",
     platform_version="1.0.0",
