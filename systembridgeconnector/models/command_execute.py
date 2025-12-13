@@ -9,5 +9,5 @@ from dataclasses import dataclass
 class CommandExecute:
     """Command Execute."""
 
-    commandID: str
+    commandID: str  # noqa: N815
 

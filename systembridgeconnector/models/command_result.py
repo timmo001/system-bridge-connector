@@ -9,8 +9,8 @@ from dataclasses import dataclass
 class CommandResult:
     """Command Result."""
 
-    commandID: str
-    exitCode: int
+    commandID: str  # noqa: N815
+    exitCode: int  # noqa: N815
     stdout: str
     stderr: str
     error: str | None = None
