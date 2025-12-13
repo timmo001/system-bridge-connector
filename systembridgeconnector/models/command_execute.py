@@ -9,5 +9,5 @@ from dataclasses import dataclass
 class CommandExecute:
     """Command Execute."""
 
-    commandID: str  # noqa: N815
+    commandID: str  # noqa: N815  # pylint: disable=invalid-name
 
