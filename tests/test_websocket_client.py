@@ -17,7 +17,6 @@ from systembridgeconnector.exceptions import (
     ConnectionErrorException,
     DataMissingException,
 )
-from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgeconnector.models.keyboard_key import KeyboardKey
 from systembridgeconnector.models.keyboard_text import KeyboardText
 from systembridgeconnector.models.media_control import MediaControl
@@ -29,6 +28,7 @@ from systembridgeconnector.models.open_path import OpenPath
 from systembridgeconnector.models.open_url import OpenUrl
 from systembridgeconnector.models.response import Response
 from systembridgeconnector.models.update import Update
+from systembridgeconnector.websocket_client import WebSocketClient
 
 from . import API_HOST, API_PORT, REQUEST_ID, ClientSessionGenerator
 

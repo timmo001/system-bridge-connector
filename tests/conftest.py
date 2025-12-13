@@ -11,10 +11,10 @@ import pytest
 
 from systembridgeconnector.const import EventSubType, EventType
 from systembridgeconnector.http_client import HTTPClient
-from systembridgeconnector.websocket_client import WebSocketClient
 from systembridgeconnector.models.fixtures.modules.system import FIXTURE_SYSTEM
 from systembridgeconnector.models.modules import Module, ModulesData
 from systembridgeconnector.models.response import Response
+from systembridgeconnector.websocket_client import WebSocketClient
 
 from . import (
     _LOGGER,

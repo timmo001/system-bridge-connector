@@ -1,8 +1,22 @@
 """Test version."""
 
-from systembridgeconnector._version import __version__
+from pathlib import Path
+import re
+
+
+def get_version() -> str:
+    """Get version from setup.py."""
+    project_root = Path(__file__).resolve().parents[1]
+    setup_path = project_root / "setup.py"
+    setup_contents = setup_path.read_text(encoding="utf-8")
+    match = re.search(r'version="([^"]+)"', setup_contents)
+    if not match:
+        raise ValueError("version field not found in setup.py")
+    return match.group(1)
 
 
 def test_version():
     """Test the version."""
-    assert isinstance(__version__.public(), str)
+    version = get_version()
+    assert isinstance(version, str)
+    assert len(version) > 0

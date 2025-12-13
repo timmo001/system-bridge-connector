@@ -11,7 +11,15 @@ from uuid import uuid4
 
 import aiohttp
 
-from .const import MODEL_MAP, Model
+from .base import Base
+from .const import MODEL_MAP, EventKey, EventSubType, EventType, Model
+from .exceptions import (
+    AuthenticationException,
+    BadMessageException,
+    ConnectionClosedException,
+    ConnectionErrorException,
+    DataMissingException,
+)
 from .models.keyboard_key import KeyboardKey
 from .models.keyboard_text import KeyboardText
 from .models.media_control import MediaControl
@@ -26,16 +34,6 @@ from .models.open_url import OpenUrl
 from .models.request import Request
 from .models.response import Response
 from .models.update import Update
-
-from .base import Base
-from .const import EventKey, EventSubType, EventType
-from .exceptions import (
-    AuthenticationException,
-    BadMessageException,
-    ConnectionClosedException,
-    ConnectionErrorException,
-    DataMissingException,
-)
 
 
 class WebSocketClient(Base):

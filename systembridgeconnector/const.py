@@ -2,6 +2,27 @@
 
 from enum import StrEnum
 
+from .models.keyboard_key import KeyboardKey
+from .models.keyboard_text import KeyboardText
+from .models.media_directories import MediaDirectory
+from .models.media_files import MediaFile, MediaFiles
+from .models.modules import Module, ModulesData
+from .models.modules.battery import Battery
+from .models.modules.cpu import CPU
+from .models.modules.disks import Disks
+from .models.modules.displays import Display
+from .models.modules.gpus import GPU
+from .models.modules.media import Media
+from .models.modules.memory import Memory
+from .models.modules.networks import Networks
+from .models.modules.processes import Process
+from .models.modules.sensors import Sensors
+from .models.modules.system import System
+from .models.notification import Notification
+from .models.open_path import OpenPath
+from .models.open_url import OpenUrl
+from .models.response import Response
+
 
 class QueryParameter(StrEnum):
     """Query Parameter."""
@@ -122,29 +143,6 @@ class EventSubType(StrEnum):
     MISSING_TITLE = "MISSING_TITLE"
     MISSING_VALUE = "MISSING_VALUE"
     UNKNOWN_EVENT = "UNKNOWN_EVENT"
-
-
-# Model constants
-from .models.keyboard_key import KeyboardKey
-from .models.keyboard_text import KeyboardText
-from .models.media_directories import MediaDirectory
-from .models.media_files import MediaFile, MediaFiles
-from .models.modules import Module, ModulesData
-from .models.modules.battery import Battery
-from .models.modules.cpu import CPU
-from .models.modules.disks import Disks
-from .models.modules.displays import Display
-from .models.modules.gpus import GPU
-from .models.modules.media import Media
-from .models.modules.memory import Memory
-from .models.modules.networks import Networks
-from .models.modules.processes import Process
-from .models.modules.sensors import Sensors
-from .models.modules.system import System
-from .models.notification import Notification
-from .models.open_path import OpenPath
-from .models.open_url import OpenUrl
-from .models.response import Response
 
 
 class Model(StrEnum):

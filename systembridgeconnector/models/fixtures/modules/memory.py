@@ -1,5 +1,9 @@
 """Fixture for memory module."""
-from systembridgeconnector.models.modules.memory import Memory, MemorySwap, MemoryVirtual
+from systembridgeconnector.models.modules.memory import (
+    Memory,
+    MemorySwap,
+    MemoryVirtual,
+)
 
 FIXTURE_MEMORY = Memory(
     swap=MemorySwap(

@@ -1,5 +1,11 @@
 """Fixture for cpu module."""
-from systembridgeconnector.models.modules.cpu import CPU, CPUFrequency, CPUStats, CPUTimes, PerCPU
+from systembridgeconnector.models.modules.cpu import (
+    CPU,
+    CPUFrequency,
+    CPUStats,
+    CPUTimes,
+    PerCPU,
+)
 
 FIXTURE_CPU = CPU(
     count=4,
