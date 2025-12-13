@@ -14,7 +14,7 @@ class MemorySwap:
 
     total: int | None = None
     used: int | None = None
-    free: float | None = None
+    free: int | None = None
     percent: float | None = None
     sin: int | None = None
     sout: int | None = None
