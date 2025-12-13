@@ -10,7 +10,9 @@ def test_media_directories(snapshot: SnapshotAssertion):
     media_directories = [
         MediaDirectory(
             key="music",
+            name="Music",
             path="path/to/file",
+            description="Music directory",
         )
     ]
     assert isinstance(media_directories, list)
