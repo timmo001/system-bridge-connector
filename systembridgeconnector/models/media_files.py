@@ -1,8 +1,21 @@
 """Media Files."""
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import cast
+from dataclasses import MISSING, dataclass, fields
+from typing import Any, cast
+
+
+def _normalize_media_file_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Normalize camelCase JSON keys to snake_case for MediaFile."""
+    key_mapping = {
+        "isDirectory": "is_directory",
+        "modTime": "mod_time",
+        "contentType": "content_type",
+    }
+    normalized: dict[str, Any] = {}
+    for key, value in kwargs.items():
+        normalized[key_mapping.get(key, key)] = value
+    return normalized
 
 
 @dataclass(slots=True)
@@ -11,15 +24,30 @@ class MediaFile:
 
     name: str
     path: str
-    fullpath: str
     size: int
-    last_accessed: float
-    created: float
-    modified: float
     is_directory: bool
-    is_file: bool
-    is_link: bool
-    mime_type: str | None = None
+    mod_time: float
+    permissions: str
+    content_type: str | None = None
+    extension: str | None = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        """Initialize MediaFile, converting camelCase JSON keys to snake_case."""
+        # Normalize camelCase keys from Go API to snake_case
+        normalized = _normalize_media_file_kwargs(kwargs)
+        # Filter to expected fields only
+        expected_fields = {field.name for field in fields(MediaFile)}
+        cleaned = {k: v for k, v in normalized.items() if k in expected_fields}
+        # Set attributes directly (works with slots)
+        for field in fields(MediaFile):
+            if field.name in cleaned:
+                object.__setattr__(self, field.name, cleaned[field.name])
+            elif field.default is not MISSING:
+                object.__setattr__(self, field.name, field.default)
+            elif field.default_factory is not MISSING:
+                object.__setattr__(self, field.name, field.default_factory())
+            else:
+                raise TypeError(f"Missing required field: {field.name}")
 
 
 @dataclass(slots=True)
