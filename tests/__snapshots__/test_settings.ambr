@@ -1,0 +1,4 @@
+# serializer version: 1
+# name: test_settings
+  Settings(api=SettingsAPI(token='token', port=9170), autostart=False, keyboard_hotkeys=[], log_level='INFO', media=SettingsMedia(directories=[]))
+# ---

@@ -1,0 +1,4 @@
+# serializer version: 1
+# name: test_action
+  Action(command='command', data={'key': 'value'}, label='label')
+# ---

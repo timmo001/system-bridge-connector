@@ -1,0 +1,27 @@
+# serializer version: 1
+# name: test_media_files
+  MediaFiles(files=[MediaFile(name='file1', path='path/to/file1', fullpath='/full/path/to/file1', size=100, last_accessed=100.0, created=100.0, modified=100.0, is_directory=False, is_file=True, is_link=False, mime_type='text/plain')], path='path/to/file')
+# ---
+# name: test_media_files_dict
+  dict({
+    'files': list([
+      dict({
+        'created': 100.0,
+        'fullpath': '/full/path/to/file1',
+        'is_directory': False,
+        'is_file': True,
+        'is_link': False,
+        'last_accessed': 100.0,
+        'mime_type': 'text/plain',
+        'modified': 100.0,
+        'name': 'file1',
+        'path': 'path/to/file1',
+        'size': 100,
+      }),
+    ]),
+    'path': 'path/to/file',
+  })
+# ---
+# name: test_media_files_dict[media-files-dict-converted]
+  MediaFiles(files=[MediaFile(name='file1', path='path/to/file1', fullpath='/full/path/to/file1', size=100, last_accessed=100.0, created=100.0, modified=100.0, is_directory=False, is_file=True, is_link=False, mime_type='text/plain')], path='path/to/file')
+# ---

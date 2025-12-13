@@ -11,24 +11,8 @@ from uuid import uuid4
 
 import aiohttp
 
-from systembridgemodels.const import MODEL_MAP, Model
-from systembridgemodels.keyboard_key import KeyboardKey
-from systembridgemodels.keyboard_text import KeyboardText
-from systembridgemodels.media_control import MediaControl
-from systembridgemodels.media_directories import MediaDirectory
-from systembridgemodels.media_files import MediaFile, MediaFiles
-from systembridgemodels.media_get_file import MediaGetFile
-from systembridgemodels.media_get_files import MediaGetFiles
-from systembridgemodels.modules import GetData, ModulesData, RegisterDataListener
-from systembridgemodels.notification import Notification
-from systembridgemodels.open_path import OpenPath
-from systembridgemodels.open_url import OpenUrl
-from systembridgemodels.request import Request
-from systembridgemodels.response import Response
-from systembridgemodels.update import Update
-
 from .base import Base
-from .const import EventKey, EventSubType, EventType
+from .const import MODEL_MAP, EventKey, EventSubType, EventType, Model
 from .exceptions import (
     AuthenticationException,
     BadMessageException,
@@ -36,6 +20,20 @@ from .exceptions import (
     ConnectionErrorException,
     DataMissingException,
 )
+from .models.keyboard_key import KeyboardKey
+from .models.keyboard_text import KeyboardText
+from .models.media_control import MediaControl
+from .models.media_directories import MediaDirectory
+from .models.media_files import MediaFile, MediaFiles
+from .models.media_get_file import MediaGetFile
+from .models.media_get_files import MediaGetFiles
+from .models.modules import GetData, ModulesData, RegisterDataListener
+from .models.notification import Notification
+from .models.open_path import OpenPath
+from .models.open_url import OpenUrl
+from .models.request import Request
+from .models.response import Response
+from .models.update import Update
 
 
 class WebSocketClient(Base):

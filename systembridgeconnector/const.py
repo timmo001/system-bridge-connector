@@ -2,6 +2,27 @@
 
 from enum import StrEnum
 
+from .models.keyboard_key import KeyboardKey
+from .models.keyboard_text import KeyboardText
+from .models.media_directories import MediaDirectory
+from .models.media_files import MediaFile, MediaFiles
+from .models.modules import Module, ModulesData
+from .models.modules.battery import Battery
+from .models.modules.cpu import CPU
+from .models.modules.disks import Disks
+from .models.modules.displays import Display
+from .models.modules.gpus import GPU
+from .models.modules.media import Media
+from .models.modules.memory import Memory
+from .models.modules.networks import Networks
+from .models.modules.processes import Process
+from .models.modules.sensors import Sensors
+from .models.modules.system import System
+from .models.notification import Notification
+from .models.open_path import OpenPath
+from .models.open_url import OpenUrl
+from .models.response import Response
+
 
 class QueryParameter(StrEnum):
     """Query Parameter."""
@@ -122,3 +143,56 @@ class EventSubType(StrEnum):
     MISSING_TITLE = "MISSING_TITLE"
     MISSING_VALUE = "MISSING_VALUE"
     UNKNOWN_EVENT = "UNKNOWN_EVENT"
+
+
+class Model(StrEnum):
+    """Model Enums."""
+
+    BATTERY = Module.BATTERY
+    CPU = Module.CPU
+    DATA = "data"
+    DISKS = Module.DISKS
+    DISPLAYS = Module.DISPLAYS
+    GPUS = Module.GPUS
+    KEYBOARD_KEY = "keyboard_key"
+    KEYBOARD_TEXT = "keyboard_text"
+    MEDIA = Module.MEDIA
+    MEDIA_DIRECTORIES = "media_directories"
+    MEDIA_FILE = "media_file"
+    MEDIA_FILES = "media_files"
+    MEMORY = Module.MEMORY
+    NETWORKS = Module.NETWORKS
+    NOTIFICATION = "notification"
+    OPEN_PATH = "open_path"
+    OPEN_URL = "open_url"
+    PROCESSES = Module.PROCESSES
+    RESPONSE = "response"
+    SECRETS = "secrets"
+    SENSORS = Module.SENSORS
+    SETTINGS = "settings"
+    SYSTEM = Module.SYSTEM
+
+
+MODEL_MAP = {
+    Model.BATTERY: Battery,
+    Model.CPU: CPU,
+    Model.DATA: ModulesData,
+    Model.DISKS: Disks,
+    Model.DISPLAYS: Display,  # Map to Display not list[Display] so it can be mapped
+    Model.GPUS: GPU,  # Map to GPU not list[GPU] so it can be mapped
+    Model.KEYBOARD_KEY: KeyboardKey,
+    Model.KEYBOARD_TEXT: KeyboardText,
+    Model.MEDIA_DIRECTORIES: MediaDirectory,  # Map to MediaDirectory not list[MediaDirectory] so it can be mapped
+    Model.MEDIA_FILE: MediaFile,
+    Model.MEDIA_FILES: MediaFiles,
+    Model.MEDIA: Media,
+    Model.MEMORY: Memory,
+    Model.NETWORKS: Networks,
+    Model.NOTIFICATION: Notification,
+    Model.OPEN_PATH: OpenPath,
+    Model.OPEN_URL: OpenUrl,
+    Model.PROCESSES: Process,  # Map to Process not list[Process] so it can be mapped
+    Model.RESPONSE: Response,
+    Model.SENSORS: Sensors,
+    Model.SYSTEM: System,
+}

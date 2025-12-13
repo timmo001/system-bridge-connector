@@ -17,18 +17,18 @@ from systembridgeconnector.exceptions import (
     ConnectionErrorException,
     DataMissingException,
 )
+from systembridgeconnector.models.keyboard_key import KeyboardKey
+from systembridgeconnector.models.keyboard_text import KeyboardText
+from systembridgeconnector.models.media_control import MediaControl
+from systembridgeconnector.models.media_get_file import MediaGetFile
+from systembridgeconnector.models.media_get_files import MediaGetFiles
+from systembridgeconnector.models.modules import GetData, Module, RegisterDataListener
+from systembridgeconnector.models.notification import Notification
+from systembridgeconnector.models.open_path import OpenPath
+from systembridgeconnector.models.open_url import OpenUrl
+from systembridgeconnector.models.response import Response
+from systembridgeconnector.models.update import Update
 from systembridgeconnector.websocket_client import WebSocketClient
-from systembridgemodels.keyboard_key import KeyboardKey
-from systembridgemodels.keyboard_text import KeyboardText
-from systembridgemodels.media_control import MediaControl
-from systembridgemodels.media_get_file import MediaGetFile
-from systembridgemodels.media_get_files import MediaGetFiles
-from systembridgemodels.modules import GetData, Module, RegisterDataListener
-from systembridgemodels.notification import Notification
-from systembridgemodels.open_path import OpenPath
-from systembridgemodels.open_url import OpenUrl
-from systembridgemodels.response import Response
-from systembridgemodels.update import Update
 
 from . import API_HOST, API_PORT, REQUEST_ID, ClientSessionGenerator
 

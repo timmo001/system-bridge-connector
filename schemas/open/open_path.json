@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "description": "Open Path",
+  "properties": {
+    "path": {
+      "type": "string"
+    }
+  },
+  "required": ["path"]
+}

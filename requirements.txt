@@ -1,3 +1,2 @@
 aiohttp>=3.12.15
 packaging>=24.0
-systembridgemodels>=5.1.1

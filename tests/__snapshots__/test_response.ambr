@@ -1,0 +1,4 @@
+# serializer version: 1
+# name: test_response
+  Response(id='abc123', type='TYPE_TEST', data={'test': 'test'}, subtype='SUBTYPE_TEST', message='MESSAGE_TEST', module='MODULE_TEST')
+# ---

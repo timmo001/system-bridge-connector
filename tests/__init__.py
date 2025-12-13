@@ -12,22 +12,22 @@ from aiohttp import web
 from aiohttp.test_utils import TestClient
 
 from systembridgeconnector.const import EventSubType, EventType
-from systembridgemodels.fixtures.media_files import FIXTURE_MEDIA_FILES
-from systembridgemodels.fixtures.modules.battery import FIXTURE_BATTERY
-from systembridgemodels.fixtures.modules.cpu import FIXTURE_CPU
-from systembridgemodels.fixtures.modules.disks import FIXTURE_DISKS
-from systembridgemodels.fixtures.modules.displays import FIXTURE_DISPLAYS
-from systembridgemodels.fixtures.modules.gpus import FIXTURE_GPUS
-from systembridgemodels.fixtures.modules.media import FIXTURE_MEDIA
-from systembridgemodels.fixtures.modules.memory import FIXTURE_MEMORY
-from systembridgemodels.fixtures.modules.networks import FIXTURE_NETWORKS
-from systembridgemodels.fixtures.modules.processes import FIXTURE_PROCESSES
-from systembridgemodels.fixtures.modules.sensors import FIXTURE_SENSORS
-from systembridgemodels.fixtures.modules.system import FIXTURE_SYSTEM
-from systembridgemodels.media_directories import MediaDirectory
-from systembridgemodels.modules import ModulesData
-from systembridgemodels.request import Request
-from systembridgemodels.response import Response
+from systembridgeconnector.models.fixtures.media_files import FIXTURE_MEDIA_FILES
+from systembridgeconnector.models.fixtures.modules.battery import FIXTURE_BATTERY
+from systembridgeconnector.models.fixtures.modules.cpu import FIXTURE_CPU
+from systembridgeconnector.models.fixtures.modules.disks import FIXTURE_DISKS
+from systembridgeconnector.models.fixtures.modules.displays import FIXTURE_DISPLAYS
+from systembridgeconnector.models.fixtures.modules.gpus import FIXTURE_GPUS
+from systembridgeconnector.models.fixtures.modules.media import FIXTURE_MEDIA
+from systembridgeconnector.models.fixtures.modules.memory import FIXTURE_MEMORY
+from systembridgeconnector.models.fixtures.modules.networks import FIXTURE_NETWORKS
+from systembridgeconnector.models.fixtures.modules.processes import FIXTURE_PROCESSES
+from systembridgeconnector.models.fixtures.modules.sensors import FIXTURE_SENSORS
+from systembridgeconnector.models.fixtures.modules.system import FIXTURE_SYSTEM
+from systembridgeconnector.models.media_directories import MediaDirectory
+from systembridgeconnector.models.modules import ModulesData
+from systembridgeconnector.models.request import Request
+from systembridgeconnector.models.response import Response
 
 _LOGGER = logging.getLogger(__name__)
 
