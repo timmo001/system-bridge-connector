@@ -1,0 +1,29 @@
+# serializer version: 1
+# name: test_notification
+  Notification(title='Title', message='Message', icon='https://www.example.com/icon.png', image='https://www.example.com/image.png', actions=[Action(command='COMMAND_TEST', label='LABEL_TEST', data={'test': 'test'})], timeout=1000, audio=Audio(source='https://www.example.com/audio.mp3', volume=100))
+# ---
+# name: test_notification_dict
+  dict({
+    'actions': list([
+      dict({
+        'command': 'COMMAND_TEST',
+        'data': dict({
+          'test': 'test',
+        }),
+        'label': 'LABEL_TEST',
+      }),
+    ]),
+    'audio': dict({
+      'source': 'https://www.example.com/audio.mp3',
+      'volume': 100,
+    }),
+    'icon': 'https://www.example.com/icon.png',
+    'image': 'https://www.example.com/image.png',
+    'message': 'Message',
+    'timeout': 1000,
+    'title': 'Title',
+  })
+# ---
+# name: test_notification_dict[notification-dict-converted]
+  Notification(title='Title', message='Message', icon='https://www.example.com/icon.png', image='https://www.example.com/image.png', actions=[Action(command='COMMAND_TEST', label='LABEL_TEST', data={'test': 'test'})], timeout=1000, audio=Audio(source='https://www.example.com/audio.mp3', volume=100))
+# ---

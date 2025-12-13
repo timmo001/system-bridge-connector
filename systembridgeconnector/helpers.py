@@ -1,14 +1,16 @@
-"""Helpers."""
+"""Helper functions."""
+
+from __future__ import annotations
 
 from collections.abc import Callable
 import datetime as dt
 from datetime import UTC, datetime, timedelta
 from functools import partial
 
-from systembridgemodels.const import ModulesData
-from systembridgemodels.modules.cpu import PerCPU
-from systembridgemodels.modules.displays import Display
-from systembridgemodels.modules.gpus import GPU
+from .models.modules import ModulesData
+from .models.modules.cpu import PerCPU
+from .models.modules.displays import Display
+from .models.modules.gpus import GPU
 
 utcnow = partial(dt.datetime.now, UTC)
 

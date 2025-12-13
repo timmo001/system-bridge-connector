@@ -1,13 +1,26 @@
 # serializer version: 1
-# name: test_event_key
-  <enum 'EventKey'>
-# ---
-# name: test_event_subtype
-  <enum 'EventSubType'>
-# ---
-# name: test_event_type
-  <enum 'EventType'>
-# ---
-# name: test_query_parameter
-  <enum 'QueryParameter'>
+# name: test_model_map
+  dict({
+    <Model.BATTERY: 'battery'>: <class 'systembridgemodels.modules.battery.Battery'>,
+    <Model.CPU: 'cpu'>: <class 'systembridgemodels.modules.cpu.CPU'>,
+    <Model.DATA: 'data'>: <class 'systembridgemodels.modules.ModulesData'>,
+    <Model.DISKS: 'disks'>: <class 'systembridgemodels.modules.disks.Disks'>,
+    <Model.DISPLAYS: 'displays'>: <class 'systembridgemodels.modules.displays.Display'>,
+    <Model.GPUS: 'gpus'>: <class 'systembridgemodels.modules.gpus.GPU'>,
+    <Model.KEYBOARD_KEY: 'keyboard_key'>: <class 'systembridgemodels.keyboard_key.KeyboardKey'>,
+    <Model.KEYBOARD_TEXT: 'keyboard_text'>: <class 'systembridgemodels.keyboard_text.KeyboardText'>,
+    <Model.MEDIA: 'media'>: <class 'systembridgemodels.modules.media.Media'>,
+    <Model.MEDIA_DIRECTORIES: 'media_directories'>: <class 'systembridgemodels.media_directories.MediaDirectory'>,
+    <Model.MEDIA_FILE: 'media_file'>: <class 'systembridgemodels.media_files.MediaFile'>,
+    <Model.MEDIA_FILES: 'media_files'>: <class 'systembridgemodels.media_files.MediaFiles'>,
+    <Model.MEMORY: 'memory'>: <class 'systembridgemodels.modules.memory.Memory'>,
+    <Model.NETWORKS: 'networks'>: <class 'systembridgemodels.modules.networks.Networks'>,
+    <Model.NOTIFICATION: 'notification'>: <class 'systembridgemodels.notification.Notification'>,
+    <Model.OPEN_PATH: 'open_path'>: <class 'systembridgemodels.open_path.OpenPath'>,
+    <Model.OPEN_URL: 'open_url'>: <class 'systembridgemodels.open_url.OpenUrl'>,
+    <Model.PROCESSES: 'processes'>: <class 'systembridgemodels.modules.processes.Process'>,
+    <Model.RESPONSE: 'response'>: <class 'systembridgemodels.response.Response'>,
+    <Model.SENSORS: 'sensors'>: <class 'systembridgemodels.modules.sensors.Sensors'>,
+    <Model.SYSTEM: 'system'>: <class 'systembridgemodels.modules.system.System'>,
+  })
 # ---

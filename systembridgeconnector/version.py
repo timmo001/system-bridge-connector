@@ -5,7 +5,7 @@ from __future__ import annotations
 from aiohttp import ClientSession
 from packaging.version import parse
 
-from systembridgemodels.modules.system import System
+from .models.modules.system import System
 
 from .base import Base
 from .exceptions import ConnectionErrorException

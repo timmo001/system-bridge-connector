@@ -28,7 +28,7 @@ from systembridgeconnector.helpers import (
     memory_used,
     partition_usage,
 )
-from systembridgemodels.modules import ModulesData
+from systembridgeconnector.models.modules import ModulesData
 
 EMPTY_MODULES_DATA = ModulesData()
 
