@@ -1,6 +1,6 @@
 # serializer version: 1
 # name: test_media_directories
   list([
-    MediaDirectory(key='music', path='path/to/file'),
+    MediaDirectory(key='music', name='Music', path='path/to/file', description='Music directory'),
   ])
 # ---
