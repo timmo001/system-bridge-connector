@@ -20,7 +20,7 @@ from .exceptions import (
     ConnectionErrorException,
     DataMissingException,
 )
-from .models.command_execute import CommandExecute
+from .models.command_execute import ExecuteRequest
 from .models.keyboard_key import KeyboardKey
 from .models.keyboard_text import KeyboardText
 from .models.media_control import MediaControl
@@ -453,7 +453,7 @@ class WebSocketClient(Base):
 
     async def execute_command(
         self,
-        model: CommandExecute,
+        model: ExecuteRequest,
         request_id: str = uuid4().hex,
     ) -> Response:
         """Execute command."""

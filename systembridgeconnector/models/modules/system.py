@@ -12,7 +12,6 @@ class RunMode(StrEnum):
     """Run Mode."""
 
     STANDALONE = "standalone"
-    PYTHON = "python"
 
 
 @filter_unexpected_fields

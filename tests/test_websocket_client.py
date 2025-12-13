@@ -17,7 +17,7 @@ from systembridgeconnector.exceptions import (
     ConnectionErrorException,
     DataMissingException,
 )
-from systembridgeconnector.models.command_execute import CommandExecute
+from systembridgeconnector.models.command_execute import ExecuteRequest
 from systembridgeconnector.models.keyboard_key import KeyboardKey
 from systembridgeconnector.models.keyboard_text import KeyboardText
 from systembridgeconnector.models.media_control import MediaControl
@@ -365,7 +365,7 @@ async def test_execute_command(
     """Test the websocket client."""
     assert (
         await mock_websocket_client_listening.execute_command(
-            CommandExecute(commandID="test-command"),
+            ExecuteRequest(commandID="test-command"),
             request_id=REQUEST_ID,
         )
         == snapshot
