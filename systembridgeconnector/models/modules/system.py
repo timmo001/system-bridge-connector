@@ -24,7 +24,7 @@ class SystemUser:
     active: bool
     terminal: str
     host: str
-    started: float
+    started: int
     pid: float
 
 
@@ -33,14 +33,14 @@ class SystemUser:
 class System:
     """System."""
 
-    boot_time: float
+    boot_time: int
     fqdn: str
     hostname: str
     ip_address_4: str
     mac_address: str
     platform_version: str
     platform: str
-    uptime: float
+    uptime: int
     users: list[SystemUser]
     uuid: str
     version: str
