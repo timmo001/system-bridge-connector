@@ -17,6 +17,7 @@ from systembridgeconnector.exceptions import (
     ConnectionErrorException,
     DataMissingException,
 )
+from systembridgeconnector.models.command_execute import CommandExecute
 from systembridgeconnector.models.keyboard_key import KeyboardKey
 from systembridgeconnector.models.keyboard_text import KeyboardText
 from systembridgeconnector.models.media_control import MediaControl
@@ -350,6 +351,21 @@ async def test_power_logout(
     """Test the websocket client."""
     assert (
         await mock_websocket_client_listening.power_logout(
+            request_id=REQUEST_ID,
+        )
+        == snapshot
+    )
+
+
+@pytest.mark.asyncio
+async def test_execute_command(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test the websocket client."""
+    assert (
+        await mock_websocket_client_listening.execute_command(
+            CommandExecute(commandID="test-command"),
             request_id=REQUEST_ID,
         )
         == snapshot
