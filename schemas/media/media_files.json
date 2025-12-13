@@ -16,45 +16,32 @@
             "path": {
               "type": "string"
             },
-            "fullpath": {
-              "type": "string"
-            },
             "size": {
               "type": "integer"
             },
-            "last_accessed": {
-              "type": "number"
-            },
-            "created": {
-              "type": "number"
-            },
-            "modified": {
-              "type": "number"
-            },
-            "is_directory": {
+            "isDirectory": {
               "type": "boolean"
             },
-            "is_file": {
-              "type": "boolean"
+            "modTime": {
+              "type": "number"
             },
-            "is_link": {
-              "type": "boolean"
+            "permissions": {
+              "type": "string"
             },
-            "mime_type": {
+            "contentType": {
+              "type": "string"
+            },
+            "extension": {
               "type": "string"
             }
           },
           "required": [
             "name",
             "path",
-            "fullpath",
             "size",
-            "last_accessed",
-            "created",
-            "modified",
-            "is_directory",
-            "is_file",
-            "is_link"
+            "isDirectory",
+            "modTime",
+            "permissions"
           ]
         }
       ]
