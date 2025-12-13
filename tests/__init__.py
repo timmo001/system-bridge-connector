@@ -191,6 +191,13 @@ async def process_request(request: Request) -> Response:
             type=EventType.POWER_LOGGINGOUT,
             data=request.data,
         )
+    if request.event == EventType.COMMAND_EXECUTE:
+        return Response(
+            id=request.id,
+            type=EventType.COMMAND_EXECUTING,
+            data=request.data,
+            message="Command is executing",
+        )
 
     return Response(
         id=request.id,
