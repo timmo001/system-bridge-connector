@@ -104,12 +104,16 @@ async def process_request(request: Request) -> Response:
         return Response(
             id=request.id,
             type=EventType.DIRECTORIES,
-            data=asdict(
-                MediaDirectory(
-                    key="documents",
-                    path="/home/user/documents",
-                )
-            ),
+            data=[
+                {
+                    "key": "documents",
+                    "path": "/home/user/documents",
+                },
+                {
+                    "key": "music",
+                    "path": "/home/user/music",
+                },
+            ],
         )
     if request.event == EventType.GET_FILES:
         return Response(

@@ -130,6 +130,129 @@ async def test_get_directories(
 
 
 @pytest.mark.asyncio
+async def test_get_directories_without_name_field(
+    mock_websocket_client: WebSocketClient,
+):
+    """Test get_directories handles API response without 'name' field."""
+    from systembridgeconnector.models.media_directories import MediaDirectory
+    from systembridgeconnector.models.response import Response
+    from unittest.mock import patch
+
+    # Mock response with only 'key' and 'path' (no 'name')
+    mock_response = Response(
+        id=REQUEST_ID,
+        type=EventType.DIRECTORIES,
+        data=[
+            {"key": "documents", "path": "/home/user/documents"},
+            {"key": "music", "path": "/home/user/music"},
+        ],
+    )
+
+    with patch.object(
+        mock_websocket_client,
+        "send_message",
+        return_value=mock_response,
+    ):
+        directories = await mock_websocket_client.get_directories(
+            request_id=REQUEST_ID,
+        )
+
+        assert len(directories) == 2
+        assert isinstance(directories[0], MediaDirectory)
+        assert directories[0].key == "documents"
+        assert directories[0].name == "Documents"  # Derived from key
+        assert directories[0].path == "/home/user/documents"
+        assert directories[1].key == "music"
+        assert directories[1].name == "Music"  # Derived from key
+        assert directories[1].path == "/home/user/music"
+
+
+@pytest.mark.asyncio
+async def test_get_directories_with_name_field(
+    mock_websocket_client: WebSocketClient,
+):
+    """Test get_directories handles API response with 'name' field."""
+    from systembridgeconnector.models.media_directories import MediaDirectory
+    from systembridgeconnector.models.response import Response
+    from unittest.mock import patch
+
+    # Mock response with 'name' field present
+    mock_response = Response(
+        id=REQUEST_ID,
+        type=EventType.DIRECTORIES,
+        data=[
+            {
+                "key": "documents",
+                "name": "My Documents",
+                "path": "/home/user/documents",
+            },
+        ],
+    )
+
+    with patch.object(
+        mock_websocket_client,
+        "send_message",
+        return_value=mock_response,
+    ):
+        directories = await mock_websocket_client.get_directories(
+            request_id=REQUEST_ID,
+        )
+
+        assert len(directories) == 1
+        assert isinstance(directories[0], MediaDirectory)
+        assert directories[0].key == "documents"
+        assert directories[0].name == "My Documents"  # Uses name from API
+        assert directories[0].path == "/home/user/documents"
+
+
+@pytest.mark.asyncio
+async def test_get_directories_edge_cases(
+    mock_websocket_client: WebSocketClient,
+):
+    """Test get_directories handles edge cases."""
+    from systembridgeconnector.models.media_directories import MediaDirectory
+    from systembridgeconnector.models.response import Response
+    from unittest.mock import patch
+
+    # Mock response with edge cases
+    mock_response = Response(
+        id=REQUEST_ID,
+        type=EventType.DIRECTORIES,
+        data=[
+            {"key": "", "path": "/home/user/empty"},  # Empty key
+            {"key": "a", "path": "/home/user/single"},  # Single character
+            {
+                "key": "mixedCase",
+                "path": "/home/user/mixed",
+            },  # Mixed case key
+            {
+                "key": "documents",
+                "path": "/home/user/documents",
+                "description": "Test description",
+            },  # With description
+        ],
+    )
+
+    with patch.object(
+        mock_websocket_client,
+        "send_message",
+        return_value=mock_response,
+    ):
+        directories = await mock_websocket_client.get_directories(
+            request_id=REQUEST_ID,
+        )
+
+        assert len(directories) == 4
+        assert directories[0].key == ""
+        assert directories[0].name == ""  # Empty key results in empty name
+        assert directories[1].key == "a"
+        assert directories[1].name == "A"  # Single character capitalized
+        assert directories[2].key == "mixedCase"
+        assert directories[2].name == "MixedCase"  # First letter capitalized
+        assert directories[3].description == "Test description"
+
+
+@pytest.mark.asyncio
 async def test_get_files(
     snapshot: SnapshotAssertion,
     mock_websocket_client_listening: WebSocketClient,

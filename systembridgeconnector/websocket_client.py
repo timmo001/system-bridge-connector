@@ -199,7 +199,12 @@ class WebSocketClient(Base):
         self,
         request_id: str = uuid4().hex,
     ) -> list[MediaDirectory]:
-        """Get directories."""
+        """Get directories.
+
+        Transforms API response to match MediaDirectory model requirements.
+        If the API response lacks a 'name' field, it is derived from the 'key'
+        field by capitalizing the first letter.
+        """
         self._logger.info("Getting directories..")
         response = await self.send_message(
             EventType.GET_DIRECTORIES,
@@ -209,11 +214,34 @@ class WebSocketClient(Base):
             response_type=EventType.DIRECTORIES,
         )
 
-        return (
-            [MediaDirectory(**directory) for directory in response.data]
-            if response.data is not None and isinstance(response.data, list)
-            else []
-        )
+        if response.data is None or not isinstance(response.data, list):
+            return []
+
+        directories = []
+        for directory in response.data:
+            # Transform API response to match MediaDirectory model
+            # API returns 'key' and 'path', but model requires 'name'
+            directory_data = {
+                "key": directory.get("key", ""),
+                "path": directory.get("path", ""),
+                "description": directory.get("description"),
+            }
+
+            # Derive 'name' from 'key' if not provided by API
+            if "name" in directory and directory["name"]:
+                directory_data["name"] = directory["name"]
+            elif directory_data["key"]:
+                # Capitalize first letter of key
+                directory_data["name"] = (
+                    directory_data["key"][:1].capitalize() + directory_data["key"][1:]
+                )
+            else:
+                # Fallback if key is empty
+                directory_data["name"] = ""
+
+            directories.append(MediaDirectory(**directory_data))
+
+        return directories
 
     async def get_files(
         self,
