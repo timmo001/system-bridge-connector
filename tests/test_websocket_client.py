@@ -21,6 +21,7 @@ from systembridgeconnector.models.command_execute import ExecuteRequest
 from systembridgeconnector.models.keyboard_key import KeyboardKey
 from systembridgeconnector.models.keyboard_text import KeyboardText
 from systembridgeconnector.models.media_control import MediaControl
+from systembridgeconnector.models.media_directories import MediaDirectory
 from systembridgeconnector.models.media_get_file import MediaGetFile
 from systembridgeconnector.models.media_get_files import MediaGetFiles
 from systembridgeconnector.models.modules import GetData, Module, RegisterDataListener
@@ -134,10 +135,6 @@ async def test_get_directories_without_name_field(
     mock_websocket_client: WebSocketClient,
 ):
     """Test get_directories handles API response without 'name' field."""
-    from systembridgeconnector.models.media_directories import MediaDirectory
-    from systembridgeconnector.models.response import Response
-    from unittest.mock import patch
-
     # Mock response with only 'key' and 'path' (no 'name')
     mock_response = Response(
         id=REQUEST_ID,
@@ -172,10 +169,6 @@ async def test_get_directories_with_name_field(
     mock_websocket_client: WebSocketClient,
 ):
     """Test get_directories handles API response with 'name' field."""
-    from systembridgeconnector.models.media_directories import MediaDirectory
-    from systembridgeconnector.models.response import Response
-    from unittest.mock import patch
-
     # Mock response with 'name' field present
     mock_response = Response(
         id=REQUEST_ID,
@@ -210,10 +203,6 @@ async def test_get_directories_edge_cases(
     mock_websocket_client: WebSocketClient,
 ):
     """Test get_directories handles edge cases."""
-    from systembridgeconnector.models.media_directories import MediaDirectory
-    from systembridgeconnector.models.response import Response
-    from unittest.mock import patch
-
     # Mock response with edge cases
     mock_response = Response(
         id=REQUEST_ID,

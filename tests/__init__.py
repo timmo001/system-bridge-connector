@@ -24,7 +24,6 @@ from systembridgeconnector.models.fixtures.modules.networks import FIXTURE_NETWO
 from systembridgeconnector.models.fixtures.modules.processes import FIXTURE_PROCESSES
 from systembridgeconnector.models.fixtures.modules.sensors import FIXTURE_SENSORS
 from systembridgeconnector.models.fixtures.modules.system import FIXTURE_SYSTEM
-from systembridgeconnector.models.media_directories import MediaDirectory
 from systembridgeconnector.models.modules import ModulesData
 from systembridgeconnector.models.request import Request
 from systembridgeconnector.models.response import Response
