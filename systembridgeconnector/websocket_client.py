@@ -22,7 +22,6 @@ from .exceptions import (
 )
 from .models.command_execute import ExecuteRequest
 from .models.command_result import ExecuteResult
-from .models.settings import Settings, SettingsCommands
 from .models.keyboard_key import KeyboardKey
 from .models.keyboard_text import KeyboardText
 from .models.media_control import MediaControl
@@ -36,6 +35,7 @@ from .models.open_path import OpenPath
 from .models.open_url import OpenUrl
 from .models.request import Request
 from .models.response import Response
+from .models.settings import Settings, SettingsCommands
 from .models.update import Update
 
 
