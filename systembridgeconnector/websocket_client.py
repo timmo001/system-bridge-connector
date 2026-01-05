@@ -16,6 +16,7 @@ from .const import MODEL_MAP, EventKey, EventSubType, EventType, Model
 from .exceptions import (
     AuthenticationException,
     BadMessageException,
+    BadRequestException,
     ConnectionClosedException,
     ConnectionErrorException,
     DataMissingException,
@@ -501,6 +502,15 @@ class WebSocketClient(Base):
             timeout=timeout,
         )
 
+        if response.type == EventType.ERROR:
+            if response.subtype == "TIMEOUT":
+                raise ConnectionErrorException(
+                    response.message or "Timeout waiting for command execution response"
+                )
+            raise BadRequestException(
+                response.message or "Command execution failed"
+            )
+
         if response.data is None:
             raise ValueError("Command execution response missing data")
 
@@ -524,6 +534,15 @@ class WebSocketClient(Base):
             wait_for_response=True,
             response_type=EventType.SETTINGS_RESULT,
         )
+
+        if response.type == EventType.ERROR:
+            if response.subtype == "TIMEOUT":
+                raise ConnectionErrorException(
+                    response.message or "Timeout waiting for settings response"
+                )
+            raise BadRequestException(
+                response.message or "Failed to get settings"
+            )
 
         if response.data is None:
             raise ValueError("Settings response missing data")
