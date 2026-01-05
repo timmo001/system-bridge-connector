@@ -485,9 +485,12 @@ class WebSocketClient(Base):
         self,
         model: ExecuteRequest,
         request_id: str = uuid4().hex,
-        timeout: float = 300.0,
+        timeout: float = 8.0,
     ) -> ExecuteResult:
         """Execute command and wait for completion."""
+        if timeout <= 0:
+            raise ValueError(f"Timeout must be positive, got {timeout}")
+
         self._logger.info("Execute command: %s", model)
         response = await self.send_message(
             EventType.COMMAND_EXECUTE,
@@ -552,7 +555,9 @@ class WebSocketClient(Base):
             # Validate required fields are present
             for field in ("id", "name", "command"):
                 if field not in cmd_data:
-                    raise ValueError(f"Command definition missing required field '{field}'")
+                    raise ValueError(
+                        f"Command definition missing required field '{field}'"
+                    )
 
             allowlist.append(SettingsCommandDefinition(**cmd_data))
 
@@ -755,6 +760,9 @@ class WebSocketClient(Base):
         """Send a message to the WebSocket."""
         if not self.connected or self._websocket is None:
             raise ConnectionClosedException("Connection is closed")
+
+        if timeout is not None and timeout <= 0:
+            raise ValueError(f"Timeout must be positive, got {timeout}")
 
         request = Request(
             token=self._token,
