@@ -80,6 +80,24 @@ class SettingsMedia:
 
 
 @dataclass
+class SettingsCommandDefinition:
+    """Settings Command Definition."""
+
+    id: str
+    name: str
+    command: str
+    workingDir: str = ""  # noqa: N815
+    arguments: list[str] = field(default_factory=lambda: [])
+
+
+@dataclass
+class SettingsCommands:
+    """Settings Commands."""
+
+    allowlist: list[SettingsCommandDefinition] = field(default_factory=lambda: [])
+
+
+@dataclass
 class Settings:
     """Settings."""
 
@@ -88,4 +106,5 @@ class Settings:
     keyboard_hotkeys: list[SettingHotkey] = field(default_factory=lambda: [])
     log_level: str = field(default="INFO")
     media: SettingsMedia = field(default_factory=SettingsMedia)
+    commands: SettingsCommands = field(default_factory=SettingsCommands)
 

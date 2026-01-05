@@ -21,6 +21,8 @@ from .exceptions import (
     DataMissingException,
 )
 from .models.command_execute import ExecuteRequest
+from .models.command_result import ExecuteResult
+from .models.settings import Settings, SettingsCommands
 from .models.keyboard_key import KeyboardKey
 from .models.keyboard_text import KeyboardText
 from .models.media_control import MediaControl
@@ -483,16 +485,43 @@ class WebSocketClient(Base):
         self,
         model: ExecuteRequest,
         request_id: str = uuid4().hex,
-    ) -> Response:
-        """Execute command."""
+        timeout: float = 300.0,
+    ) -> ExecuteResult:
+        """Execute command and wait for completion."""
         self._logger.info("Execute command: %s", model)
-        return await self.send_message(
+        response = await self.send_message(
             EventType.COMMAND_EXECUTE,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=EventType.COMMAND_EXECUTING,
+            response_type=EventType.COMMAND_COMPLETED,
+            timeout=timeout,
         )
+
+        if response.data is None:
+            raise ValueError("Command execution response missing data")
+
+        return ExecuteResult(**response.data)
+
+    async def get_commands(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> SettingsCommands:
+        """Get commands from server settings."""
+        self._logger.info("Getting commands from server")
+        response = await self.send_message(
+            EventType.GET_SETTINGS,
+            request_id,
+            {},
+            wait_for_response=True,
+            response_type=EventType.SETTINGS_RESULT,
+        )
+
+        if response.data is None:
+            raise ValueError("Settings response missing data")
+
+        settings = Settings(**response.data)
+        return settings.commands
 
     async def listen(
         self,
@@ -686,6 +715,7 @@ class WebSocketClient(Base):
         data: dict[str, Any],
         wait_for_response: bool,
         response_type: str | None = None,
+        timeout: float | None = None,
     ) -> Response:
         """Send a message to the WebSocket."""
         if not self.connected or self._websocket is None:
@@ -705,13 +735,15 @@ class WebSocketClient(Base):
         self._logger.debug("Sent message: %s", request)
 
         if wait_for_response:
+            timeout_value = timeout if timeout is not None else 8.0
             self._logger.info(
-                "Waiting for future: event '%s' for request: %s",
+                "Waiting for future: event '%s' for request: %s (timeout: %s)",
                 response_type,
                 request,
+                timeout_value,
             )
             try:
-                return await asyncio.wait_for(future, timeout=8.0)
+                return await asyncio.wait_for(future, timeout=timeout_value)
             except asyncio.TimeoutError:
                 self._logger.error(
                     "Timeout waiting for future event '%s' for request: %s",

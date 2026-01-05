@@ -18,6 +18,7 @@ from systembridgeconnector.exceptions import (
     DataMissingException,
 )
 from systembridgeconnector.models.command_execute import ExecuteRequest
+from systembridgeconnector.models.command_result import ExecuteResult
 from systembridgeconnector.models.keyboard_key import KeyboardKey
 from systembridgeconnector.models.keyboard_text import KeyboardText
 from systembridgeconnector.models.media_control import MediaControl
@@ -29,6 +30,7 @@ from systembridgeconnector.models.notification import Notification
 from systembridgeconnector.models.open_path import OpenPath
 from systembridgeconnector.models.open_url import OpenUrl
 from systembridgeconnector.models.response import Response
+from systembridgeconnector.models.settings import SettingsCommands
 from systembridgeconnector.models.update import Update
 from systembridgeconnector.websocket_client import WebSocketClient
 
@@ -475,13 +477,30 @@ async def test_execute_command(
     mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    assert (
-        await mock_websocket_client_listening.execute_command(
-            ExecuteRequest(commandID="test-command"),
-            request_id=REQUEST_ID,
-        )
-        == snapshot
+    result = await mock_websocket_client_listening.execute_command(
+        ExecuteRequest(commandID="test-command"),
+        request_id=REQUEST_ID,
     )
+    assert isinstance(result, ExecuteResult)
+    assert result.commandID == "test-command"
+    assert result.exitCode == 0
+    assert result.stdout == "Command output"
+    assert result == snapshot
+
+
+@pytest.mark.asyncio
+async def test_get_commands(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test getting commands."""
+    commands = await mock_websocket_client_listening.get_commands(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(commands, SettingsCommands)
+    assert commands.allowlist is not None
+    assert len(commands.allowlist) > 0
+    assert commands == snapshot
 
 
 @pytest.mark.asyncio
