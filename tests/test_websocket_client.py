@@ -3,7 +3,7 @@
 import asyncio
 from dataclasses import asdict
 from json import dumps
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import aiohttp
 import pytest
@@ -501,6 +501,57 @@ async def test_get_commands(
     assert commands.allowlist is not None
     assert len(commands.allowlist) > 0
     assert commands == snapshot
+
+
+@pytest.mark.asyncio
+async def test_execute_command_data_missing(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test execute_command when response data is None."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = None
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(ValueError, match="Command execution response missing data"):
+        await mock_websocket_client_listening.execute_command(
+            ExecuteRequest(commandID="test-command"),
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_data_missing(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when response data is None."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = None
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(ValueError, match="Settings response missing data"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_execute_command_timeout(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test execute_command with custom timeout."""
+    result = await mock_websocket_client_listening.execute_command(
+        ExecuteRequest(commandID="test-command"),
+        request_id=REQUEST_ID,
+        timeout=60.0,
+    )
+    assert isinstance(result, ExecuteResult)
+    assert result.commandID == "test-command"
+    assert result == snapshot
 
 
 @pytest.mark.asyncio
