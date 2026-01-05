@@ -1,6 +1,6 @@
 # serializer version: 1
 # name: test_settings
-  Settings(api=SettingsAPI(token='token', port=9170), autostart=False, keyboard_hotkeys=[], log_level='INFO', media=SettingsMedia(directories=[]))
+  Settings(api=SettingsAPI(token='token', port=9170), autostart=False, keyboard_hotkeys=[], log_level='INFO', media=SettingsMedia(directories=[]), commands=SettingsCommands(allowlist=[]))
 # ---
 # name: test_settings_command_definition
   SettingsCommandDefinition(id='test-command-id', name='Test Command', command='/usr/bin/test', workingDir='/tmp', arguments=['arg1', 'arg2'])
