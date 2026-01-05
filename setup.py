@@ -10,7 +10,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="systembridgeconnector",
-    version="5.2.6.dev0",
+    version="5.3.1.dev0",
     author="Aidan Timson (Timmo)",
     author_email="aidan@timmo.dev",
     description="System Bridge Connector",
