@@ -537,12 +537,24 @@ class WebSocketClient(Base):
             )
 
         allowlist_data = commands_data.get("allowlist", [])
-        allowlist = [
-            SettingsCommandDefinition(**cmd_data)
-            if isinstance(cmd_data, dict)
-            else cmd_data
-            for cmd_data in allowlist_data
-        ]
+        if not isinstance(allowlist_data, list):
+            raise TypeError(
+                f"Allowlist must be a list, got {type(allowlist_data).__name__}"
+            )
+
+        allowlist = []
+        for cmd_data in allowlist_data:
+            if not isinstance(cmd_data, dict):
+                raise TypeError(
+                    f"Command definition must be a dict, got {type(cmd_data).__name__}"
+                )
+
+            # Validate required fields are present
+            for field in ("id", "name", "command"):
+                if field not in cmd_data:
+                    raise ValueError(f"Command definition missing required field '{field}'")
+
+            allowlist.append(SettingsCommandDefinition(**cmd_data))
 
         return SettingsCommands(allowlist=allowlist)
 
