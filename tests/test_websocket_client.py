@@ -3,7 +3,7 @@
 import asyncio
 from dataclasses import asdict
 from json import dumps
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import aiohttp
 import pytest
@@ -18,6 +18,7 @@ from systembridgeconnector.exceptions import (
     DataMissingException,
 )
 from systembridgeconnector.models.command_execute import ExecuteRequest
+from systembridgeconnector.models.command_result import ExecuteResult
 from systembridgeconnector.models.keyboard_key import KeyboardKey
 from systembridgeconnector.models.keyboard_text import KeyboardText
 from systembridgeconnector.models.media_control import MediaControl
@@ -29,6 +30,7 @@ from systembridgeconnector.models.notification import Notification
 from systembridgeconnector.models.open_path import OpenPath
 from systembridgeconnector.models.open_url import OpenUrl
 from systembridgeconnector.models.response import Response
+from systembridgeconnector.models.settings import SettingsCommands
 from systembridgeconnector.models.update import Update
 from systembridgeconnector.websocket_client import WebSocketClient
 
@@ -475,13 +477,245 @@ async def test_execute_command(
     mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    assert (
+    result = await mock_websocket_client_listening.execute_command(
+        ExecuteRequest(commandID="test-command"),
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(result, ExecuteResult)
+    assert result.commandID == "test-command"
+    assert result.exitCode == 0
+    assert result.stdout == "Command output"
+    assert result == snapshot
+
+
+@pytest.mark.asyncio
+async def test_get_commands(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test getting commands."""
+    commands = await mock_websocket_client_listening.get_commands(
+        request_id=REQUEST_ID,
+    )
+    assert isinstance(commands, SettingsCommands)
+    assert commands.allowlist is not None
+    assert len(commands.allowlist) > 0
+    assert commands == snapshot
+
+
+@pytest.mark.asyncio
+async def test_execute_command_data_missing(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test execute_command when response data is None."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = None
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(ValueError, match="Command execution response missing data"):
         await mock_websocket_client_listening.execute_command(
             ExecuteRequest(commandID="test-command"),
             request_id=REQUEST_ID,
         )
-        == snapshot
+
+
+@pytest.mark.asyncio
+async def test_get_commands_data_missing(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when response data is None."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = None
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(ValueError, match="Settings response missing data"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_execute_command_timeout(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test execute_command with custom timeout."""
+    result = await mock_websocket_client_listening.execute_command(
+        ExecuteRequest(commandID="test-command"),
+        request_id=REQUEST_ID,
+        timeout=60.0,
     )
+    assert isinstance(result, ExecuteResult)
+    assert result.commandID == "test-command"
+    assert result == snapshot
+
+
+@pytest.mark.asyncio
+async def test_execute_command_data_not_dict(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test execute_command when response data is not a dict."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = ["not", "a", "dict"]
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(TypeError, match="Command execution response data must be a dict"):
+        await mock_websocket_client_listening.execute_command(
+            ExecuteRequest(commandID="test-command"),
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_data_not_dict(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when response data is not a dict."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = ["not", "a", "dict"]
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(TypeError, match="Settings response data must be a dict"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_commands_not_dict(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when commands data is not a dict."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = {"commands": "not a dict"}
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(TypeError, match="Commands data must be a dict"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_allowlist_not_list(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when allowlist is not a list."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = {"commands": {"allowlist": "not a list"}}
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(TypeError, match="Allowlist must be a list"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_command_not_dict(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when command definition is not a dict."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = {"commands": {"allowlist": ["not a dict"]}}
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(TypeError, match="Command definition must be a dict"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_missing_id(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when command definition is missing id."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = {
+        "commands": {
+            "allowlist": [
+                {
+                    "name": "Test Command",
+                    "command": "/usr/bin/test",
+                }
+            ]
+        }
+    }
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(ValueError, match="Command definition missing required field 'id'"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_missing_name(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when command definition is missing name."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = {
+        "commands": {
+            "allowlist": [
+                {
+                    "id": "test-command-id",
+                    "command": "/usr/bin/test",
+                }
+            ]
+        }
+    }
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(ValueError, match="Command definition missing required field 'name'"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_missing_command(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when command definition is missing command."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = {
+        "commands": {
+            "allowlist": [
+                {
+                    "id": "test-command-id",
+                    "name": "Test Command",
+                }
+            ]
+        }
+    }
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(ValueError, match="Command definition missing required field 'command'"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
 
 
 @pytest.mark.asyncio

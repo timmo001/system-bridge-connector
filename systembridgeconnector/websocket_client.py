@@ -16,11 +16,13 @@ from .const import MODEL_MAP, EventKey, EventSubType, EventType, Model
 from .exceptions import (
     AuthenticationException,
     BadMessageException,
+    BadRequestException,
     ConnectionClosedException,
     ConnectionErrorException,
     DataMissingException,
 )
 from .models.command_execute import ExecuteRequest
+from .models.command_result import ExecuteResult
 from .models.keyboard_key import KeyboardKey
 from .models.keyboard_text import KeyboardText
 from .models.media_control import MediaControl
@@ -34,6 +36,7 @@ from .models.open_path import OpenPath
 from .models.open_url import OpenUrl
 from .models.request import Request
 from .models.response import Response
+from .models.settings import SettingsCommandDefinition, SettingsCommands
 from .models.update import Update
 
 
@@ -483,16 +486,101 @@ class WebSocketClient(Base):
         self,
         model: ExecuteRequest,
         request_id: str = uuid4().hex,
-    ) -> Response:
-        """Execute command."""
+        timeout: float = 8.0,
+    ) -> ExecuteResult:
+        """Execute command and wait for completion."""
+        if timeout <= 0:
+            raise ValueError(f"Timeout must be positive, got {timeout}")
+
         self._logger.info("Execute command: %s", model)
-        return await self.send_message(
+        response = await self.send_message(
             EventType.COMMAND_EXECUTE,
             request_id,
             asdict(model),
             wait_for_response=True,
-            response_type=EventType.COMMAND_EXECUTING,
+            response_type=EventType.COMMAND_COMPLETED,
+            timeout=timeout,
         )
+
+        if response.type == EventType.ERROR:
+            if response.subtype == "TIMEOUT":
+                raise ConnectionErrorException(
+                    response.message or "Timeout waiting for command execution response"
+                )
+            raise BadRequestException(
+                response.message or "Command execution failed"
+            )
+
+        if response.data is None:
+            raise ValueError("Command execution response missing data")
+
+        if not isinstance(response.data, dict):
+            raise TypeError(
+                f"Command execution response data must be a dict, got {type(response.data).__name__}"
+            )
+
+        return ExecuteResult(**response.data)
+
+    async def get_commands(
+        self,
+        request_id: str = uuid4().hex,
+    ) -> SettingsCommands:
+        """Get commands from server settings."""
+        self._logger.info("Getting commands from server")
+        response = await self.send_message(
+            EventType.GET_SETTINGS,
+            request_id,
+            {},
+            wait_for_response=True,
+            response_type=EventType.SETTINGS_RESULT,
+        )
+
+        if response.type == EventType.ERROR:
+            if response.subtype == "TIMEOUT":
+                raise ConnectionErrorException(
+                    response.message or "Timeout waiting for settings response"
+                )
+            raise BadRequestException(
+                response.message or "Failed to get settings"
+            )
+
+        if response.data is None:
+            raise ValueError("Settings response missing data")
+
+        if not isinstance(response.data, dict):
+            raise TypeError(
+                f"Settings response data must be a dict, got {type(response.data).__name__}"
+            )
+
+        commands_data = response.data.get("commands", {})
+        if not isinstance(commands_data, dict):
+            raise TypeError(
+                f"Commands data must be a dict, got {type(commands_data).__name__}"
+            )
+
+        allowlist_data = commands_data.get("allowlist", [])
+        if not isinstance(allowlist_data, list):
+            raise TypeError(
+                f"Allowlist must be a list, got {type(allowlist_data).__name__}"
+            )
+
+        allowlist = []
+        for cmd_data in allowlist_data:
+            if not isinstance(cmd_data, dict):
+                raise TypeError(
+                    f"Command definition must be a dict, got {type(cmd_data).__name__}"
+                )
+
+            # Validate required fields are present
+            for field in ("id", "name", "command"):
+                if field not in cmd_data:
+                    raise ValueError(
+                        f"Command definition missing required field '{field}'"
+                    )
+
+            allowlist.append(SettingsCommandDefinition(**cmd_data))
+
+        return SettingsCommands(allowlist=allowlist)
 
     async def listen(
         self,
@@ -686,10 +774,14 @@ class WebSocketClient(Base):
         data: dict[str, Any],
         wait_for_response: bool,
         response_type: str | None = None,
+        timeout: float | None = None,
     ) -> Response:
         """Send a message to the WebSocket."""
         if not self.connected or self._websocket is None:
             raise ConnectionClosedException("Connection is closed")
+
+        if timeout is not None and timeout <= 0:
+            raise ValueError(f"Timeout must be positive, got {timeout}")
 
         request = Request(
             token=self._token,
@@ -705,13 +797,15 @@ class WebSocketClient(Base):
         self._logger.debug("Sent message: %s", request)
 
         if wait_for_response:
+            timeout_value = timeout if timeout is not None else 8.0
             self._logger.info(
-                "Waiting for future: event '%s' for request: %s",
+                "Waiting for future: event '%s' for request: %s (timeout: %s)",
                 response_type,
                 request,
+                timeout_value,
             )
             try:
-                return await asyncio.wait_for(future, timeout=8.0)
+                return await asyncio.wait_for(future, timeout=timeout_value)
             except asyncio.TimeoutError:
                 self._logger.error(
                     "Timeout waiting for future event '%s' for request: %s",

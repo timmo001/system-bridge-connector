@@ -197,9 +197,39 @@ async def process_request(request: Request) -> Response:
     if request.event == EventType.COMMAND_EXECUTE:
         return Response(
             id=request.id,
-            type=EventType.COMMAND_EXECUTING,
-            data=request.data,
-            message="Command is executing",
+            type=EventType.COMMAND_COMPLETED,
+            data={
+                "commandID": request.data.get("commandID", ""),
+                "exitCode": 0,
+                "stdout": "Command output",
+                "stderr": "",
+                "error": None,
+            },
+            message="Command executed successfully",
+        )
+    if request.event == EventType.GET_SETTINGS:
+        return Response(
+            id=request.id,
+            type=EventType.SETTINGS_RESULT,
+            data={
+                "api": {"token": "test-token", "port": 9170},
+                "autostart": False,
+                "keyboard_hotkeys": [],
+                "log_level": "INFO",
+                "media": {"directories": []},
+                "commands": {
+                    "allowlist": [
+                        {
+                            "id": "test-command-id",
+                            "name": "Test Command",
+                            "command": "/usr/bin/test",
+                            "workingDir": "",
+                            "arguments": [],
+                        }
+                    ]
+                },
+            },
+            message="Got settings",
         )
 
     return Response(
