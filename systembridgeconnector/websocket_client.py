@@ -35,7 +35,7 @@ from .models.open_path import OpenPath
 from .models.open_url import OpenUrl
 from .models.request import Request
 from .models.response import Response
-from .models.settings import Settings, SettingsCommands
+from .models.settings import SettingsCommandDefinition, SettingsCommands
 from .models.update import Update
 
 
@@ -530,8 +530,21 @@ class WebSocketClient(Base):
                 f"Settings response data must be a dict, got {type(response.data).__name__}"
             )
 
-        settings = Settings(**response.data)
-        return settings.commands
+        commands_data = response.data.get("commands", {})
+        if not isinstance(commands_data, dict):
+            raise TypeError(
+                f"Commands data must be a dict, got {type(commands_data).__name__}"
+            )
+
+        allowlist_data = commands_data.get("allowlist", [])
+        allowlist = [
+            SettingsCommandDefinition(**cmd_data)
+            if isinstance(cmd_data, dict)
+            else cmd_data
+            for cmd_data in allowlist_data
+        ]
+
+        return SettingsCommands(allowlist=allowlist)
 
     async def listen(
         self,
