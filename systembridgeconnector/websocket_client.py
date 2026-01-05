@@ -501,6 +501,11 @@ class WebSocketClient(Base):
         if response.data is None:
             raise ValueError("Command execution response missing data")
 
+        if not isinstance(response.data, dict):
+            raise TypeError(
+                f"Command execution response data must be a dict, got {type(response.data).__name__}"
+            )
+
         return ExecuteResult(**response.data)
 
     async def get_commands(
@@ -519,6 +524,11 @@ class WebSocketClient(Base):
 
         if response.data is None:
             raise ValueError("Settings response missing data")
+
+        if not isinstance(response.data, dict):
+            raise TypeError(
+                f"Settings response data must be a dict, got {type(response.data).__name__}"
+            )
 
         settings = Settings(**response.data)
         return settings.commands

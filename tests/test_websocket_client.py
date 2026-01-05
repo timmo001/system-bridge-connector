@@ -555,6 +555,41 @@ async def test_execute_command_timeout(
 
 
 @pytest.mark.asyncio
+async def test_execute_command_data_not_dict(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test execute_command when response data is not a dict."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = ["not", "a", "dict"]
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(TypeError, match="Command execution response data must be a dict"):
+        await mock_websocket_client_listening.execute_command(
+            ExecuteRequest(commandID="test-command"),
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
+async def test_get_commands_data_not_dict(
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test get_commands when response data is not a dict."""
+    mock_response = Mock(spec=Response)
+    mock_response.data = ["not", "a", "dict"]
+    with patch.object(
+        mock_websocket_client_listening,
+        "send_message",
+        return_value=mock_response,
+    ), pytest.raises(TypeError, match="Settings response data must be a dict"):
+        await mock_websocket_client_listening.get_commands(
+            request_id=REQUEST_ID,
+        )
+
+
+@pytest.mark.asyncio
 async def test_wait_for_response_timeout(
     snapshot: SnapshotAssertion,
     mock_websocket_client_connected: WebSocketClient,
