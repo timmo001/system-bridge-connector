@@ -33,14 +33,14 @@ def test_settings_command_definition(snapshot: SnapshotAssertion):
         id="test-command-id",
         name="Test Command",
         command="/usr/bin/test",
-        workingDir="/tmp",
+        workingDir="/tmp",  # noqa: S108
         arguments=["arg1", "arg2"],
     )
     assert isinstance(command_def, SettingsCommandDefinition)
     assert command_def.id == "test-command-id"
     assert command_def.name == "Test Command"
     assert command_def.command == "/usr/bin/test"
-    assert command_def.workingDir == "/tmp"
+    assert command_def.workingDir == "/tmp"  # noqa: S108
     assert command_def.arguments == ["arg1", "arg2"]
     assert command_def == snapshot
 
