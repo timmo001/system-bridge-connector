@@ -373,8 +373,8 @@ async def test_send_notification_with_new_fields(
                 message="test",
                 duration=3000,
                 action_url="https://example.com",
-                action_path="/tmp",
-                sound="/tmp/notify.wav",
+                action_path="/home/user/documents",
+                sound="/home/user/notify.wav",
             ),
             request_id=REQUEST_ID,
         )

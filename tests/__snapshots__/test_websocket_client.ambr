@@ -61,7 +61,7 @@
   Response(id='test', type='NOTIFICATION_SENT', data={'title': 'Test', 'message': 'test'}, subtype=None, message=None, module=None)
 # ---
 # name: test_send_notification_with_new_fields
-  Response(id='test', type='NOTIFICATION_SENT', data={'title': 'Test', 'message': 'test', 'duration': 3000, 'actionUrl': 'https://example.com', 'actionPath': '/tmp', 'sound': '/tmp/notify.wav'}, subtype=None, message=None, module=None)
+  Response(id='test', type='NOTIFICATION_SENT', data={'title': 'Test', 'message': 'test', 'duration': 3000, 'actionUrl': 'https://example.com', 'actionPath': '/home/user/documents', 'sound': '/home/user/notify.wav'}, subtype=None, message=None, module=None)
 # ---
 # name: test_unknown_message
   Response(id='test', type='N/A', data={}, subtype=None, message='Message sent', module=None)

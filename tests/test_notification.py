@@ -46,10 +46,14 @@ def test_notification_payload_legacy_support(snapshot: SnapshotAssertion):
                 label="Open URL",
                 data={"url": "https://example.com"},
             ),
-            Action(command="OPEN_PATH", label="Open Path", data={"path": "/tmp"}),
+            Action(
+                command="OPEN_PATH",
+                label="Open Path",
+                data={"path": "/home/user/documents"},
+            ),
         ],
         timeout=2500,
-        audio=Audio(source="/tmp/notify.wav"),
+        audio=Audio(source="/home/user/notify.wav"),
     )
 
     assert notification.to_payload() == snapshot

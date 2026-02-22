@@ -73,7 +73,7 @@
 # ---
 # name: test_notification_payload_legacy_support
   dict({
-    'actionPath': '/tmp',
+    'actionPath': '/home/user/documents',
     'actionUrl': 'https://example.com',
     'actions': list([
       dict({
@@ -86,18 +86,18 @@
       dict({
         'command': 'OPEN_PATH',
         'data': dict({
-          'path': '/tmp',
+          'path': '/home/user/documents',
         }),
         'label': 'Open Path',
       }),
     ]),
     'audio': dict({
-      'source': '/tmp/notify.wav',
+      'source': '/home/user/notify.wav',
       'volume': None,
     }),
     'duration': 2500,
     'message': 'Message',
-    'sound': '/tmp/notify.wav',
+    'sound': '/home/user/notify.wav',
     'timeout': 2500,
     'title': 'Title',
   })
