@@ -363,7 +363,7 @@ class WebSocketClient(Base):
         return await self.send_message(
             EventType.NOTIFICATION,
             request_id,
-            asdict(model),
+            model.to_payload(),
             wait_for_response=True,
             response_type=EventType.NOTIFICATION_SENT,
         )
@@ -507,9 +507,7 @@ class WebSocketClient(Base):
                 raise ConnectionErrorException(
                     response.message or "Timeout waiting for command execution response"
                 )
-            raise BadRequestException(
-                response.message or "Command execution failed"
-            )
+            raise BadRequestException(response.message or "Command execution failed")
 
         if response.data is None:
             raise ValueError("Command execution response missing data")
@@ -540,9 +538,7 @@ class WebSocketClient(Base):
                 raise ConnectionErrorException(
                     response.message or "Timeout waiting for settings response"
                 )
-            raise BadRequestException(
-                response.message or "Failed to get settings"
-            )
+            raise BadRequestException(response.message or "Failed to get settings")
 
         if response.data is None:
             raise ValueError("Settings response missing data")

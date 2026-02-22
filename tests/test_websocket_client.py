@@ -46,10 +46,13 @@ async def test_connect(mock_websocket_client_connected: WebSocketClient):
 @pytest.mark.asyncio
 async def test_connect_error(mock_websocket_client: WebSocketClient):
     """Test the websocket client."""
-    with patch(
-        "aiohttp.ClientSession.ws_connect",
-        side_effect=aiohttp.ClientConnectionError(),
-    ), pytest.raises(ConnectionErrorException):
+    with (
+        patch(
+            "aiohttp.ClientSession.ws_connect",
+            side_effect=aiohttp.ClientConnectionError(),
+        ),
+        pytest.raises(ConnectionErrorException),
+    ):
         await mock_websocket_client.connect()
 
 
@@ -358,6 +361,28 @@ async def test_send_notification(
 
 
 @pytest.mark.asyncio
+async def test_send_notification_with_new_fields(
+    snapshot: SnapshotAssertion,
+    mock_websocket_client_listening: WebSocketClient,
+):
+    """Test send notification with new fields."""
+    assert (
+        await mock_websocket_client_listening.send_notification(
+            Notification(
+                title="Test",
+                message="test",
+                duration=3000,
+                action_url="https://example.com",
+                action_path="/tmp",
+                sound="/tmp/notify.wav",
+            ),
+            request_id=REQUEST_ID,
+        )
+        == snapshot
+    )
+
+
+@pytest.mark.asyncio
 async def test_open_path(
     snapshot: SnapshotAssertion,
     mock_websocket_client_listening: WebSocketClient,
@@ -510,11 +535,14 @@ async def test_execute_command_data_missing(
     """Test execute_command when response data is None."""
     mock_response = Mock(spec=Response)
     mock_response.data = None
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(ValueError, match="Command execution response missing data"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(ValueError, match="Command execution response missing data"),
+    ):
         await mock_websocket_client_listening.execute_command(
             ExecuteRequest(commandID="test-command"),
             request_id=REQUEST_ID,
@@ -528,11 +556,14 @@ async def test_get_commands_data_missing(
     """Test get_commands when response data is None."""
     mock_response = Mock(spec=Response)
     mock_response.data = None
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(ValueError, match="Settings response missing data"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(ValueError, match="Settings response missing data"),
+    ):
         await mock_websocket_client_listening.get_commands(
             request_id=REQUEST_ID,
         )
@@ -561,11 +592,16 @@ async def test_execute_command_data_not_dict(
     """Test execute_command when response data is not a dict."""
     mock_response = Mock(spec=Response)
     mock_response.data = ["not", "a", "dict"]
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(TypeError, match="Command execution response data must be a dict"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(
+            TypeError, match="Command execution response data must be a dict"
+        ),
+    ):
         await mock_websocket_client_listening.execute_command(
             ExecuteRequest(commandID="test-command"),
             request_id=REQUEST_ID,
@@ -579,11 +615,14 @@ async def test_get_commands_data_not_dict(
     """Test get_commands when response data is not a dict."""
     mock_response = Mock(spec=Response)
     mock_response.data = ["not", "a", "dict"]
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(TypeError, match="Settings response data must be a dict"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(TypeError, match="Settings response data must be a dict"),
+    ):
         await mock_websocket_client_listening.get_commands(
             request_id=REQUEST_ID,
         )
@@ -596,11 +635,14 @@ async def test_get_commands_commands_not_dict(
     """Test get_commands when commands data is not a dict."""
     mock_response = Mock(spec=Response)
     mock_response.data = {"commands": "not a dict"}
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(TypeError, match="Commands data must be a dict"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(TypeError, match="Commands data must be a dict"),
+    ):
         await mock_websocket_client_listening.get_commands(
             request_id=REQUEST_ID,
         )
@@ -613,11 +655,14 @@ async def test_get_commands_allowlist_not_list(
     """Test get_commands when allowlist is not a list."""
     mock_response = Mock(spec=Response)
     mock_response.data = {"commands": {"allowlist": "not a list"}}
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(TypeError, match="Allowlist must be a list"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(TypeError, match="Allowlist must be a list"),
+    ):
         await mock_websocket_client_listening.get_commands(
             request_id=REQUEST_ID,
         )
@@ -630,11 +675,14 @@ async def test_get_commands_command_not_dict(
     """Test get_commands when command definition is not a dict."""
     mock_response = Mock(spec=Response)
     mock_response.data = {"commands": {"allowlist": ["not a dict"]}}
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(TypeError, match="Command definition must be a dict"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(TypeError, match="Command definition must be a dict"),
+    ):
         await mock_websocket_client_listening.get_commands(
             request_id=REQUEST_ID,
         )
@@ -656,11 +704,16 @@ async def test_get_commands_missing_id(
             ]
         }
     }
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(ValueError, match="Command definition missing required field 'id'"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(
+            ValueError, match="Command definition missing required field 'id'"
+        ),
+    ):
         await mock_websocket_client_listening.get_commands(
             request_id=REQUEST_ID,
         )
@@ -682,11 +735,16 @@ async def test_get_commands_missing_name(
             ]
         }
     }
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(ValueError, match="Command definition missing required field 'name'"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(
+            ValueError, match="Command definition missing required field 'name'"
+        ),
+    ):
         await mock_websocket_client_listening.get_commands(
             request_id=REQUEST_ID,
         )
@@ -708,11 +766,16 @@ async def test_get_commands_missing_command(
             ]
         }
     }
-    with patch.object(
-        mock_websocket_client_listening,
-        "send_message",
-        return_value=mock_response,
-    ), pytest.raises(ValueError, match="Command definition missing required field 'command'"):
+    with (
+        patch.object(
+            mock_websocket_client_listening,
+            "send_message",
+            return_value=mock_response,
+        ),
+        pytest.raises(
+            ValueError, match="Command definition missing required field 'command'"
+        ),
+    ):
         await mock_websocket_client_listening.get_commands(
             request_id=REQUEST_ID,
         )
@@ -756,10 +819,13 @@ async def test_get_data_task_cancelled(
     mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    with patch(
-        "systembridgeconnector.websocket_client.WebSocketClient.listen",
-        side_effect=asyncio.CancelledError(),
-    ), pytest.raises(asyncio.CancelledError):
+    with (
+        patch(
+            "systembridgeconnector.websocket_client.WebSocketClient.listen",
+            side_effect=asyncio.CancelledError(),
+        ),
+        pytest.raises(asyncio.CancelledError),
+    ):
         await mock_websocket_client_listening.get_data(
             GetData(modules=[Module.SYSTEM]),
             request_id=REQUEST_ID,
@@ -772,10 +838,13 @@ async def test_get_data_task_exception(
     mock_websocket_client_listening: WebSocketClient,
 ):
     """Test the websocket client."""
-    with patch(
-        "systembridgeconnector.websocket_client.WebSocketClient.listen",
-        side_effect=ConnectionClosedException(),
-    ), pytest.raises(ConnectionClosedException):
+    with (
+        patch(
+            "systembridgeconnector.websocket_client.WebSocketClient.listen",
+            side_effect=ConnectionClosedException(),
+        ),
+        pytest.raises(ConnectionClosedException),
+    ):
         await mock_websocket_client_listening.get_data(
             GetData(modules=[Module.SYSTEM]),
             request_id=REQUEST_ID,
@@ -875,14 +944,17 @@ async def test_receive_message_type_close(
     mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
-    with patch(
-        "aiohttp.ClientWebSocketResponse.receive",
-        return_value=aiohttp.WSMessage(
-            type=aiohttp.WSMsgType.CLOSE,
-            data=None,
-            extra=None,
+    with (
+        patch(
+            "aiohttp.ClientWebSocketResponse.receive",
+            return_value=aiohttp.WSMessage(
+                type=aiohttp.WSMsgType.CLOSE,
+                data=None,
+                extra=None,
+            ),
         ),
-    ), pytest.raises(ConnectionClosedException):
+        pytest.raises(ConnectionClosedException),
+    ):
         await mock_websocket_client_connected.receive_message()
 
 
@@ -891,14 +963,17 @@ async def test_receive_message_type_error(
     mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
-    with patch(
-        "aiohttp.ClientWebSocketResponse.receive",
-        return_value=aiohttp.WSMessage(
-            type=aiohttp.WSMsgType.ERROR,
-            data=None,
-            extra=None,
+    with (
+        patch(
+            "aiohttp.ClientWebSocketResponse.receive",
+            return_value=aiohttp.WSMessage(
+                type=aiohttp.WSMsgType.ERROR,
+                data=None,
+                extra=None,
+            ),
         ),
-    ), pytest.raises(ConnectionErrorException):
+        pytest.raises(ConnectionErrorException),
+    ):
         await mock_websocket_client_connected.receive_message()
 
 
@@ -907,23 +982,26 @@ async def test_receive_message_bad_token(
     mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
-    with patch(
-        "aiohttp.ClientWebSocketResponse.receive",
-        return_value=aiohttp.WSMessage(
-            type=aiohttp.WSMsgType.TEXT,
-            data=dumps(
-                asdict(
-                    Response(
-                        id=REQUEST_ID,
-                        type=EventType.ERROR,
-                        subtype=EventSubType.BAD_TOKEN,
-                        data={},
+    with (
+        patch(
+            "aiohttp.ClientWebSocketResponse.receive",
+            return_value=aiohttp.WSMessage(
+                type=aiohttp.WSMsgType.TEXT,
+                data=dumps(
+                    asdict(
+                        Response(
+                            id=REQUEST_ID,
+                            type=EventType.ERROR,
+                            subtype=EventSubType.BAD_TOKEN,
+                            data={},
+                        )
                     )
-                )
+                ),
+                extra=None,
             ),
-            extra=None,
         ),
-    ), pytest.raises(AuthenticationException):
+        pytest.raises(AuthenticationException),
+    ):
         await mock_websocket_client_connected.receive_message()
 
 
@@ -932,12 +1010,15 @@ async def test_receive_message_type_unknown_message(
     mock_websocket_client_connected: WebSocketClient,
 ):
     """Test the websocket client."""
-    with patch(
-        "aiohttp.ClientWebSocketResponse.receive",
-        return_value=aiohttp.WSMessage(
-            type=aiohttp.WSMsgType.BINARY,
-            data=None,
-            extra=None,
+    with (
+        patch(
+            "aiohttp.ClientWebSocketResponse.receive",
+            return_value=aiohttp.WSMessage(
+                type=aiohttp.WSMsgType.BINARY,
+                data=None,
+                extra=None,
+            ),
         ),
-    ), pytest.raises(BadMessageException):
+        pytest.raises(BadMessageException),
+    ):
         await mock_websocket_client_connected.receive_message()
