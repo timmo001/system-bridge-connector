@@ -1,4 +1,5 @@
 """Setup."""
+
 from setuptools import find_packages, setup
 
 # Get packages from requirements.txt
@@ -10,7 +11,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="systembridgeconnector",
-    version="5.3.2.dev0",
+    version="5.4.3.dev0",
     author="Aidan Timson (Timmo)",
     author_email="aidan@timmo.dev",
     description="System Bridge Connector",
