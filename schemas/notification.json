@@ -12,6 +12,18 @@
     "icon": {
       "type": "string"
     },
+    "duration": {
+      "type": "number"
+    },
+    "actionUrl": {
+      "type": "string"
+    },
+    "actionPath": {
+      "type": "string"
+    },
+    "sound": {
+      "type": "string"
+    },
     "image": {
       "type": "string"
     },
