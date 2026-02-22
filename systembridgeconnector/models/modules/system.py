@@ -45,6 +45,7 @@ class System:
     uuid: str
     version: str
     camera_usage: list[str] | None = None
+    microphone_usage: list[str] | None = None
     ip_address_6: str | None = None
     pending_reboot: bool | None = None
     power_usage: float | None = None
@@ -52,4 +53,3 @@ class System:
     version_latest_url: str | None = None
     version_latest: str | None = None
     version_newer_available: bool | None = None
-

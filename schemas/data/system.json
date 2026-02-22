@@ -22,6 +22,12 @@
         "type": "string"
       }
     },
+    "microphone_usage": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "fqdn": {
       "type": "string"
     },
@@ -72,6 +78,9 @@
           "type": "number"
         },
         "camera_usage": {
+          "type": "number"
+        },
+        "microphone_usage": {
           "type": "number"
         },
         "fqdn": {

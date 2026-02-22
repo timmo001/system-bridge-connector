@@ -1,29 +1,104 @@
 # serializer version: 1
 # name: test_notification
-  Notification(title='Title', message='Message', icon='https://www.example.com/icon.png', image='https://www.example.com/image.png', actions=[Action(command='COMMAND_TEST', label='LABEL_TEST', data={'test': 'test'})], timeout=1000, audio=Audio(source='https://www.example.com/audio.mp3', volume=100))
+  Notification(title='Title', message='Message', icon='https://www.example.com/icon.png', image='https://www.example.com/image.png', actions=[Action(command='OPEN_URL', label='Open URL', data={'url': 'https://www.example.com'}), Action(command='OPEN_PATH', label='Open Path', data={'path': '/home/user/documents'})], timeout=1000, audio=Audio(source='/home/user/notification.wav', volume=100), duration=1500, action_url='https://www.example.com/docs', action_path='/home/user/downloads', sound='/home/user/custom-notification.wav')
 # ---
 # name: test_notification_dict
   dict({
+    'action_path': '/home/user/downloads',
+    'action_url': 'https://www.example.com/docs',
     'actions': list([
       dict({
-        'command': 'COMMAND_TEST',
+        'command': 'OPEN_URL',
         'data': dict({
-          'test': 'test',
+          'url': 'https://www.example.com',
         }),
-        'label': 'LABEL_TEST',
+        'label': 'Open URL',
+      }),
+      dict({
+        'command': 'OPEN_PATH',
+        'data': dict({
+          'path': '/home/user/documents',
+        }),
+        'label': 'Open Path',
       }),
     ]),
     'audio': dict({
-      'source': 'https://www.example.com/audio.mp3',
+      'source': '/home/user/notification.wav',
       'volume': 100,
     }),
+    'duration': 1500,
     'icon': 'https://www.example.com/icon.png',
     'image': 'https://www.example.com/image.png',
     'message': 'Message',
+    'sound': '/home/user/custom-notification.wav',
     'timeout': 1000,
     'title': 'Title',
   })
 # ---
 # name: test_notification_dict[notification-dict-converted]
-  Notification(title='Title', message='Message', icon='https://www.example.com/icon.png', image='https://www.example.com/image.png', actions=[Action(command='COMMAND_TEST', label='LABEL_TEST', data={'test': 'test'})], timeout=1000, audio=Audio(source='https://www.example.com/audio.mp3', volume=100))
+  Notification(title='Title', message='Message', icon='https://www.example.com/icon.png', image='https://www.example.com/image.png', actions=[Action(command='OPEN_URL', label='Open URL', data={'url': 'https://www.example.com'}), Action(command='OPEN_PATH', label='Open Path', data={'path': '/home/user/documents'})], timeout=1000, audio=Audio(source='/home/user/notification.wav', volume=100), duration=1500, action_url='https://www.example.com/docs', action_path='/home/user/downloads', sound='/home/user/custom-notification.wav')
+# ---
+# name: test_notification_payload
+  dict({
+    'actionPath': '/home/user/downloads',
+    'actionUrl': 'https://www.example.com/docs',
+    'actions': list([
+      dict({
+        'command': 'OPEN_URL',
+        'data': dict({
+          'url': 'https://www.example.com',
+        }),
+        'label': 'Open URL',
+      }),
+      dict({
+        'command': 'OPEN_PATH',
+        'data': dict({
+          'path': '/home/user/documents',
+        }),
+        'label': 'Open Path',
+      }),
+    ]),
+    'audio': dict({
+      'source': '/home/user/notification.wav',
+      'volume': 100,
+    }),
+    'duration': 1500,
+    'icon': 'https://www.example.com/icon.png',
+    'image': 'https://www.example.com/image.png',
+    'message': 'Message',
+    'sound': '/home/user/custom-notification.wav',
+    'timeout': 1000,
+    'title': 'Title',
+  })
+# ---
+# name: test_notification_payload_legacy_support
+  dict({
+    'actionPath': '/home/user/documents',
+    'actionUrl': 'https://example.com',
+    'actions': list([
+      dict({
+        'command': 'OPEN_URL',
+        'data': dict({
+          'url': 'https://example.com',
+        }),
+        'label': 'Open URL',
+      }),
+      dict({
+        'command': 'OPEN_PATH',
+        'data': dict({
+          'path': '/home/user/documents',
+        }),
+        'label': 'Open Path',
+      }),
+    ]),
+    'audio': dict({
+      'source': '/home/user/notify.wav',
+      'volume': None,
+    }),
+    'duration': 2500,
+    'message': 'Message',
+    'sound': '/home/user/notify.wav',
+    'timeout': 2500,
+    'title': 'Title',
+  })
 # ---

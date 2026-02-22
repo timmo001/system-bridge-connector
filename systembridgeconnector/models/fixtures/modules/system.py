@@ -29,6 +29,10 @@ FIXTURE_SYSTEM = System(
         "camera1",
         "camera2",
     ],
+    microphone_usage=[
+        "microphone1",
+        "microphone2",
+    ],
     ip_address_6="::1",
     pending_reboot=True,
     version_latest_url="https://github.com/timmo001/system-bridge/releases/latest",
