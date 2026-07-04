@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import cast
 
 from ..helpers import filter_unexpected_fields
 
@@ -130,6 +130,19 @@ class Temperature:
     critical: float
 
 
+@filter_unexpected_fields
+@dataclass(slots=True)
+class Fan:
+    """Fan."""
+
+    key: str
+    name: str
+    label: str
+    speed_rpm: float | None = None
+    speed_min: float | None = None
+    speed_max: float | None = None
+
+
 @dataclass
 class SensorsNVIDIA:
     """Sensors NVIDIA."""
@@ -192,13 +205,21 @@ class SensorsWindows:
 class Sensors:
     """Sensors."""
 
-    # TODO: Add fan model
-    fans: Any | None = None
+    fans: list[Fan] | None = None
     temperatures: list[Temperature] | None = None
     windows_sensors: SensorsWindows | None = None
 
     def __post_init__(self):
         """Post Init."""
+        if isinstance(self.fans, list) and all(
+            isinstance(item, dict) for item in self.fans
+        ):
+            new_fans: list[Fan] = []
+            for f in self.fans:
+                fan: dict = cast(dict, f)
+                new_fans.append(Fan(**fan))
+            self.fans = new_fans
+
         if isinstance(self.temperatures, list) and all(
             isinstance(item, dict) for item in self.temperatures
         ):

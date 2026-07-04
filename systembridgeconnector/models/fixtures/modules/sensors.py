@@ -1,5 +1,6 @@
 """Fixture for sensors module."""
 from systembridgeconnector.models.modules.sensors import (
+    Fan,
     Sensors,
     SensorsNVIDIA,
     SensorsNVIDIAChipset,
@@ -13,7 +14,16 @@ from systembridgeconnector.models.modules.sensors import (
 )
 
 FIXTURE_SENSORS = Sensors(
-    fans=None,
+    fans=[
+        Fan(
+            key="key",
+            name="name",
+            label="label",
+            speed_rpm=1234.0,
+            speed_min=0.0,
+            speed_max=2000.0,
+        ),
+    ],
     temperatures=[
         Temperature(
             key="cpu",

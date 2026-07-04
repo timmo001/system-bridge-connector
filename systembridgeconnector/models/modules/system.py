@@ -29,6 +29,21 @@ class SystemUser:
 
 @filter_unexpected_fields
 @dataclass(slots=True)
+class DeviceInfo:
+    """Device Info."""
+
+    manufacturer: str | None = None
+    model: str | None = None
+    version: str | None = None
+    board_vendor: str | None = None
+    board_name: str | None = None
+    bios_vendor: str | None = None
+    bios_version: str | None = None
+    chassis_type: str | None = None
+
+
+@filter_unexpected_fields
+@dataclass(slots=True)
 class System:
     """System."""
 
@@ -53,3 +68,9 @@ class System:
     version_latest_url: str | None = None
     version_latest: str | None = None
     version_newer_available: bool | None = None
+    device_info: DeviceInfo | None = None
+
+    def __post_init__(self) -> None:
+        """Post Init."""
+        if isinstance(self.device_info, dict):
+            self.device_info = DeviceInfo(**self.device_info)

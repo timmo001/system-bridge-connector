@@ -72,6 +72,9 @@ class CPU:
     """CPU."""
 
     count: int | None = None
+    name: str | None = None
+    vendor: str | None = None
+    family: str | None = None
     frequency: CPUFrequency | None = None
     load_average: float | None = None
     per_cpu: list[PerCPU] | None = None
