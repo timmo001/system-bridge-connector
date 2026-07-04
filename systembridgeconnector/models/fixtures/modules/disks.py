@@ -35,6 +35,7 @@ FIXTURE_DISKS = Disks(
                 read_time=5,
                 write_time=6,
             ),
+            temperature=45.5,
         )
     ],
     io_counters=DiskIOCounters(

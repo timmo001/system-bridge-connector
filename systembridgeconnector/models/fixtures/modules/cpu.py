@@ -9,6 +9,9 @@ from systembridgeconnector.models.modules.cpu import (
 
 FIXTURE_CPU = CPU(
     count=4,
+    name="name",
+    vendor="vendor",
+    family="family",
     frequency=CPUFrequency(
         current=2.3,
         min=0.8,

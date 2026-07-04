@@ -58,6 +58,7 @@ class Disk:
     name: str
     partitions: list[DiskPartition]
     io_counters: DiskIOCounters | None = None
+    temperature: float | None = None
 
     def __post_init__(self) -> None:
         """Post Init."""
@@ -101,6 +102,7 @@ class Disks:
                         io_counters=(
                             DiskIOCounters(**io_counters) if io_counters else None
                         ),
+                        temperature=device.get("temperature"),
                     )
                 )
             self.devices = new_devices

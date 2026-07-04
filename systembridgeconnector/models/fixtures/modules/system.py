@@ -1,6 +1,11 @@
 """Fixture for system module."""
 
-from systembridgeconnector.models.modules.system import RunMode, System, SystemUser
+from systembridgeconnector.models.modules.system import (
+    DeviceInfo,
+    RunMode,
+    System,
+    SystemUser,
+)
 
 FIXTURE_SYSTEM = System(
     boot_time=1234,
@@ -38,4 +43,14 @@ FIXTURE_SYSTEM = System(
     version_latest_url="https://github.com/timmo001/system-bridge/releases/latest",
     version_latest="4.99.0",
     version_newer_available=True,
+    device_info=DeviceInfo(
+        manufacturer="manufacturer",
+        model="model",
+        version="version",
+        board_vendor="board_vendor",
+        board_name="board_name",
+        bios_vendor="bios_vendor",
+        bios_version="bios_version",
+        chassis_type="chassis_type",
+    ),
 )

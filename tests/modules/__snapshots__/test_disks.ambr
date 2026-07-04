@@ -1,6 +1,6 @@
 # serializer version: 1
 # name: test_disks
-  Disks(devices=[Disk(name='name', partitions=[DiskPartition(device='device', mount_point='mountpoint', filesystem_type='fstype', options='options', max_file_size=1, max_path_length=2, usage=DiskUsage(total=1, used=2, free=3, percent=40.2))], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6))], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6))
+  Disks(devices=[Disk(name='name', partitions=[DiskPartition(device='device', mount_point='mountpoint', filesystem_type='fstype', options='options', max_file_size=1, max_path_length=2, usage=DiskUsage(total=1, used=2, free=3, percent=40.2))], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6), temperature=45.5)], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6))
 # ---
 # name: test_disks_devices_dict
   dict({
@@ -29,10 +29,11 @@
         }),
       }),
     ]),
+    'temperature': 45.5,
   })
 # ---
 # name: test_disks_devices_dict[disks-devices-dict-converted]
-  Disk(name='name', partitions=[DiskPartition(device='device', mount_point='mountpoint', filesystem_type='fstype', options='options', max_file_size=1, max_path_length=2, usage=DiskUsage(total=1, used=2, free=3, percent=40.2))], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6))
+  Disk(name='name', partitions=[DiskPartition(device='device', mount_point='mountpoint', filesystem_type='fstype', options='options', max_file_size=1, max_path_length=2, usage=DiskUsage(total=1, used=2, free=3, percent=40.2))], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6), temperature=45.5)
 # ---
 # name: test_disks_devices_partition_dict
   dict({
@@ -82,6 +83,7 @@
             }),
           }),
         ]),
+        'temperature': 45.5,
       }),
     ]),
     'io_counters': dict({
@@ -95,5 +97,5 @@
   })
 # ---
 # name: test_disks_dict[disks-dict-converted]
-  Disks(devices=[Disk(name='name', partitions=[DiskPartition(device='device', mount_point='mountpoint', filesystem_type='fstype', options='options', max_file_size=1, max_path_length=2, usage=DiskUsage(total=1, used=2, free=3, percent=40.2))], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6))], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6))
+  Disks(devices=[Disk(name='name', partitions=[DiskPartition(device='device', mount_point='mountpoint', filesystem_type='fstype', options='options', max_file_size=1, max_path_length=2, usage=DiskUsage(total=1, used=2, free=3, percent=40.2))], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6), temperature=45.5)], io_counters=DiskIOCounters(read_count=3, write_count=4, read_bytes=1, write_bytes=2, read_time=5, write_time=6))
 # ---
