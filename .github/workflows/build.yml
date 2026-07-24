@@ -19,4 +19,6 @@ concurrency:
 
 jobs:
   build:
-    uses: timmo001/workflows/.github/workflows/build-python-linux.yml@master
+    # master
+    # yamllint disable-line rule:line-length
+    uses: timmo001/workflows/.github/workflows/build-python-linux.yml@635f5727c8686b952f53d2fbe1d2e80d2480c831
