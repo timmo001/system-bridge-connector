@@ -22,5 +22,6 @@ setup(
     url="https://github.com/timmo001/system-bridge-connector",
     install_requires=requirements,
     packages=find_packages(exclude=["tests", "tests.*", "generator", "generator.*"]),
+    package_data={"systembridgeconnector": ["py.typed"]},
     python_requires=">=3.11",
 )
